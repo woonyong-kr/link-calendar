@@ -92,7 +92,7 @@
 .simple-calendar-title {
   justify-self: center;
   color: var(--text-normal);
-  font-size: 1.45rem;
+  font-size: 1.28rem;
   font-weight: 720;
   letter-spacing: -0.035em;
 }
@@ -164,68 +164,55 @@
 }
 
 .simple-calendar-card {
-  display: grid;
-  grid-template-columns: 6px minmax(0, 1fr);
-  gap: 7px;
+  display: block;
   min-width: 0;
-  padding: 7px 8px;
-  border: 1px solid var(--simple-calendar-category-border);
+  padding: 6px 7px;
+  border: 0;
   border-radius: 8px;
   color: var(--text-normal);
-  background: var(--background-secondary);
+  background: var(--simple-calendar-category-background);
   cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 
 .simple-calendar-card:hover {
-  border-color: var(--simple-calendar-category-accent);
-  background: var(--background-modifier-hover);
-  transform: translateY(-1px);
+  background: var(--simple-calendar-category-background-active);
 }
 
 .simple-calendar-card:focus-visible {
-  outline: 2px solid var(--simple-calendar-category-accent);
-  outline-offset: 1px;
-}
-
-.simple-calendar-card-dot {
-  width: 6px;
-  height: 6px;
-  margin-top: 0.42em;
-  border-radius: 999px;
-  background: var(--simple-calendar-category-accent);
+  box-shadow: inset 0 0 0 2px var(--simple-calendar-category-accent);
 }
 
 .simple-calendar-card-title {
   display: -webkit-box;
   overflow: hidden;
   color: inherit;
-  font-size: clamp(0.78rem, 0.88vw, 0.94rem);
-  font-weight: 620;
-  line-height: 1.42;
+  font-size: clamp(0.7rem, 0.76vw, 0.82rem);
+  font-weight: 580;
+  line-height: 1.34;
   overflow-wrap: break-word;
   word-break: keep-all;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 
-.simple-calendar-card--career { --simple-calendar-category-accent: #9aabb7; --simple-calendar-category-border: #596873; }
-.simple-calendar-card--learning { --simple-calendar-category-accent: #8caeb0; --simple-calendar-category-border: #526d70; }
-.simple-calendar-card--creative { --simple-calendar-category-accent: #ae9f8d; --simple-calendar-category-border: #746b60; }
-.simple-calendar-card--life { --simple-calendar-category-accent: #9fb19f; --simple-calendar-category-border: #627361; }
-.simple-calendar-card--relationship { --simple-calendar-category-accent: #b29aa0; --simple-calendar-category-border: #766269; }
-.simple-calendar-card--health { --simple-calendar-category-accent: #91b3aa; --simple-calendar-category-border: #56736c; }
-.simple-calendar-card--admin { --simple-calendar-category-accent: #a4a9b2; --simple-calendar-category-border: #666b73; }
-.simple-calendar-card--other { --simple-calendar-category-accent: #a3a7ac; --simple-calendar-category-border: #666b72; }
+.simple-calendar-card--career { --simple-calendar-category-accent: #9aabb7; --simple-calendar-category-background: #3c4952; --simple-calendar-category-background-active: #53636e; }
+.simple-calendar-card--learning { --simple-calendar-category-accent: #8caeb0; --simple-calendar-category-background: #354c4e; --simple-calendar-category-background-active: #49696b; }
+.simple-calendar-card--creative { --simple-calendar-category-accent: #ae9f8d; --simple-calendar-category-background: #51483d; --simple-calendar-category-background-active: #6b5f50; }
+.simple-calendar-card--life { --simple-calendar-category-accent: #9fb19f; --simple-calendar-category-background: #415240; --simple-calendar-category-background-active: #596e57; }
+.simple-calendar-card--relationship { --simple-calendar-category-accent: #b29aa0; --simple-calendar-category-background: #55434a; --simple-calendar-category-background-active: #705861; }
+.simple-calendar-card--health { --simple-calendar-category-accent: #91b3aa; --simple-calendar-category-background: #38524c; --simple-calendar-category-background-active: #4e6c64; }
+.simple-calendar-card--admin { --simple-calendar-category-accent: #a4a9b2; --simple-calendar-category-background: #4a4e58; --simple-calendar-category-background-active: #626773; }
+.simple-calendar-card--other { --simple-calendar-category-accent: #a3a7ac; --simple-calendar-category-background: #50535a; --simple-calendar-category-background-active: #686c74; }
 
-.theme-light .simple-calendar-card--career { --simple-calendar-category-accent: #566b79; --simple-calendar-category-border: #c8d2d8; }
-.theme-light .simple-calendar-card--learning { --simple-calendar-category-accent: #4b7374; --simple-calendar-category-border: #c2d3d2; }
-.theme-light .simple-calendar-card--creative { --simple-calendar-category-accent: #746652; --simple-calendar-category-border: #d6ccbf; }
-.theme-light .simple-calendar-card--life { --simple-calendar-category-accent: #58715c; --simple-calendar-category-border: #c8d5c8; }
-.theme-light .simple-calendar-card--relationship { --simple-calendar-category-accent: #775f66; --simple-calendar-category-border: #d9c7cb; }
-.theme-light .simple-calendar-card--health { --simple-calendar-category-accent: #51756c; --simple-calendar-category-border: #c0d5cf; }
-.theme-light .simple-calendar-card--admin { --simple-calendar-category-accent: #5d6570; --simple-calendar-category-border: #cbd0d7; }
-.theme-light .simple-calendar-card--other { --simple-calendar-category-accent: #626970; --simple-calendar-category-border: #ccd0d5; }
+.theme-light .simple-calendar-card--career { --simple-calendar-category-accent: #566b79; --simple-calendar-category-background: #e6ecef; --simple-calendar-category-background-active: #d0dde3; }
+.theme-light .simple-calendar-card--learning { --simple-calendar-category-accent: #4b7374; --simple-calendar-category-background: #e1eeee; --simple-calendar-category-background-active: #c9dfdf; }
+.theme-light .simple-calendar-card--creative { --simple-calendar-category-accent: #746652; --simple-calendar-category-background: #f0eae2; --simple-calendar-category-background-active: #e2d5c7; }
+.theme-light .simple-calendar-card--life { --simple-calendar-category-accent: #58715c; --simple-calendar-category-background: #e5eee3; --simple-calendar-category-background-active: #d0dfce; }
+.theme-light .simple-calendar-card--relationship { --simple-calendar-category-accent: #775f66; --simple-calendar-category-background: #f0e5e8; --simple-calendar-category-background-active: #e1cfd4; }
+.theme-light .simple-calendar-card--health { --simple-calendar-category-accent: #51756c; --simple-calendar-category-background: #e0efeb; --simple-calendar-category-background-active: #c7dfd8; }
+.theme-light .simple-calendar-card--admin { --simple-calendar-category-accent: #5d6570; --simple-calendar-category-background: #e8eaee; --simple-calendar-category-background-active: #d5d9df; }
+.theme-light .simple-calendar-card--other { --simple-calendar-category-accent: #626970; --simple-calendar-category-background: #eaebed; --simple-calendar-category-background-active: #d7d9dd; }
 
 .simple-calendar-tooltip {
   position: fixed;

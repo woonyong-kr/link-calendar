@@ -159,7 +159,6 @@ class SimpleCalendarPlugin extends Plugin {
         tabindex: "0",
       },
     });
-    card.createSpan({ cls: "simple-calendar-card-dot", attr: { "aria-hidden": "true" } });
     card.createSpan({ cls: "simple-calendar-card-title", text: event.displayTitle });
     const open = () => void this.app.workspace.getLeaf("tab").openFile(event.file);
     card.onclick = open;
