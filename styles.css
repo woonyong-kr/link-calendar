@@ -1,3 +1,32 @@
+/* The dashboard is a calendar screen, not a Markdown article around a calendar block. */
+.woon-simple-calendar-dashboard .inline-title,
+.woon-simple-calendar-dashboard .metadata-container,
+.woon-simple-calendar-dashboard .markdown-preview-sizer > :not(.block-language-woon-simple-calendar):not(.el-pre:has(.simple-calendar)) {
+  display: none;
+}
+
+.woon-simple-calendar-dashboard .markdown-preview-sizer,
+.woon-simple-calendar-dashboard.markdown-preview-view .markdown-preview-sizer {
+  width: 100% !important;
+  max-width: none !important;
+  height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.woon-simple-calendar-dashboard .block-language-woon-simple-calendar,
+.woon-simple-calendar-dashboard .el-pre:has(.simple-calendar) {
+  height: calc(100vh - 88px);
+  min-height: 680px;
+  margin: 0 !important;
+}
+
+.woon-simple-calendar-dashboard .el-pre:has(.simple-calendar) > pre,
+.woon-simple-calendar-dashboard .el-pre:has(.simple-calendar) > div {
+  height: 100%;
+  margin: 0;
+}
+
 .simple-calendar {
   display: flex;
   flex-direction: column;
@@ -219,6 +248,12 @@
 }
 
 @media (max-width: 760px) {
+  .woon-simple-calendar-dashboard .block-language-woon-simple-calendar,
+  .woon-simple-calendar-dashboard .el-pre:has(.simple-calendar) {
+    height: calc(100vh - 72px);
+    min-height: 520px;
+  }
+
   .simple-calendar-header {
     min-height: 54px;
     padding: 0 10px;
