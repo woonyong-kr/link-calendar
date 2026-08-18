@@ -1,0 +1,8 @@
+{
+  "id": "woon-simple-calendar",
+  "name": "Simple Calendar",
+  "version": "1.0.0",
+  "minAppVersion": "1.7.0",
+  "description": "A focused read-only month view for Markdown events.",
+  "isDesktopOnly": false
+}
