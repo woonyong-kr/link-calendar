@@ -1,4 +1,4 @@
-const { Notice, Plugin, normalizePath } = require("obsidian");
+const { Notice, Plugin, normalizePath, parseYaml } = require("obsidian");
 
 const DEFAULT_SOURCE = "calendar/events";
 const CODE_BLOCK_LANGUAGE = "woon-simple-calendar";
@@ -25,7 +25,7 @@ class SimpleCalendarPlugin extends Plugin {
         source: config.source || DEFAULT_SOURCE,
       };
       this.renderers.add(state);
-      this.render(state);
+      void this.render(state);
     });
 
     const refresh = () => this.refresh();
@@ -47,7 +47,7 @@ class SimpleCalendarPlugin extends Plugin {
         this.renderers.delete(state);
         continue;
       }
-      this.render(state);
+      void this.render(state);
     }
   }
 
@@ -70,7 +70,7 @@ class SimpleCalendarPlugin extends Plugin {
     return null;
   }
 
-  render(state) {
+  async render(state) {
     this.hideTooltip();
     state.root.empty();
     if (!isSafeVaultPath(state.source)) {
@@ -82,7 +82,10 @@ class SimpleCalendarPlugin extends Plugin {
     }
 
     const month = state.month;
-    const eventsByDate = groupEventsByDate(this.events(state));
+    const eventsByDate = groupEventsByDate(await this.events(state));
+    if (!state.root.isConnected) {
+      return;
+    }
     this.renderHeader(state, month);
     const grid = state.root.createDiv({ cls: "simple-calendar-grid" });
     grid.style.setProperty("--simple-calendar-week-count", String(weekCount(month)));
@@ -123,7 +126,7 @@ class SimpleCalendarPlugin extends Plugin {
     });
     previous.onclick = () => {
       state.month = addMonths(month, -1);
-      this.render(state);
+      void this.render(state);
     };
     const next = controls.createEl("button", {
       cls: "simple-calendar-nav simple-calendar-nav--next",
@@ -132,7 +135,7 @@ class SimpleCalendarPlugin extends Plugin {
     });
     next.onclick = () => {
       state.month = addMonths(month, 1);
-      this.render(state);
+      void this.render(state);
     };
     header.createDiv({
       cls: "simple-calendar-title",
@@ -145,7 +148,7 @@ class SimpleCalendarPlugin extends Plugin {
     });
     today.onclick = () => {
       state.month = startOfMonth(new Date());
-      this.render(state);
+      void this.render(state);
     };
   }
 
@@ -198,17 +201,21 @@ class SimpleCalendarPlugin extends Plugin {
     this.tooltip = null;
   }
 
-  events(state) {
-    return this.app.vault
+  async events(state) {
+    const files = this.app.vault
       .getMarkdownFiles()
-      .filter((file) => file.path.startsWith(`${state.source}/`) && file.name !== "_database.md")
-      .flatMap((file) => {
-        const frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter || {};
+      .filter((file) => file.path.startsWith(`${state.source}/`) && file.name !== "_database.md");
+    const records = await Promise.all(
+      files.map(async (file) => {
+        let frontmatter = this.app.metadataCache.getFileCache(file)?.frontmatter;
+        if (!frontmatter || !isDate(frontmatter[state.dateField])) {
+          frontmatter = frontmatterFromMarkdown(await this.app.vault.cachedRead(file));
+        }
         const date = frontmatter[state.dateField];
         if (!isDate(date)) {
-          return [];
+          return null;
         }
-        return [{
+        return {
           category: typeof frontmatter[state.categoryField] === "string" ? frontmatter[state.categoryField] : "",
           categoryId: typeof frontmatter[state.categoryIdField] === "string" ? frontmatter[state.categoryIdField] : "other",
           date,
@@ -216,8 +223,11 @@ class SimpleCalendarPlugin extends Plugin {
           file,
           start: typeof frontmatter["Start Date"] === "string" ? frontmatter["Start Date"] : "",
           title: file.basename,
-        }];
-      })
+        };
+      }),
+    );
+    return records
+      .filter(Boolean)
       .sort((left, right) => left.date.localeCompare(right.date) || left.start.localeCompare(right.start) || left.title.localeCompare(right.title));
   }
 }
@@ -247,6 +257,22 @@ function categoryClassName(value) {
   return typeof value === "string" && /^[a-z][a-z0-9-]{0,31}$/.test(value)
     ? value
     : "other";
+}
+
+function frontmatterFromMarkdown(content) {
+  if (typeof content !== "string") {
+    return {};
+  }
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+  if (!match) {
+    return {};
+  }
+  try {
+    const parsed = parseYaml(match[1]);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
 }
 
 function groupEventsByDate(events) {
@@ -295,6 +321,7 @@ module.exports._internals = {
   addMonths,
   calendarCardTitle,
   categoryClassName,
+  frontmatterFromMarkdown,
   groupEventsByDate,
   isSafeVaultPath,
   parseConfig,

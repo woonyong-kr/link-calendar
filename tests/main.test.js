@@ -9,6 +9,12 @@ Module._load = function loadObsidian(request, parent, isMain) {
       Notice: class Notice {},
       Plugin: class Plugin {},
       normalizePath: (value) => value.replace(/\/{2,}/g, "/").replace(/^\.\//, ""),
+      parseYaml: (value) => Object.fromEntries(
+        value.split("\n").map((line) => line.match(/^([^:]+):\s*(.*)$/)).filter(Boolean).map((match) => [
+          match[1].trim(),
+          match[2].trim().replace(/^"|"$/g, ""),
+        ]),
+      ),
     };
   }
   return originalLoad.call(this, request, parent, isMain);
@@ -57,4 +63,14 @@ test("uses the canonical category ID without translating its display title", () 
   assert.equal(_internals.categoryClassName("learning"), "learning");
   assert.equal(_internals.categoryClassName("future-category"), "future-category");
   assert.equal(_internals.categoryClassName("잘못된 분류"), "other");
+});
+
+test("reads generated frontmatter before Obsidian metadata cache catches up", () => {
+  assert.deepEqual(
+    _internals.frontmatterFromMarkdown(
+      '---\nDate: "2026-08-18"\nCategory ID: "learning"\n---\n\n# Event\n',
+    ),
+    { Date: "2026-08-18", "Category ID": "learning" },
+  );
+  assert.deepEqual(_internals.frontmatterFromMarkdown("# No frontmatter\n"), {});
 });
