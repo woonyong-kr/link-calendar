@@ -164,6 +164,10 @@
 }
 
 .simple-calendar-card {
+  --simple-calendar-category-accent: #a3a7ac;
+  --simple-calendar-category-background: #50535a;
+  --simple-calendar-category-background-active: #686c74;
+
   display: block;
   min-width: 0;
   padding: 3px 4px;
@@ -213,6 +217,12 @@
 .theme-light .simple-calendar-card--health { --simple-calendar-category-accent: #51756c; --simple-calendar-category-background: #e0efeb; --simple-calendar-category-background-active: #c7dfd8; }
 .theme-light .simple-calendar-card--admin { --simple-calendar-category-accent: #5d6570; --simple-calendar-category-background: #e8eaee; --simple-calendar-category-background-active: #d5d9df; }
 .theme-light .simple-calendar-card--other { --simple-calendar-category-accent: #626970; --simple-calendar-category-background: #eaebed; --simple-calendar-category-background-active: #d7d9dd; }
+
+.theme-light :where(.simple-calendar-card) {
+  --simple-calendar-category-accent: #626970;
+  --simple-calendar-category-background: #eaebed;
+  --simple-calendar-category-background-active: #d7d9dd;
+}
 
 .simple-calendar-tooltip {
   position: fixed;

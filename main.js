@@ -1,32 +1,24 @@
-const { Notice, Plugin } = require("obsidian");
+const { Notice, Plugin, normalizePath } = require("obsidian");
 
-const DEFAULT_DASHBOARD_PATH = "inbox/calendar/apple-calendar.md";
-const DEFAULT_SOURCE = "inbox/calendar/events";
-const CATEGORY_CLASSES = {
-  "커리어": "career",
-  "학습": "learning",
-  "창작": "creative",
-  "생활": "life",
-  "관계": "relationship",
-  "건강": "health",
-  "행정": "admin",
-};
+const DEFAULT_SOURCE = "calendar/events";
+const CODE_BLOCK_LANGUAGE = "woon-simple-calendar";
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
 class SimpleCalendarPlugin extends Plugin {
   onload() {
     this.renderers = new Set();
     this.tooltip = null;
-    this.addRibbonIcon("calendar-days", "Apple Calendar 열기", () => void this.openDashboard());
+    this.addRibbonIcon("calendar-days", "Simple Calendar 열기", () => void this.openDashboard());
     this.addCommand({
       id: "open-simple-calendar",
-      name: "Apple Calendar 열기",
+      name: "Simple Calendar 열기",
       callback: () => void this.openDashboard(),
     });
     this.registerMarkdownCodeBlockProcessor("woon-simple-calendar", (source, element) => {
       const config = parseConfig(source);
       const state = {
         categoryField: config.category_field || "Category",
+        categoryIdField: config.category_id_field || "Category ID",
         dateField: config.date_field || "Date",
         month: startOfMonth(new Date()),
         root: element.createDiv({ cls: "simple-calendar" }),
@@ -60,23 +52,31 @@ class SimpleCalendarPlugin extends Plugin {
   }
 
   async openDashboard() {
-    const dashboard = this.app.vault
-      .getMarkdownFiles()
-      .find((file) => file.path === DEFAULT_DASHBOARD_PATH);
+    const dashboard = await this.findDashboard();
     if (!dashboard) {
-      new Notice("Apple Calendar 화면을 찾을 수 없습니다. 먼저 일정 새로 고침을 실행하세요.");
+      new Notice("Simple Calendar 코드 블록이 있는 Markdown 문서를 찾을 수 없습니다.");
       return;
     }
     await this.app.workspace.getLeaf("tab").openFile(dashboard);
   }
 
+  async findDashboard() {
+    for (const file of this.app.vault.getMarkdownFiles()) {
+      const content = await this.app.vault.cachedRead(file);
+      if (content.includes(`\`\`\`${CODE_BLOCK_LANGUAGE}`)) {
+        return file;
+      }
+    }
+    return null;
+  }
+
   render(state) {
     this.hideTooltip();
     state.root.empty();
-    if (state.source !== DEFAULT_SOURCE) {
+    if (!isSafeVaultPath(state.source)) {
       state.root.createDiv({
         cls: "simple-calendar-error",
-        text: "Simple Calendar는 설정된 Markdown 일정 경로만 표시합니다.",
+        text: "Simple Calendar source는 안전한 Vault 상대 경로여야 합니다.",
       });
       return;
     }
@@ -150,7 +150,7 @@ class SimpleCalendarPlugin extends Plugin {
   }
 
   renderEventCard(cards, event) {
-    const categoryClass = CATEGORY_CLASSES[event.category] || "other";
+    const categoryClass = categoryClassName(event.categoryId);
     const card = cards.createDiv({
       cls: `simple-calendar-card simple-calendar-card--${categoryClass}`,
       attr: {
@@ -209,7 +209,8 @@ class SimpleCalendarPlugin extends Plugin {
           return [];
         }
         return [{
-          category: typeof frontmatter[state.categoryField] === "string" ? frontmatter[state.categoryField] : "기타",
+          category: typeof frontmatter[state.categoryField] === "string" ? frontmatter[state.categoryField] : "",
+          categoryId: typeof frontmatter[state.categoryIdField] === "string" ? frontmatter[state.categoryIdField] : "other",
           date,
           displayTitle: calendarCardTitle(file.basename, frontmatter[state.categoryField]),
           file,
@@ -229,6 +230,23 @@ function parseConfig(source) {
       .filter(Boolean)
       .map((match) => [match[1].trim(), match[2].trim()]),
   );
+}
+
+function isSafeVaultPath(value) {
+  if (typeof value !== "string") {
+    return false;
+  }
+  const candidate = value.trim();
+  return Boolean(candidate)
+    && !candidate.startsWith("/")
+    && !candidate.split("/").includes("..")
+    && normalizePath(candidate) === candidate;
+}
+
+function categoryClassName(value) {
+  return typeof value === "string" && /^[a-z][a-z0-9-]{0,31}$/.test(value)
+    ? value
+    : "other";
 }
 
 function groupEventsByDate(events) {
@@ -276,7 +294,9 @@ module.exports = SimpleCalendarPlugin;
 module.exports._internals = {
   addMonths,
   calendarCardTitle,
+  categoryClassName,
   groupEventsByDate,
+  isSafeVaultPath,
   parseConfig,
   toDateKey,
   weekCount,

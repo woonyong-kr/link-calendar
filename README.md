@@ -1,6 +1,6 @@
-# Simple Calendar
+# Simple Markdown Calendar
 
-Simple Calendar는 Obsidian Markdown 일정 파일을 읽어 한 달 단위로 정리해 보여 주는 가벼운 플러그인이다. 일정 데이터는 Markdown에만 남고, 플러그인은 파일을 만들거나 고치거나 외부 서비스와 동기화하지 않는다.
+Simple Markdown Calendar는 Obsidian Markdown 일정 파일을 읽어 한 달 단위로 정리해 보여 주는 가벼운 플러그인이다. 일정 데이터는 Markdown에만 남고, 플러그인은 파일을 만들거나 고치거나 외부 서비스와 동기화하지 않는다.
 
 ## 화면 원칙
 
@@ -11,17 +11,18 @@ Simple Calendar는 Obsidian Markdown 일정 파일을 읽어 한 달 단위로 �
 
 ## Markdown 계약
 
-```markdown
+````markdown
 ```woon-simple-calendar
-source: inbox/calendar/events
+source: calendar/events
 date_field: Date
 category_field: Category
+category_id_field: Category ID
 ```
-```
+````
 
-`source` 아래의 각 Markdown 문서는 `Date: YYYY-MM-DD` frontmatter를 가져야 한다. `category_field`의 분류 기준은 `커리어`, `학습`, `창작`, `생활`, `관계`, `건강`, `행정`이며, 비어 있거나 다른 값이면 `기타`로 표시한다. 유형은 카드의 낮은 채움색으로만 구분하고, 일정의 원문·제목·날짜는 바꾸지 않는다.
+`source`는 `..`나 절대 경로가 없는 Vault 상대 경로여야 하며, 그 아래의 각 Markdown 문서는 `Date: YYYY-MM-DD` frontmatter를 가져야 한다. `category_field`는 사람이 읽는 제목이고 `category_id_field`는 카드 팔레트를 고르는 안정 ID다. 기본 팔레트는 `career`, `learning`, `creative`, `life`, `relationship`, `health`, `admin`, `other`를 제공하며, 의미와 표시 제목은 Markdown을 만드는 시스템이 소유한다.
 
-왼쪽 ribbon의 `Apple Calendar 열기` 아이콘과 명령 팔레트의 같은 명령은 `inbox/calendar/apple-calendar.md`를 연다. 이 경로가 없을 때는 파일을 만들지 않고 안내만 표시한다.
+왼쪽 ribbon과 명령 팔레트의 `Simple Calendar 열기`는 코드 블록이 있는 첫 Markdown 문서를 연다. 특정 Vault 이름, Calendar 공급자, dashboard 경로를 가정하지 않으며, 대상 문서가 없을 때는 파일을 만들지 않고 안내만 표시한다.
 
 ## 개발 검증
 

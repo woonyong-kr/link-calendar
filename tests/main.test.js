@@ -8,6 +8,7 @@ Module._load = function loadObsidian(request, parent, isMain) {
     return {
       Notice: class Notice {},
       Plugin: class Plugin {},
+      normalizePath: (value) => value.replace(/\/{2,}/g, "/").replace(/^\.\//, ""),
     };
   }
   return originalLoad.call(this, request, parent, isMain);
@@ -29,10 +30,10 @@ test("uses only the number of calendar weeks that the selected month needs", () 
 
 test("keeps the event title intact except for a repeated category suffix", () => {
   assert.equal(
-    _internals.calendarCardTitle("크래프톤 정글 12기 · 학습", "학습"),
-    "크래프톤 정글 12기",
+    _internals.calendarCardTitle("개발 교육 입소식 · 학습", "학습"),
+    "개발 교육 입소식",
   );
-  assert.equal(_internals.calendarCardTitle("민정이 면접 데려다주기", "관계"), "민정이 면접 데려다주기");
+  assert.equal(_internals.calendarCardTitle("동료 면접 동행", "관계"), "동료 면접 동행");
 });
 
 test("groups same-day events without duplicating an event", () => {
@@ -44,4 +45,16 @@ test("groups same-day events without duplicating an event", () => {
 
   assert.deepEqual(groups.get("2026-08-18").map((event) => event.title), ["A", "B"]);
   assert.deepEqual(groups.get("2026-08-19").map((event) => event.title), ["C"]);
+});
+
+test("accepts any safe Vault source instead of a Woon-specific path", () => {
+  assert.equal(_internals.isSafeVaultPath("calendar/events"), true);
+  assert.equal(_internals.isSafeVaultPath("../private/events"), false);
+  assert.equal(_internals.isSafeVaultPath("/absolute/events"), false);
+});
+
+test("uses the canonical category ID without translating its display title", () => {
+  assert.equal(_internals.categoryClassName("learning"), "learning");
+  assert.equal(_internals.categoryClassName("future-category"), "future-category");
+  assert.equal(_internals.categoryClassName("잘못된 분류"), "other");
 });
