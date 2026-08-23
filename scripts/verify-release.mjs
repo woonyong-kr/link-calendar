@@ -1,4 +1,8 @@
 import { readFile, readdir, stat } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
+const run = promisify(execFile);
 
 const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
 const packageJson = JSON.parse(await readFile("package.json", "utf8"));
@@ -9,6 +13,9 @@ const source = await Promise.all(sourceFiles.map((file) => readFile(`src/${file}
 const publicDocs = await Promise.all(
   ["README.md", "CHANGELOG.md", "CONTRIBUTING.md"].map((file) => readFile(file, "utf8")),
 );
+
+const { stdout: trackedBundle } = await run("git", ["ls-files", "main.js"]);
+if (trackedBundle.trim()) errors.push("main.js must be a release asset, not a tracked source file");
 
 if (manifest.id !== "context-calendar") errors.push("manifest id must be context-calendar");
 if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) errors.push("manifest version must use exact x.y.z format");
