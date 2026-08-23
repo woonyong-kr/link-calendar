@@ -2,6 +2,8 @@
 
 ## 2.0.0
 
+- Keep the month at full width and present event context in a compact overlay drawer.
+- Isolate calendar typography from Vault-wide font scaling and refine day, card, hover, and category hierarchy.
 - Render category tones and month row counts with scoped CSS classes only, without inline styles.
 
 - Renamed the plugin to Context Calendar with the public ID `context-calendar`.

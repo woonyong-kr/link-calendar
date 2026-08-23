@@ -1,7 +1,7 @@
 .context-calendar-view {
-  --cc-line: color-mix(in srgb, var(--background-modifier-border) 74%, transparent);
+  --cc-line: color-mix(in srgb, var(--background-modifier-border) 58%, transparent);
   --cc-muted: var(--text-muted);
-  --cc-panel: color-mix(in srgb, var(--background-secondary) 70%, var(--background-primary));
+  --cc-panel: color-mix(in srgb, var(--background-secondary) 82%, var(--background-primary));
   container-type: inline-size;
   height: 100%;
   padding: 0 !important;
@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 520px;
+  min-height: 540px;
   color: var(--text-normal);
   background: var(--background-primary);
   font-family: var(--font-interface);
@@ -26,26 +26,27 @@
   display: grid;
   grid-template-columns: minmax(150px, 1fr) auto minmax(150px, 1fr);
   align-items: center;
-  gap: 12px;
-  min-height: 58px;
-  padding: 8px 16px;
+  gap: 16px;
+  min-height: 56px;
+  padding: 8px 14px;
   border-bottom: 1px solid var(--cc-line);
+  background: color-mix(in srgb, var(--background-primary) 92%, var(--background-secondary));
 }
 
 .context-calendar__navigation,
 .context-calendar__tools {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .context-calendar__tools { justify-content: flex-end; }
 
 .context-calendar__title {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 720;
-  letter-spacing: -0.035em;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   text-align: center;
 }
 
@@ -55,20 +56,20 @@
 .context-calendar__open {
   display: inline-grid;
   place-items: center;
-  height: 32px;
+  height: 34px;
   margin: 0;
   border: 0;
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--text-muted);
   background: transparent;
   box-shadow: none;
 }
 
-.context-calendar__icon-button { width: 32px; padding: 0; }
+.context-calendar__icon-button { width: 34px; padding: 0; }
 .context-calendar__today,
 .context-calendar__open {
   padding: 0 9px;
-  font-size: var(--font-ui-small);
+  font-size: 12px;
   font-weight: 620;
 }
 
@@ -80,16 +81,17 @@
 }
 
 .context-calendar__search {
-  width: clamp(110px, 14vw, 210px);
-  height: 32px;
-  padding: 0 10px;
+  width: clamp(130px, 15vw, 220px);
+  height: 34px;
+  padding: 0 11px;
   border: 1px solid var(--cc-line);
-  border-radius: 4px;
-  background: var(--background-secondary);
-  font-size: var(--font-ui-small);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--background-secondary) 72%, transparent);
+  font-size: 12px;
 }
 
 .context-calendar__body {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   flex: 1;
@@ -97,13 +99,14 @@
 }
 
 .context-calendar__body.has-side {
-  grid-template-columns: minmax(600px, 1fr) minmax(240px, 300px);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .context-calendar__month {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+  padding: 12px 14px 14px;
 }
 
 .context-calendar__grid {
@@ -112,7 +115,11 @@
   grid-template-rows: 28px repeat(6, minmax(68px, 1fr));
   width: 100%;
   height: 100%;
-  border-left: 1px solid var(--cc-line);
+  overflow: hidden;
+  gap: 1px;
+  border: 1px solid var(--cc-line);
+  border-radius: 8px;
+  background: var(--cc-line);
 }
 
 .context-calendar__grid.weeks-5 {
@@ -122,13 +129,11 @@
 .context-calendar__weekday {
   display: grid;
   place-items: center;
-  border-right: 1px solid var(--cc-line);
-  border-bottom: 1px solid var(--cc-line);
   color: var(--cc-muted);
   background: var(--cc-panel);
-  font-size: 0.65rem;
-  font-weight: 680;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
 }
 
 .context-calendar__day {
@@ -137,20 +142,20 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding: 5px;
-  border-right: 1px solid var(--cc-line);
-  border-bottom: 1px solid var(--cc-line);
+  padding: 7px;
   outline: none;
   background: var(--background-primary);
 }
 
 .context-calendar__day.is-outside {
   color: var(--text-faint);
-  background: color-mix(in srgb, var(--background-secondary) 38%, transparent);
+  background: color-mix(in srgb, var(--background-secondary) 54%, var(--background-primary));
+  opacity: 0.56;
 }
 
 .context-calendar__day.is-selected {
-  background: color-mix(in srgb, var(--interactive-accent) 5%, var(--background-primary));
+  background: color-mix(in srgb, var(--interactive-accent) 4%, var(--background-primary));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 36%, transparent);
 }
 
 .context-calendar__day:focus-visible { box-shadow: inset 0 0 0 2px var(--interactive-accent); }
@@ -158,23 +163,23 @@
 .context-calendar__day-number {
   appearance: none;
   align-self: flex-end;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: 0;
-  border-radius: 3px;
+  border-radius: 50%;
   color: var(--cc-muted);
   background: transparent !important;
   box-shadow: none;
-  font-size: 0.69rem;
-  font-weight: 650;
-  line-height: 22px;
+  font-size: 12px;
+  font-weight: 680;
+  line-height: 24px;
 }
 
 .context-calendar__day-number.is-today {
-  color: var(--text-on-accent);
-  border-radius: 50%;
-  background: var(--interactive-accent) !important;
+  color: var(--interactive-accent);
+  background: color-mix(in srgb, var(--interactive-accent) 12%, transparent) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 58%, transparent);
 }
 
 .context-calendar__cards {
@@ -183,9 +188,9 @@
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  gap: 2px;
+  gap: 3px;
   min-height: 0;
-  margin-top: 2px;
+  margin-top: 3px;
   overflow: hidden;
 }
 
@@ -194,18 +199,18 @@
   display: -webkit-box;
   width: 100%;
   min-width: 0;
-  max-height: calc(2.56em + 6px);
+  max-height: 36px;
   margin: 0;
-  padding: 3px 5px;
+  padding: 4px 6px;
   overflow: hidden;
   border: 0;
-  border-radius: 3px;
+  border-radius: 4px;
   color: var(--text-normal);
   background: var(--cc-card);
   box-shadow: none;
-  font-size: clamp(0.68rem, 0.72vw, 0.78rem);
-  font-weight: 590;
-  line-height: 1.28;
+  font-size: clamp(10px, 0.72vw, 12px);
+  font-weight: 620;
+  line-height: 1.2;
   text-align: left;
   white-space: normal;
   word-break: keep-all;
@@ -218,7 +223,7 @@
 
 .context-calendar__card:hover,
 .context-calendar__card.is-active {
-  background: color-mix(in srgb, var(--cc-card) 78%, var(--text-normal));
+  background: color-mix(in srgb, var(--cc-card) 82%, var(--text-normal));
 }
 
 .context-calendar__card:focus-visible {
@@ -226,14 +231,22 @@
   outline-offset: -2px;
 }
 
-.context-calendar__card.tone-0 { --cc-card: color-mix(in srgb, #78909c 40%, var(--background-primary)); }
-.context-calendar__card.tone-1 { --cc-card: color-mix(in srgb, #5e8c87 40%, var(--background-primary)); }
-.context-calendar__card.tone-2 { --cc-card: color-mix(in srgb, #8a7f6d 40%, var(--background-primary)); }
-.context-calendar__card.tone-3 { --cc-card: color-mix(in srgb, #758b69 40%, var(--background-primary)); }
-.context-calendar__card.tone-4 { --cc-card: color-mix(in srgb, #8b7078 40%, var(--background-primary)); }
-.context-calendar__card.tone-5 { --cc-card: color-mix(in srgb, #697d96 40%, var(--background-primary)); }
-.context-calendar__card.tone-6 { --cc-card: color-mix(in srgb, #8b7765 40%, var(--background-primary)); }
-.context-calendar__card.tone-7 { --cc-card: color-mix(in srgb, #777b86 40%, var(--background-primary)); }
+.context-calendar__card.tone-0,
+.context-calendar__agenda-item.tone-0 { --cc-card: color-mix(in srgb, #70858f 46%, var(--background-primary)); }
+.context-calendar__card.tone-1,
+.context-calendar__agenda-item.tone-1 { --cc-card: color-mix(in srgb, #4f7d78 48%, var(--background-primary)); }
+.context-calendar__card.tone-2,
+.context-calendar__agenda-item.tone-2 { --cc-card: color-mix(in srgb, #81745f 46%, var(--background-primary)); }
+.context-calendar__card.tone-3,
+.context-calendar__agenda-item.tone-3 { --cc-card: color-mix(in srgb, #657d5f 46%, var(--background-primary)); }
+.context-calendar__card.tone-4,
+.context-calendar__agenda-item.tone-4 { --cc-card: color-mix(in srgb, #80646d 46%, var(--background-primary)); }
+.context-calendar__card.tone-5,
+.context-calendar__agenda-item.tone-5 { --cc-card: color-mix(in srgb, #5b7189 48%, var(--background-primary)); }
+.context-calendar__card.tone-6,
+.context-calendar__agenda-item.tone-6 { --cc-card: color-mix(in srgb, #806a57 46%, var(--background-primary)); }
+.context-calendar__card.tone-7,
+.context-calendar__agenda-item.tone-7 { --cc-card: color-mix(in srgb, #6d707a 46%, var(--background-primary)); }
 
 .context-calendar__more {
   align-self: flex-start;
@@ -243,22 +256,31 @@
   color: var(--text-muted);
   background: transparent;
   box-shadow: none;
-  font-size: 0.62rem;
+  font-size: 10px;
   font-weight: 650;
 }
 
 .context-calendar__side {
+  position: absolute;
+  z-index: 20;
+  top: 12px;
+  right: 14px;
+  bottom: 14px;
+  width: min(340px, calc(100% - 28px));
   min-width: 0;
-  padding: 16px;
+  padding: 18px;
   overflow: auto;
-  border-left: 1px solid var(--cc-line);
-  background: var(--cc-panel);
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 82%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--background-primary) 94%, var(--background-secondary));
+  box-shadow: 0 16px 44px rgb(0 0 0 / 22%);
+  backdrop-filter: blur(14px);
 }
 
 .context-calendar__side h2,
 .context-calendar__side h3,
 .context-calendar__side h4 { margin: 0; }
-.context-calendar__side h2 { font-size: 0.92rem; }
+.context-calendar__side h2 { font-size: 15px; }
 .context-calendar__side-heading {
   display: flex;
   align-items: center;
@@ -266,13 +288,13 @@
 }
 .context-calendar__side h3 {
   margin-top: 12px;
-  font-size: 0.86rem;
+  font-size: 13px;
   line-height: 1.45;
 }
 .context-calendar__side h4 {
   margin-top: 13px;
   color: var(--text-muted);
-  font-size: 0.67rem;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -282,35 +304,38 @@
   display: block;
   margin: 3px 0 12px;
   color: var(--text-muted);
-  font-size: var(--font-ui-smaller);
+  font-size: 11px;
 }
 
 .context-calendar__empty,
 .context-calendar__readonly {
   padding: 10px 0;
   color: var(--text-muted);
-  font-size: var(--font-ui-small);
+  font-size: 12px;
 }
 
 .context-calendar__agenda-item {
+  --cc-card: var(--background-modifier-hover);
   display: flex;
   flex-direction: column;
   width: 100%;
   margin: 0 0 4px;
-  padding: 7px 8px;
+  padding: 8px 9px;
   border: 0;
-  border-radius: 3px;
+  border-radius: 5px;
   color: var(--text-normal);
-  background: var(--background-primary);
+  background: var(--cc-card);
   box-shadow: none;
-  font-size: 0.75rem;
+  font-size: 12px;
   line-height: 1.35;
   text-align: left;
 }
 
 .context-calendar__agenda-item:hover,
-.context-calendar__agenda-item.is-active { background: var(--background-modifier-hover); }
-.context-calendar__agenda-item small { color: var(--text-muted); font-size: 0.65rem; }
+.context-calendar__agenda-item.is-active {
+  background: color-mix(in srgb, var(--cc-card) 82%, var(--text-normal));
+}
+.context-calendar__agenda-item small { color: var(--text-muted); font-size: 10px; }
 
 .context-calendar__context {
   margin-top: 18px;
@@ -336,11 +361,11 @@
   padding: 3px 6px;
   overflow: hidden;
   border: 0;
-  border-radius: 3px;
+  border-radius: 4px;
   color: var(--text-muted);
   background: var(--background-primary);
   box-shadow: none;
-  font-size: 0.68rem;
+  font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -348,7 +373,7 @@
 .context-calendar__diagnostics {
   margin-top: 18px;
   color: var(--text-muted);
-  font-size: var(--font-ui-smaller);
+  font-size: 11px;
 }
 
 .context-calendar__diagnostics button {
@@ -412,40 +437,37 @@
 @container (max-width: 860px) {
   .context-calendar__header { grid-template-columns: auto 1fr auto; padding: 7px 8px; }
   .context-calendar__search { width: clamp(100px, 24vw, 160px); }
-  .context-calendar__body.has-side {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(440px, 1fr) auto;
-    overflow: auto;
-  }
-  .context-calendar__month { min-height: 440px; }
-  .context-calendar__side {
-    max-height: 300px;
-    border-top: 1px solid var(--cc-line);
-    border-left: 0;
-  }
+  .context-calendar__month { min-height: 440px; padding: 8px; }
+  .context-calendar__side { right: 8px; bottom: 8px; width: min(320px, calc(100% - 16px)); }
   .context-calendar__day { padding: 3px; }
-  .context-calendar__card { padding: 2px 3px; font-size: 0.68rem; }
+  .context-calendar__card { padding: 3px 4px; font-size: 10px; }
 }
 
 @container (max-width: 560px) {
   .context-calendar__header { grid-template-columns: auto 1fr auto; }
-  .context-calendar__title { font-size: 0.9rem; }
+  .context-calendar__title { font-size: 15px; }
   .context-calendar__today,
   .context-calendar__add { display: none; }
   .context-calendar__grid { grid-template-rows: 24px repeat(6, minmax(58px, 1fr)); }
   .context-calendar__grid.weeks-5 { grid-template-rows: 24px repeat(5, minmax(58px, 1fr)); }
-  .context-calendar__weekday { font-size: 0.58rem; }
+  .context-calendar__weekday { font-size: 9px; }
   .context-calendar__day-number {
     width: 18px;
     height: 18px;
-    font-size: 0.6rem;
+    font-size: 10px;
     line-height: 18px;
   }
   .context-calendar__card {
-    max-height: 2.3em;
+    max-height: 28px;
     padding: 2px;
-    font-size: 0.66rem;
+    font-size: 9px;
     line-height: 1.15;
+  }
+  .context-calendar__side {
+    top: auto;
+    left: 8px;
+    width: auto;
+    max-height: 56%;
   }
 }
 

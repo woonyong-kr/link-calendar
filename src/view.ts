@@ -287,7 +287,7 @@ export class ContextCalendarView extends ItemView {
     if (!dateEvents.length) panel.createDiv({ cls: "context-calendar__empty", text: translate(settings.locale, "empty") });
     for (const event of dateEvents) {
       const item = panel.createEl("button", {
-        cls: `context-calendar__agenda-item${event.id === this.selectedEventId ? " is-active" : ""}`,
+        cls: `context-calendar__agenda-item ${categoryToken(event.category)}${event.id === this.selectedEventId ? " is-active" : ""}`,
         attr: { type: "button" },
       });
       item.createSpan({ text: event.title });
