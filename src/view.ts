@@ -13,7 +13,12 @@ import {
   monthGrid,
   parseDateKey,
 } from "./model";
-import { gridMovement, matchesEventQuery } from "./policy";
+import {
+  type EventLens,
+  filterCalendarEvents,
+  gridMovement,
+  resolveEventPath,
+} from "./policy";
 
 export const VIEW_TYPE = "context-calendar-view";
 
@@ -22,6 +27,7 @@ export interface CalendarActions {
   move(event: CalendarEvent, date: string): Promise<void>;
   open(path: string): Promise<void>;
   openSettings(): void;
+  setup(): void;
 }
 
 export class ContextCalendarView extends ItemView {
@@ -30,11 +36,14 @@ export class ContextCalendarView extends ItemView {
   private selectedDate = localDateKey(new Date());
   private selectedEventId = "";
   private sideClosed = false;
+  private profileId = "";
+  private lens: EventLens | null = null;
   private snapshot: CalendarSnapshot = { diagnostics: [], events: [], revision: 0 };
 
   constructor(
     leaf: WorkspaceLeaf,
     private readonly getSettings: () => CalendarSettings,
+    private readonly getSnapshot: () => CalendarSnapshot,
     private readonly actions: CalendarActions,
   ) {
     super(leaf);
@@ -63,9 +72,32 @@ export class ContextCalendarView extends ItemView {
     this.render();
   }
 
+  revealPath(path: string): boolean {
+    const event = resolveEventPath(this.snapshot.events, path);
+    if (!event) return false;
+    const date = parseDateKey(event.startDate);
+    this.month = new Date(date.getFullYear(), date.getMonth(), 1);
+    this.selectedDate = event.startDate;
+    this.selectedEventId = event.id;
+    this.profileId = "";
+    this.lens = null;
+    this.sideClosed = false;
+    this.render();
+    window.requestAnimationFrame(() => {
+      Array.from(this.contentEl.querySelectorAll<HTMLElement>("[data-event-id]"))
+        .find((element) => element.dataset.eventId === event.id)?.focus();
+    });
+    return true;
+  }
+
   override async onOpen(): Promise<void> {
     this.contentEl.addClass("context-calendar-view");
-    this.render();
+    this.registerDomEvent(document, "fullscreenchange", () => this.render());
+    this.setSnapshot(this.getSnapshot());
+  }
+
+  override async onClose(): Promise<void> {
+    if (document.fullscreenElement === this.contentEl) await document.exitFullscreen();
   }
 
   private render(): void {
@@ -121,26 +153,110 @@ export class ContextCalendarView extends ItemView {
       add.addClass("context-calendar__add");
       tools.append(add);
     }
+    const focus = iconButton(
+      document.fullscreenElement === this.contentEl ? "minimize-2" : "maximize-2",
+      translate(
+        locale,
+        document.fullscreenElement === this.contentEl ? "exitFocusMode" : "focusMode",
+      ),
+      () => {
+        void this.toggleFocusMode();
+      },
+    );
+    tools.append(focus);
     const menu = iconButton("settings", translate(locale, "settings"), () => this.actions.openSettings());
     tools.append(menu);
 
-    if (!settings.profiles.length) {
+    const enabledProfiles = settings.profiles.filter((profile) => profile.enabled && profile.folder);
+    if (!enabledProfiles.some((profile) => profile.id === this.profileId)) this.profileId = "";
+    if (!enabledProfiles.length) {
       const empty = shell.createDiv({ cls: "context-calendar__onboarding" });
       setIcon(empty.createDiv({ cls: "context-calendar__onboarding-icon" }), "calendar-search");
       empty.createEl("h2", { text: translate(locale, "noSources") });
-      empty.createEl("button", { text: translate(locale, "settings") }).onclick = () => this.actions.openSettings();
+      empty.createEl("p", { text: translate(locale, "onboarding") });
+      empty.createEl("button", {
+        cls: "mod-cta",
+        text: translate(locale, "chooseFolder"),
+      }).onclick = () => this.actions.setup();
       return;
+    }
+
+    if (enabledProfiles.length > 1 || this.lens) {
+      this.renderScope(shell, settings, enabledProfiles);
     }
 
     const body = shell.createDiv({ cls: "context-calendar__body" });
     this.renderMonth(body, settings);
-    const hasSelectedContent = this.snapshot.events.some(
+    const visibleEvents = this.visibleEvents();
+    const hasSelectedContent = visibleEvents.some(
       (event) => event.startDate <= this.selectedDate && event.endDate >= this.selectedDate,
     );
-    if (settings.showContext && (hasSelectedContent || this.snapshot.diagnostics.length > 0) && !this.sideClosed) {
+    if (settings.showContext && (hasSelectedContent || this.visibleDiagnostics().length > 0) && !this.sideClosed) {
       body.addClass("has-side");
       this.renderSidePanel(body, settings);
     }
+  }
+
+  private async toggleFocusMode(): Promise<void> {
+    if (document.fullscreenElement === this.contentEl) await document.exitFullscreen();
+    else await this.contentEl.requestFullscreen();
+  }
+
+  private renderScope(
+    parent: HTMLElement,
+    settings: CalendarSettings,
+    profiles: CalendarSettings["profiles"],
+  ): void {
+    const scope = parent.createEl("nav", {
+      cls: "context-calendar__scope",
+      attr: { "aria-label": translate(settings.locale, "calendarScope") },
+    });
+    scope.createSpan({
+      cls: "context-calendar__scope-label",
+      text: translate(settings.locale, "sources"),
+    });
+    const all = scope.createEl("button", {
+      text: translate(settings.locale, "allSources"),
+      attr: { "aria-pressed": String(!this.profileId), type: "button" },
+    });
+    all.onclick = () => {
+      this.profileId = "";
+      this.normalizeSelection();
+      this.render();
+    };
+    for (const profile of profiles) {
+      const count = this.snapshot.events.filter((event) =>
+        event.profileId === profile.id && this.overlapsCurrentMonth(event)).length;
+      const button = scope.createEl("button", {
+        text: `${profile.name} ${String(count)}`,
+        attr: { "aria-pressed": String(this.profileId === profile.id), type: "button" },
+      });
+      button.onclick = () => {
+        this.profileId = profile.id;
+        this.normalizeSelection();
+        this.render();
+      };
+    }
+    if (this.lens) {
+      scope.createDiv({ cls: "context-calendar__scope-divider" });
+      const clear = scope.createEl("button", {
+        cls: "context-calendar__lens",
+        text: `${this.lens.label} ×`,
+        title: translate(settings.locale, "clearFilter"),
+        attr: { type: "button" },
+      });
+      clear.onclick = () => {
+        this.lens = null;
+        this.normalizeSelection();
+        this.render();
+      };
+    }
+    scope.createSpan({
+      cls: "context-calendar__result-count",
+      text: formatMessage(settings.locale, "visibleEvents", {
+        count: String(this.visibleEvents().filter((event) => this.overlapsCurrentMonth(event)).length),
+      }),
+    });
   }
 
   private renderMonth(parent: HTMLElement, settings: CalendarSettings): void {
@@ -152,7 +268,7 @@ export class ContextCalendarView extends ItemView {
     for (const weekday of weekdayNames(settings.locale, firstDay)) {
       grid.createDiv({ cls: "context-calendar__weekday", text: weekday, attr: { role: "columnheader" } });
     }
-    const visibleEvents = this.snapshot.events.filter((event) => matchesEventQuery(event, this.query));
+    const visibleEvents = this.visibleEvents();
     const eventsByDate = new Map<string, CalendarEvent[]>();
     for (const event of visibleEvents) {
       for (const day of eachDate(event.startDate, event.endDate)) {
@@ -237,6 +353,7 @@ export class ContextCalendarView extends ItemView {
         "aria-label": event.category ? `${event.title}, ${event.category}` : event.title,
         draggable: String(event.editable),
         type: "button",
+        "data-event-id": event.id,
       },
     });
     if (event.id === this.selectedEventId) card.addClass("is-active");
@@ -274,7 +391,7 @@ export class ContextCalendarView extends ItemView {
 
   private renderSidePanel(parent: HTMLElement, settings: CalendarSettings): void {
     const panel = parent.createEl("aside", { cls: "context-calendar__side" });
-    const dateEvents = this.snapshot.events.filter(
+    const dateEvents = this.visibleEvents().filter(
       (event) => event.startDate <= this.selectedDate && event.endDate >= this.selectedDate,
     );
     const heading = panel.createDiv({ cls: "context-calendar__side-heading" });
@@ -297,14 +414,15 @@ export class ContextCalendarView extends ItemView {
         this.render();
       };
     }
-    const selected = this.snapshot.events.find((event) => event.id === this.selectedEventId);
+    const selected = dateEvents.find((event) => event.id === this.selectedEventId);
     if (selected) this.renderContext(panel, selected, settings);
-    if (this.snapshot.diagnostics.length) {
+    const visibleDiagnostics = this.visibleDiagnostics();
+    if (visibleDiagnostics.length) {
       const diagnostics = panel.createEl("details", { cls: "context-calendar__diagnostics" });
       diagnostics.createEl("summary", {
-        text: `${translate(settings.locale, "diagnostics")} · ${String(this.snapshot.diagnostics.length)}`,
+        text: `${translate(settings.locale, "diagnostics")} · ${String(visibleDiagnostics.length)}`,
       });
-      for (const item of this.snapshot.diagnostics.slice(0, 20)) {
+      for (const item of visibleDiagnostics.slice(0, 20)) {
         diagnostics.createEl("button", {
           text: `${fileTitle(item.filePath)} — ${translate(settings.locale, diagnosticMessage(item.code))}`,
           title: item.filePath,
@@ -325,6 +443,14 @@ export class ContextCalendarView extends ItemView {
     }).onclick = () => void this.actions.open(event.filePath);
     section.createEl("h3", { text: event.title });
     if (!event.editable) section.createDiv({ cls: "context-calendar__readonly", text: translate(settings.locale, "readOnly") });
+    if (event.category) {
+      section.createEl("h4", { text: translate(settings.locale, "category") });
+      this.renderFacet(section, {
+        kind: "category",
+        label: event.category,
+        value: event.category,
+      }, settings);
+    }
     for (const [key, label] of [
       ["people", translate(settings.locale, "people")],
       ["project", translate(settings.locale, "project")],
@@ -337,18 +463,70 @@ export class ContextCalendarView extends ItemView {
       section.createEl("h4", { text: label });
       const links = section.createDiv({ cls: "context-calendar__context-links" });
       for (const link of linksForSection) {
-        links.createEl("button", {
+        const row = links.createDiv({ cls: "context-calendar__context-link" });
+        row.createEl("button", {
           text: link.label,
           title: link.path,
           attr: { type: "button" },
         }).onclick = () => void this.actions.open(link.path);
+        if (key === "people" || key === "project") {
+          const filter = iconButton("list-filter", translate(settings.locale, "filterMonth"), () => {
+            this.setLens({ kind: key, label: link.label, value: link.path });
+          });
+          filter.addClass("context-calendar__context-filter");
+          row.append(filter);
+        }
       }
     }
   }
 
+  private renderFacet(parent: HTMLElement, lens: EventLens, settings: CalendarSettings): void {
+    const row = parent.createDiv({ cls: "context-calendar__context-link" });
+    row.createSpan({ text: lens.label });
+    const filter = iconButton("list-filter", translate(settings.locale, "filterMonth"), () => {
+      this.setLens(lens);
+    });
+    filter.addClass("context-calendar__context-filter");
+    row.append(filter);
+  }
+
+  private setLens(lens: EventLens): void {
+    this.lens = lens;
+    this.sideClosed = true;
+    this.normalizeSelection();
+    this.render();
+  }
+
+  private visibleEvents(): CalendarEvent[] {
+    return filterCalendarEvents(this.snapshot.events, {
+      lens: this.lens,
+      profileId: this.profileId,
+      query: this.query,
+    });
+  }
+
+  private visibleDiagnostics(): CalendarSnapshot["diagnostics"] {
+    return this.snapshot.diagnostics.filter((item) =>
+      !this.profileId || item.profileId === this.profileId);
+  }
+
+  private normalizeSelection(): void {
+    const visible = this.visibleEvents();
+    if (visible.some((event) => event.id === this.selectedEventId)) return;
+    this.selectedEventId = visible.find(
+      (event) => event.startDate <= this.selectedDate && event.endDate >= this.selectedDate,
+    )?.id ?? "";
+  }
+
+  private overlapsCurrentMonth(event: CalendarEvent): boolean {
+    const start = localDateKey(new Date(this.month.getFullYear(), this.month.getMonth(), 1));
+    const end = localDateKey(new Date(this.month.getFullYear(), this.month.getMonth() + 1, 0));
+    return event.startDate <= end && event.endDate >= start;
+  }
+
   private selectDate(date: string): void {
     this.selectedDate = date;
-    this.selectedEventId = this.snapshot.events.find(
+    this.selectedEventId = this.visibleEvents().find(
       (event) => event.startDate <= date && event.endDate >= date,
     )?.id ?? "";
     this.sideClosed = false;

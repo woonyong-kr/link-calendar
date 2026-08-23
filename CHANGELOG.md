@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.3
+
+- Add source-folder selection with scoped date-property detection before a calendar source is added.
+- Add source and context lenses, active-note reveal, and a focused month view without changing Markdown source data.
+- Refine the Korean and English interface, compact event cards, and context controls.
+
 ## 2.0.2
 
 - Remove an unnecessary `InputEvent` assertion reported by automated review.

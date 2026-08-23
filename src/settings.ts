@@ -5,6 +5,7 @@ import {
   PluginSettingTab,
   type SettingDefinitionItem,
   type SettingDefinitionPage,
+  type TFolder,
 } from "obsidian";
 
 import { type MessageKey, translate } from "./i18n";
@@ -15,6 +16,7 @@ export interface SettingsHost {
   app: App;
   settings: CalendarSettings;
   saveSettings(rebuildIndex?: boolean): Promise<void>;
+  chooseFolder(onChoose: (folder: TFolder) => void): void;
 }
 
 export class ContextCalendarSettingTab extends PluginSettingTab {
@@ -144,13 +146,22 @@ export class ContextCalendarSettingTab extends PluginSettingTab {
               name: translate(locale, "folder"),
               desc: translate(locale, "folderDesc"),
               render: (setting) => {
+                let setFolderValue = (_value: string): void => undefined;
                 setting.addText((control) => {
+                  setFolderValue = (value) => control.setValue(value);
                   control
                     .setPlaceholder(translate(locale, "calendarNotes"))
                     .setValue(draft.folder)
                     .onChange((value) => {
                       draft.folder = value.trim().replace(/^\/+|\/+$/g, "");
                     });
+                });
+                setting.addExtraButton((button) => {
+                  button.setIcon("folder-search").setTooltip(translate(locale, "chooseFolder"));
+                  button.onClick(() => this.host.chooseFolder((folder) => {
+                    draft.folder = folder.path;
+                    setFolderValue(folder.path);
+                  }));
                 });
               },
             },

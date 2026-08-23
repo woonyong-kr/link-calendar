@@ -7,9 +7,11 @@ import {
   canCreateWithProfile,
   embedSource,
   eventFrontmatter,
+  filterCalendarEvents,
   gridMovement,
   matchesEventQuery,
   planMoveFrontmatter,
+  resolveEventPath,
   validateProfile,
   writableProfiles,
 } from "../src/policy";
@@ -155,6 +157,31 @@ describe("view policy", () => {
     expect(matchesEventQuery(event(), "orientation")).toBe(true);
     expect(matchesEventQuery(event(), "jane")).toBe(true);
     expect(matchesEventQuery(event(), "unrelated")).toBe(false);
+  });
+
+  it("combines source, search, and context lenses without duplicating indexes", () => {
+    const candidate = event();
+    candidate.context.project = [{ label: "Atlas", path: "Projects/Atlas.md" }];
+    expect(filterCalendarEvents([candidate], {
+      lens: { kind: "people", label: "Jane Doe", value: "People/Jane.md" },
+      profileId: "calendar",
+      query: "orientation",
+    })).toEqual([candidate]);
+    expect(filterCalendarEvents([candidate], {
+      lens: { kind: "project", label: "Other", value: "Projects/Other.md" },
+      profileId: "calendar",
+      query: "",
+    })).toEqual([]);
+    expect(filterCalendarEvents([candidate], {
+      lens: { kind: "category", label: "learning", value: "learning" },
+      profileId: "",
+      query: "",
+    })).toEqual([candidate]);
+  });
+
+  it("resolves an active note to its indexed calendar event", () => {
+    expect(resolveEventPath([event()], "Calendar/Event.md")?.id).toBe("calendar:Calendar/Event.md");
+    expect(resolveEventPath([event()], "Calendar/Missing.md")).toBeUndefined();
   });
 
   it("fails closed for invalid embed sources", () => {

@@ -1,4 +1,5 @@
 import {
+  FuzzySuggestModal,
   MarkdownRenderChild,
   Modal,
   Notice,
@@ -13,14 +14,17 @@ import {
 
 import {
   CalendarIndex,
+  type SourceDetection,
+  detectSourceFolder,
   selectProfileFromFrontmatter,
 } from "./index";
-import { translate } from "./i18n";
+import { formatMessage, translate } from "./i18n";
 import {
   type CalendarEvent,
   type CalendarSettings,
   type SourceProfile,
   DEFAULT_SETTINGS,
+  createProfile,
   dateKey,
   isRecord,
   normalizeSettings,
@@ -32,6 +36,7 @@ import {
   embedSource,
   eventFrontmatter,
   planMoveFrontmatter,
+  resolveEventPath,
   writableProfiles,
 } from "./policy";
 import { ContextCalendarSettingTab, type SettingsHost } from "./settings";
@@ -50,7 +55,12 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
     this.settings = normalizeSettings(await this.loadData());
     this.index = new CalendarIndex(this.app.vault, this.app.metadataCache, this.settings.profiles);
     this.registerView(VIEW_TYPE, (leaf) =>
-      new ContextCalendarView(leaf, () => this.settings, this.actions()));
+      new ContextCalendarView(
+        leaf,
+        () => this.settings,
+        () => this.index.snapshot(),
+        this.actions(),
+      ));
     this.addRibbonIcon(
       "calendar-days",
       translate(this.settings.locale, "openCalendar"),
@@ -65,6 +75,21 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
       id: "create-event-note",
       name: translate(this.settings.locale, "createEvent"),
       callback: () => void this.createEvent(dateKey(new Date()) ?? ""),
+    });
+    this.addCommand({
+      id: "add-source-folder",
+      name: translate(this.settings.locale, "chooseFolder"),
+      callback: () => this.chooseSourceFolder(),
+    });
+    this.addCommand({
+      id: "reveal-active-note",
+      name: translate(this.settings.locale, "revealActiveNote"),
+      checkCallback: (checking) => {
+        const path = this.app.workspace.getActiveFile()?.path;
+        if (!path || !resolveEventPath(this.index.snapshot().events, path)) return false;
+        if (!checking) void this.openCalendar(path);
+        return true;
+      },
     });
     this.addSettingTab(new ContextCalendarSettingTab(this.app, this));
     this.registerMarkdownCodeBlockProcessor(CODE_BLOCK, (source, element, context) => {
@@ -151,19 +176,69 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
       create: (date) => this.createEvent(date),
       move: (event, date) => this.moveEvent(event, date),
       open: (path) => this.openPath(path),
-      openSettings: () => new Notice(translate(this.settings.locale, "openSettingsHelp")),
+      openSettings: () => this.openSettings(),
+      setup: () => this.chooseSourceFolder(),
     };
   }
 
-  private async openCalendar(): Promise<void> {
+  private openSettings(): void {
+    const settings = (this.app as unknown as {
+      setting?: { open(): void; openTabById(id: string): void };
+    }).setting;
+    if (!settings) {
+      new Notice(translate(this.settings.locale, "openSettingsHelp"));
+      return;
+    }
+    settings.open();
+    settings.openTabById(this.manifest.id);
+  }
+
+  private async openCalendar(revealPath = ""): Promise<void> {
     let leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE)[0];
     if (!leaf) {
       leaf = this.app.workspace.getLeaf("tab");
       await leaf.setViewState({ active: true, type: VIEW_TYPE });
     }
     await this.app.workspace.revealLeaf(leaf);
+    this.app.workspace.setActiveLeaf(leaf, { focus: true });
     const view = leaf.view;
-    if (view instanceof ContextCalendarView) view.setSnapshot(this.index.snapshot());
+    if (view instanceof ContextCalendarView) {
+      view.setSnapshot(this.index.snapshot());
+      if (revealPath) view.revealPath(revealPath);
+    }
+  }
+
+  chooseFolder(onChoose?: (folder: TFolder) => void): void {
+    new FolderSuggestModal(
+      this.app,
+      this.settings.locale,
+      onChoose ?? ((folder) => this.previewSource(folder)),
+    ).open();
+  }
+
+  private detectSource(folder: string, recursive: boolean): SourceDetection {
+    return detectSourceFolder(this.app.vault, this.app.metadataCache, folder, recursive);
+  }
+
+  private chooseSourceFolder(): void {
+    this.chooseFolder();
+  }
+
+  private previewSource(folder: TFolder): void {
+    const detection = this.detectSource(folder.path, true);
+    new SourcePreviewModal(
+      this.app,
+      this.settings.locale,
+      folder,
+      detection,
+      async (startProperty) => {
+        const profile = createProfile(folder.path);
+        profile.properties.start = startProperty;
+        this.settings.profiles.push(profile);
+        await this.saveSettings(true);
+        await this.openCalendar();
+      },
+    ).open();
   }
 
   private async openPath(path: string): Promise<void> {
@@ -296,6 +371,91 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
 }
 
 class EventMutationRejected extends Error {}
+
+class FolderSuggestModal extends FuzzySuggestModal<TFolder> {
+  constructor(
+    app: ContextCalendarPlugin["app"],
+    private readonly locale: CalendarSettings["locale"],
+    private readonly choose: (folder: TFolder) => void,
+  ) {
+    super(app);
+    this.setPlaceholder(translate(locale, "chooseFolder"));
+    this.emptyStateText = translate(locale, "noFolders");
+  }
+
+  override getItems(): TFolder[] {
+    const folders: TFolder[] = [];
+    const visit = (folder: TFolder): void => {
+      if (folder.path) folders.push(folder);
+      for (const child of folder.children) if (child instanceof TFolder) visit(child);
+    };
+    visit(this.app.vault.getRoot());
+    return folders.sort((left, right) => left.path.localeCompare(right.path));
+  }
+
+  override getItemText(folder: TFolder): string {
+    return folder.path;
+  }
+
+  override onChooseItem(folder: TFolder): void {
+    this.choose(folder);
+  }
+}
+
+class SourcePreviewModal extends Modal {
+  private startProperty: string;
+
+  constructor(
+    app: ContextCalendarPlugin["app"],
+    private readonly locale: CalendarSettings["locale"],
+    private readonly folder: TFolder,
+    private readonly detection: SourceDetection,
+    private readonly submit: (startProperty: string) => Promise<void>,
+  ) {
+    super(app);
+    this.startProperty = detection.suggestedStart || "date";
+  }
+
+  override onOpen(): void {
+    this.titleEl.setText(translate(this.locale, "sourcePreview"));
+    this.contentEl.createEl("p", {
+      cls: "context-calendar-source-preview__folder",
+      text: this.folder.path,
+    });
+    this.contentEl.createEl("p", {
+      text: formatMessage(this.locale, "sourcePreviewSummary", {
+        dated: String(this.detection.datedNoteCount),
+        total: String(this.detection.noteCount),
+      }),
+    });
+    new Setting(this.contentEl)
+      .setName(translate(this.locale, "startDate"))
+      .setDesc(translate(this.locale, "detectedDateProperty"))
+      .addDropdown((control) => {
+        const options = this.detection.dateProperties.length
+          ? Object.fromEntries(this.detection.dateProperties.map((item) => [
+              item.name,
+              `${item.name} (${String(item.count)})`,
+            ]))
+          : { date: "date (0)" };
+        control.addOptions(options).setValue(this.startProperty).onChange((value) => {
+          this.startProperty = value;
+        });
+      });
+    if (!this.detection.datedNoteCount) {
+      this.contentEl.createEl("p", {
+        cls: "context-calendar-source-preview__warning",
+        text: translate(this.locale, "noDatedNotes"),
+      });
+    }
+    new Setting(this.contentEl).addButton((button) => {
+      button.setButtonText(translate(this.locale, "addSource")).setCta().onClick(async () => {
+        await this.submit(this.startProperty);
+        this.close();
+      });
+    });
+  }
+}
 
 class CalendarEmbedChild extends MarkdownRenderChild {
   constructor(

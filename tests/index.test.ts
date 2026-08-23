@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   CalendarIndex,
+  detectSourceFolder,
   matchesProfile,
   readField,
   selectProfile,
@@ -214,6 +215,35 @@ describe("CalendarIndex", () => {
     ]));
     expect(index.snapshot().events.map((item) => item.filePath)).not.toContain("Calendar/Invalid-end.md");
     expect(index.snapshot().events.map((item) => item.filePath)).not.toContain("Calendar/Too-long.md");
+  });
+});
+
+describe("source detection", () => {
+  it("inspects only the selected folder and ranks valid date properties", () => {
+    const { caches, metadataCache, vault } = fixture();
+    const alpha = caches.get("Calendar/Alpha.md");
+    const bad = caches.get("Calendar/Bad.md");
+    if (!alpha || !bad) throw new Error("Calendar fixture caches are missing");
+    alpha.frontmatter.Modified = "2026-08-20";
+    bad.frontmatter.Modified = "2026-08-21";
+
+    const detection = detectSourceFolder(vault as never, metadataCache as never, "Calendar", true);
+
+    expect(detection.noteCount).toBe(2);
+    expect(detection.datedNoteCount).toBe(1);
+    expect(detection.dateProperties[0]).toEqual({ count: 1, name: "Date" });
+    expect(detection.dateProperties[1]).toEqual({ count: 2, name: "Modified" });
+    expect(detection.suggestedStart).toBe("Date");
+  });
+
+  it("does not scan unrelated folders while detecting a source", () => {
+    const { metadataCache, vault } = fixture();
+
+    const detection = detectSourceFolder(vault as never, metadataCache as never, "People", true);
+
+    expect(detection.noteCount).toBe(1);
+    expect(detection.datedNoteCount).toBe(0);
+    expect(detection.suggestedStart).toBe("");
   });
 });
 

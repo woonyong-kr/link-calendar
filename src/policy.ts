@@ -15,6 +15,18 @@ export interface EventDraft {
   title: string;
 }
 
+export interface EventLens {
+  kind: "category" | "people" | "project";
+  label: string;
+  value: string;
+}
+
+export interface EventFilters {
+  lens: EventLens | null;
+  profileId: string;
+  query: string;
+}
+
 export type ProfileValidation = "missing-source" | "missing-start" | "unsafe-folder";
 
 export function validateProfile(profile: SourceProfile): ProfileValidation | null {
@@ -113,6 +125,29 @@ export function matchesEventQuery(event: CalendarEvent, query: string): boolean 
     event.filePath,
     ...Object.values(event.context).flat().flatMap((link) => [link.label, link.path]),
   ].some((value) => value.toLocaleLowerCase().includes(normalized));
+}
+
+export function filterCalendarEvents(
+  events: CalendarEvent[],
+  filters: EventFilters,
+): CalendarEvent[] {
+  return events.filter((event) => {
+    if (filters.profileId && event.profileId !== filters.profileId) return false;
+    if (!matchesEventQuery(event, filters.query)) return false;
+    if (!filters.lens) return true;
+    if (filters.lens.kind === "category") {
+      return event.category.trim().toLocaleLowerCase()
+        === filters.lens.value.trim().toLocaleLowerCase();
+    }
+    return event.context[filters.lens.kind].some((link) => link.path === filters.lens?.value);
+  });
+}
+
+export function resolveEventPath(
+  events: CalendarEvent[],
+  path: string,
+): CalendarEvent | undefined {
+  return events.find((event) => event.filePath === path);
 }
 
 export function embedSource(value: unknown): { invalid: boolean; source: string } {

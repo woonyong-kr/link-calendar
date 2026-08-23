@@ -24,6 +24,13 @@ interface IndexedNote {
   outgoing: CalendarLink[];
 }
 
+export interface SourceDetection {
+  dateProperties: { count: number; name: string }[];
+  datedNoteCount: number;
+  noteCount: number;
+  suggestedStart: string;
+}
+
 export class CalendarIndex {
   private readonly notes = new Map<string, IndexedNote>();
   private profiles: SourceProfile[];
@@ -302,6 +309,48 @@ export function sourceFiles(vault: Vault, profiles: SourceProfile[]): TFile[] {
     collectMarkdownFiles(folder, profile.recursive, files);
   }
   return [...files.values()].sort((left, right) => left.path.localeCompare(right.path));
+}
+
+export function detectSourceFolder(
+  vault: Vault,
+  metadataCache: MetadataCache,
+  folderPath: string,
+  recursive: boolean,
+): SourceDetection {
+  const folder = vault.getFolderByPath(folderPath);
+  if (!folder) {
+    return { dateProperties: [], datedNoteCount: 0, noteCount: 0, suggestedStart: "" };
+  }
+  const files = new Map<string, TFile>();
+  collectMarkdownFiles(folder, recursive, files);
+  const counts = new Map<string, number>();
+  for (const file of files.values()) {
+    const frontmatter = metadataCache.getFileCache(file)?.frontmatter;
+    if (!isRecord(frontmatter)) continue;
+    for (const [name, value] of Object.entries(frontmatter)) {
+      if (!dateKey(value)) continue;
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+  }
+  const dateProperties = [...counts].map(([name, count]) => ({ count, name })).sort((left, right) =>
+    datePropertyPriority(left.name) - datePropertyPriority(right.name)
+    || right.count - left.count
+    || left.name.localeCompare(right.name),
+  );
+  const suggestedStart = dateProperties[0]?.name ?? "";
+  return {
+    dateProperties,
+    datedNoteCount: suggestedStart ? counts.get(suggestedStart) ?? 0 : 0,
+    noteCount: files.size,
+    suggestedStart,
+  };
+}
+
+function datePropertyPriority(name: string): number {
+  const normalized = name.replace(/[\s_-]/g, "").toLocaleLowerCase();
+  const preferred = ["date", "start", "startdate", "begins", "scheduled", "when", "day"];
+  const index = preferred.indexOf(normalized);
+  return index === -1 ? preferred.length : index;
 }
 
 function collectMarkdownFiles(folder: TFolder, recursive: boolean, files: Map<string, TFile>): void {
