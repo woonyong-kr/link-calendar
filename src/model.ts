@@ -23,7 +23,6 @@ export interface SourceProfile {
 }
 
 export interface CalendarSettings {
-  categoryColors: Record<string, string>;
   locale: LocaleId;
   profiles: SourceProfile[];
   showContext: boolean;
@@ -78,7 +77,6 @@ export const DEFAULT_PROPERTIES: PropertyMap = {
 };
 
 export const DEFAULT_SETTINGS: CalendarSettings = {
-  categoryColors: {},
   locale: "auto",
   profiles: [],
   showContext: true,
@@ -113,7 +111,6 @@ export function normalizeSettings(value: unknown): CalendarSettings {
     return count === 1 ? profile : { ...profile, id: `${profile.id}-${String(count)}` };
   });
   return {
-    categoryColors: normalizeColors(value.categoryColors),
     locale: value.locale === "en" || value.locale === "ko" ? value.locale : "auto",
     profiles,
     showContext: value.showContext !== false,
@@ -126,7 +123,6 @@ export function normalizeSettings(value: unknown): CalendarSettings {
 export function serializeSettings(settings: CalendarSettings): Record<string, unknown> {
   return {
     schemaVersion: 1,
-    categoryColors: settings.categoryColors,
     locale: settings.locale,
     showContext: settings.showContext,
     sourceProfiles: settings.profiles.map((profile) => ({
@@ -171,16 +167,6 @@ function normalizeProfile(value: unknown): SourceProfile | null {
     recursive: sourceConfig.recursive !== false && value.recursive !== false,
     tag,
   };
-}
-
-function normalizeColors(value: unknown): Record<string, string> {
-  if (!isRecord(value)) return {};
-  return Object.fromEntries(
-    Object.entries(value).filter(
-      (entry): entry is [string, string] =>
-        Boolean(entry[0].trim()) && typeof entry[1] === "string" && isCssColor(entry[1]),
-    ),
-  );
 }
 
 export function normalizeVaultPath(value: string): string {
@@ -298,10 +284,6 @@ export function categoryToken(value: string): string {
   let hash = 0;
   for (const character of normalized) hash = Math.imul(31, hash) + character.charCodeAt(0) | 0;
   return `tone-${String(Math.abs(hash) % 8)}`;
-}
-
-export function isCssColor(value: string): boolean {
-  return /^#[\da-f]{3,8}$/i.test(value) || /^hsl\([\d\s.,%/-]+\)$/i.test(value);
 }
 
 export function fileTitle(path: string): string {

@@ -36,6 +36,8 @@ for (const forbidden of [
   /\bXMLHttpRequest\b/,
   /\bWebSocket\b/,
   /require\(["'](?:fs|child_process|http|https)["']\)/,
+  /\.style\./,
+  /setAttribute\(["']style["']/,
 ]) {
   if (source.some((content) => forbidden.test(content))) {
     errors.push(`source contains forbidden capability: ${String(forbidden)}`);

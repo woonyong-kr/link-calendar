@@ -53,12 +53,10 @@ describe("settings boundary", () => {
         { id: "valid", name: "Events", folder: "Calendar/", editable: false, properties: {} },
         { id: "invalid", folder: "", tag: "" },
       ],
-      categoryColors: { Career: "#abc", Invalid: "url(https://example.com)" },
     });
     expect(settings.profiles).toHaveLength(1);
     expect(settings.profiles[0]?.folder).toBe("Calendar");
     expect(settings.profiles[0]?.editable).toBe(false);
-    expect(settings.categoryColors).toEqual({ Career: "#abc" });
   });
 
   it("round-trips the public sourceProfiles schema", () => {

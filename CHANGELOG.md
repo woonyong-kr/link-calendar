@@ -2,6 +2,8 @@
 
 ## 2.0.0
 
+- Render category tones and month row counts with scoped CSS classes only, without inline styles.
+
 - Renamed the plugin to Context Calendar with the public ID `context-calendar`.
 - Replaced the dashboard-only renderer with a dedicated month view.
 - Added source profiles with configurable property mappings and read-only capabilities.

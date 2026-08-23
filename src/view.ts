@@ -148,7 +148,7 @@ export class ContextCalendarView extends ItemView {
     const grid = monthPanel.createDiv({ cls: "context-calendar__grid", attr: { role: "grid" } });
     const firstDay = firstDayOfWeek(settings.locale, settings.weekStart);
     const dates = monthGrid(this.month, firstDay);
-    grid.style.setProperty("--cc-weeks", String(dates.length / 7));
+    grid.addClass(`weeks-${String(dates.length / 7)}`);
     for (const weekday of weekdayNames(settings.locale, firstDay)) {
       grid.createDiv({ cls: "context-calendar__weekday", text: weekday, attr: { role: "columnheader" } });
     }
@@ -239,9 +239,6 @@ export class ContextCalendarView extends ItemView {
         type: "button",
       },
     });
-    const custom = settings.categoryColors[event.category];
-    if (custom) card.style.setProperty("--context-calendar-custom", custom);
-    if (custom) card.addClass("has-custom-color");
     if (event.id === this.selectedEventId) card.addClass("is-active");
     card.onclick = (click) => {
       click.stopPropagation();
