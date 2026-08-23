@@ -100,7 +100,7 @@ export class ContextCalendarView extends ItemView {
     });
     search.addEventListener("input", (event) => {
       this.query = search.value;
-      if ((event as InputEvent).isComposing) return;
+      if ("isComposing" in event && event.isComposing === true) return;
       this.render();
       const nextSearch = this.contentEl.querySelector<HTMLInputElement>(".context-calendar__search");
       nextSearch?.focus();

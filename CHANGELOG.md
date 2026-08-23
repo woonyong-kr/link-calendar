@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.2
+
+- Remove an unnecessary `InputEvent` assertion reported by automated review.
+- Guard the release verifier against reintroducing the cross-window assertion pattern.
+
 ## 2.0.1
 
 - Adopt Obsidian 1.13 declarative settings so every option appears in settings search.

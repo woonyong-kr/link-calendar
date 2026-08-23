@@ -46,6 +46,7 @@ for (const forbidden of [
   /\bgetMarkdownFiles\s*\(/,
   /\bgetFiles\s*\(/,
   /instanceof\s+InputEvent/,
+  /as\s+InputEvent/,
 ]) {
   if (source.some((content) => forbidden.test(content))) {
     errors.push(`source contains forbidden capability: ${String(forbidden)}`);
