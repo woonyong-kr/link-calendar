@@ -1,0 +1,37 @@
+import { TFile } from "obsidian";
+import { describe, expect, it } from "vitest";
+
+import { CalendarIndex } from "../src/index";
+import { createProfile } from "../src/model";
+
+describe("large Vault indexing", () => {
+  it("indexes 10,000 cached notes and keeps single-file updates incremental", () => {
+    const files = Array.from({ length: 10_000 }, (_, index) => {
+      const file = new TFile();
+      file.basename = `Event ${String(index)}`;
+      file.extension = "md";
+      file.parent = { path: "Calendar" } as never;
+      file.path = `Calendar/Event-${String(index)}.md`;
+      return file;
+    });
+    const vault = { getMarkdownFiles: () => files };
+    const metadataCache = {
+      getFileCache: () => ({ frontmatter: { date: "2026-08-18" }, links: [] }),
+      getFirstLinkpathDest: () => null,
+    };
+    const profile = createProfile("Calendar");
+    const index = new CalendarIndex(vault as never, metadataCache as never, [profile]);
+
+    const buildStarted = performance.now();
+    index.rebuild();
+    expect(index.snapshot().events).toHaveLength(10_000);
+    const buildElapsed = performance.now() - buildStarted;
+
+    const updateStarted = performance.now();
+    index.update(files[0] as never);
+    const updateElapsed = performance.now() - updateStarted;
+
+    expect(buildElapsed).toBeLessThan(2_000);
+    expect(updateElapsed).toBeLessThan(150);
+  });
+});

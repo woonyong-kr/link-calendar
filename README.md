@@ -1,36 +1,89 @@
-# Simple Markdown Calendar
+# Context Calendar
 
-Simple Markdown Calendar는 Obsidian Markdown 일정 파일을 읽어 한 달 단위로 정리해 보여 주는 가벼운 플러그인이다. 일정 데이터는 Markdown에만 남고, 플러그인은 파일을 만들거나 고치거나 외부 서비스와 동기화하지 않는다.
+Context Calendar is a month-first Obsidian calendar for dated Markdown notes. Events remain ordinary files, while links, backlinks, people, projects, and related notes stay available beside the month.
 
-## 화면 원칙
+## Why Context Calendar
 
-- 월간 보기만 제공한다.
-- 카드에는 시간을 반복하지 않고 제목만 보여 준다.
-- 긴 제목은 두 줄까지만 표시하고, 마우스를 올리거나 키보드로 선택하면 전체 제목을 보여 준다.
-- 날짜별 카드와 오늘 표식은 충분히 구분하되, 색은 저채도 팔레트로 제한한다. 카드는 움직이지 않으며, 마우스를 올리면 같은 유형의 채움색만 한 단계 진해진다.
+- **Month first:** the full month remains the primary screen, with no time grid.
+- **Markdown first:** every event is a real note that can be searched, linked, and versioned.
+- **Context beside time:** select an event to see its links, backlinks, people, projects, and related notes.
+- **Source capabilities:** personal folders can be writable while generated or imported folders remain read-only.
+- **Local by design:** no account, credential, analytics, network request, or external database.
+- **Theme and device aware:** light/dark themes, keyboard navigation, pop-out windows, and narrow layouts.
 
-## Markdown 계약
+## Quick start
+
+1. Open **Settings → Context Calendar**.
+2. Add a source folder or tag.
+3. Map the date property. The default is `date`.
+4. Use the ribbon calendar icon or **Open month calendar** command.
+
+A minimal event note is:
+
+```markdown
+---
+date: 2026-08-18
+category: Learning
+people:
+  - "[[Jane Doe]]"
+project:
+  - "[[Compiler study]]"
+related:
+  - "[[Admission checklist]]"
+---
+
+# Program orientation
+```
+
+Property names are configurable per source. Dates accept `YYYY-MM-DD` and ISO datetime strings; the calendar preserves the local date portion instead of converting it through a timezone. An optional end property creates a multi-day event. Invalid ranges and spans longer than 370 days are shown in Diagnostics instead of being partially rendered.
+
+## Reading and editing
+
+- Single-click an event to open Agenda and Context.
+- Double-click, use the context menu, or press **Open note** to open the Markdown file.
+- Drag an event to another day only when its source is writable.
+- Use **New event note** to create a Markdown file in a writable folder.
+- Read-only sources never expose create or move operations and are checked again before any file mutation.
+- A writable tag constraint must be present in current frontmatter; inline-only tag matches remain read-only.
+
+Category colors are generated from the category value rather than a fixed list, so any workflow works without code changes.
+
+## Optional Markdown embed
 
 ````markdown
-```woon-simple-calendar
-source: calendar/events
-date_field: Date
-category_field: Category
-category_id_field: Category ID
+```context-calendar
+source: Calendar/Events
+title: Team calendar
 ```
 ````
 
-`source`는 `..`나 절대 경로가 없는 Vault 상대 경로여야 하며, 그 아래의 각 Markdown 문서는 `Date: YYYY-MM-DD` frontmatter를 가져야 한다. `category_field`는 사람이 읽는 제목이고 `category_id_field`는 카드 팔레트를 고르는 안정 ID다. 기본 팔레트는 `career`, `learning`, `creative`, `life`, `relationship`, `health`, `admin`, `other`를 제공하며, 의미와 표시 제목은 Markdown을 만드는 시스템이 소유한다.
+The embed shows upcoming notes and opens the dedicated month view. The source must be a safe Vault-relative path.
 
-왼쪽 ribbon과 명령 팔레트의 `Simple Calendar 열기`는 코드 블록이 있는 첫 Markdown 문서를 연다. 특정 Vault 이름, Calendar 공급자, dashboard 경로를 가정하지 않으며, 대상 문서가 없을 때는 파일을 만들지 않고 안내만 표시한다.
+## Privacy and security
 
-## 개발 검증
+Context Calendar reads local metadata through Obsidian's `MetadataCache` and writes only through `Vault` and `FileManager.processFrontMatter()`. It does not:
+
+- send network requests;
+- ask for or store credentials;
+- execute note content as HTML;
+- read files outside the Vault;
+- edit a source marked read-only.
+
+## Development
 
 ```bash
-npm run check
-npm test
+npm ci
+npm run verify
 ```
 
-## Release
+`npm run verify` runs TypeScript, the official Obsidian ESLint rules, unit tests, coverage, the production bundle, and release-contract validation. Release assets are `main.js`, `manifest.json`, and `styles.css`.
 
-Obsidian 설치에 필요한 release asset은 `main.js`, `manifest.json`, `styles.css` 세 파일이다. 세 파일의 manifest ID와 release asset hash를 확인하는 설치 adapter만 배포본을 Vault에 설치할 수 있다.
+## 한국어 안내
+
+Context Calendar는 날짜가 있는 Markdown 문서를 월간 달력으로 모아 보고, 일정과 연결된 인물·프로젝트·관련 문서·backlink를 같은 화면에서 다시 찾는 Obsidian 플러그인입니다. 외부 계정이나 서버 없이 Vault 안에서만 동작하며, 직접 작성하는 폴더는 수정 가능하게 두고 자동 생성 자료는 읽기 전용으로 분리할 수 있습니다.
+
+설정에서 일정 폴더와 날짜 속성을 지정한 뒤 왼쪽 달력 아이콘을 누르면 됩니다. 카드는 한 번 누르면 맥락을 보여 주고, 두 번 누르면 원문을 엽니다. 긴 제목은 두 줄로 정리되며 전체 제목은 기본 tooltip과 접근성 이름으로 확인할 수 있습니다.
+
+## License
+
+[MIT](LICENSE)

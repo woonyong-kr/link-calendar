@@ -1,13 +1,36 @@
 {
-  "name": "simple-calendar",
-  "version": "1.1.1",
-  "private": false,
-  "description": "A focused Obsidian month calendar for Markdown events.",
+  "name": "context-calendar",
+  "version": "2.0.0",
+  "description": "A month-first calendar for dated Markdown notes and their context.",
+  "main": "main.js",
   "scripts": {
-    "check": "node --check main.js",
-    "test": "node --test tests/main.test.js"
+    "build": "node esbuild.config.mjs production",
+    "dev": "node esbuild.config.mjs",
+    "check": "tsc --noEmit && npm run lint:obsidian",
+    "lint:obsidian": "eslint src tests",
+    "test": "vitest run --coverage",
+    "verify": "npm run check && npm test && npm run build && node scripts/verify-release.mjs"
+  },
+  "keywords": ["obsidian", "calendar", "markdown", "notes"],
+  "author": "Woonyong Choi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/woonyong-kr/simple-calendar.git"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.18.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "esbuild": "^0.25.9",
+    "eslint": "^10.0.1",
+    "eslint-plugin-obsidianmd": "^0.4.1",
+    "obsidian": "1.10.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.42.0",
+    "vitest": "^4.1.11"
   }
 }
