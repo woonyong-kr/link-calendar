@@ -15,7 +15,6 @@ export default tseslint.config(
       "@typescript-eslint/no-deprecated": "off",
       "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }],
       "@typescript-eslint/require-await": "off",
-      "obsidianmd/settings-tab/prefer-setting-definitions": "off",
       "obsidianmd/ui/sentence-case": [
         "warn",
         { brands: ["Context Calendar", "Markdown", "Obsidian"] },

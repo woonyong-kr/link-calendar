@@ -1,4 +1,4 @@
-import { TFile } from "obsidian";
+import { TFile, TFolder } from "obsidian";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -17,6 +17,7 @@ function fixture() {
     testFile("Calendar/Bad.md"),
     testFile("People/Jane.md"),
   ];
+  const folders = folderTree(files);
   const caches = new Map<string, {
     frontmatter: Record<string, unknown>;
     frontmatterLinks?: { link: string }[];
@@ -39,7 +40,7 @@ function fixture() {
   ]);
   const vault = {
     getAbstractFileByPath: (path: string) => files.find((file) => file.path === path) ?? null,
-    getMarkdownFiles: () => files,
+    getFolderByPath: (path: string) => folders.get(path) ?? null,
   };
   const metadataCache = {
     getFileCache: (file: { path: string }) => caches.get(file.path) ?? null,
@@ -49,6 +50,7 @@ function fixture() {
         candidate.path === normalized || candidate.basename === link);
       return file ?? null;
     },
+    resolvedLinks: { "People/Jane.md": { "Calendar/Alpha.md": 1 } },
   };
   const profile = createProfile("Calendar");
   profile.id = "calendar";
@@ -69,8 +71,25 @@ function testFile(path: string): TFile {
   file.path = path;
   file.basename = path.split("/").at(-1)?.replace(/\.md$/, "") ?? "";
   file.extension = "md";
-  file.parent = { path: path.split("/").slice(0, -1).join("/") } as never;
   return file;
+}
+
+function folderTree(files: TFile[]): Map<string, TFolder> {
+  const folders = new Map<string, TFolder>();
+  for (const file of files) {
+    const path = file.path.split("/").slice(0, -1).join("/");
+    let folder = folders.get(path);
+    if (!folder) {
+      folder = new TFolder();
+      folder.path = path;
+      folder.name = path.split("/").at(-1) ?? path;
+      folder.children = [];
+      folders.set(path, folder);
+    }
+    file.parent = folder;
+    folder.children.push(file);
+  }
+  return folders;
 }
 
 describe("CalendarIndex", () => {
@@ -99,12 +118,13 @@ describe("CalendarIndex", () => {
     ]);
   });
 
-  it("updates and removes one file without asking the Vault for every file", () => {
+  it("updates and removes one file without rescanning source folders", () => {
     const { files, metadataCache, profile, vault } = fixture();
     let scans = 0;
-    vault.getMarkdownFiles = () => {
+    const getFolderByPath = vault.getFolderByPath;
+    vault.getFolderByPath = (path: string) => {
       scans += 1;
-      return files;
+      return getFolderByPath(path);
     };
     const index = new CalendarIndex(vault as never, metadataCache as never, [profile]);
     index.rebuild();
@@ -159,11 +179,18 @@ describe("CalendarIndex", () => {
 
   it("rejects invalid explicit ends and spans longer than 370 days", () => {
     const { caches, files, metadataCache, profile, vault } = fixture();
-    files.push(
+    const added = [
       testFile("Calendar/Backward.md"),
       testFile("Calendar/Invalid-end.md"),
       testFile("Calendar/Too-long.md"),
-    );
+    ];
+    files.push(...added);
+    const folder = vault.getFolderByPath("Calendar");
+    if (!folder) throw new Error("Calendar fixture folder is missing");
+    for (const file of added) {
+      file.parent = folder;
+      folder.children.push(file);
+    }
     caches.set("Calendar/Backward.md", {
       frontmatter: { Date: "2026-08-18", End: "2026-08-17" },
       links: [],

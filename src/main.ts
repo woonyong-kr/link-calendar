@@ -14,7 +14,6 @@ import {
 import {
   CalendarIndex,
   selectProfileFromFrontmatter,
-  suggestedProfiles,
 } from "./index";
 import { translate } from "./i18n";
 import {
@@ -22,7 +21,6 @@ import {
   type CalendarSettings,
   type SourceProfile,
   DEFAULT_SETTINGS,
-  createProfile,
   dateKey,
   isRecord,
   normalizeSettings,
@@ -36,13 +34,13 @@ import {
   planMoveFrontmatter,
   writableProfiles,
 } from "./policy";
-import { ContextCalendarSettingTab, OnboardingModal, type SettingsHost } from "./settings";
+import { ContextCalendarSettingTab, type SettingsHost } from "./settings";
 import { ContextCalendarView, VIEW_TYPE, type CalendarActions } from "./view";
 
 const CODE_BLOCK = "context-calendar";
 
 export default class ContextCalendarPlugin extends Plugin implements SettingsHost {
-  settings: CalendarSettings = structuredClone(DEFAULT_SETTINGS);
+  override settings: CalendarSettings = structuredClone(DEFAULT_SETTINGS);
   private index!: CalendarIndex;
   private readonly listeners = new Set<() => void>();
   private refreshQueued = false;
@@ -88,11 +86,6 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
     await this.saveData(serializeSettings(this.settings));
     if (rebuildIndex) this.index.setProfiles(this.settings.profiles);
     this.publishSnapshot();
-  }
-
-  suggestedFolders(): string[] {
-    return suggestedProfiles(this.app.vault.getMarkdownFiles(), this.app.metadataCache)
-      .map((profile) => profile.folder);
   }
 
   subscribe(listener: () => void): () => void {
@@ -171,17 +164,6 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
     await this.app.workspace.revealLeaf(leaf);
     const view = leaf.view;
     if (view instanceof ContextCalendarView) view.setSnapshot(this.index.snapshot());
-    if (!this.settings.profiles.length) {
-      new OnboardingModal(
-        this.app,
-        this.suggestedFolders(),
-        this.settings.locale,
-        async (folder) => {
-          this.settings.profiles = [createProfile(folder)];
-          await this.saveSettings(true);
-        },
-      ).open();
-    }
   }
 
   private async openPath(path: string): Promise<void> {

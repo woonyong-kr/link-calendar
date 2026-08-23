@@ -151,7 +151,7 @@ function normalizeProfile(value: unknown): SourceProfile | null {
   const source = isRecord(value.properties) ? value.properties : {};
   return {
     editable: value.editable !== false,
-    enabled: value.enabled !== false,
+    enabled: Boolean(folder) && value.enabled !== false,
     folder,
     id: stringValue(value.id) || crypto.randomUUID(),
     name: stringValue(value.name) || folder || tag,

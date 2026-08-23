@@ -1,4 +1,4 @@
-import { TFile } from "obsidian";
+import { TFile, TFolder } from "obsidian";
 import { describe, expect, it } from "vitest";
 
 import { CalendarIndex } from "../src/index";
@@ -14,10 +14,16 @@ describe("large Vault indexing", () => {
       file.path = `Calendar/Event-${String(index)}.md`;
       return file;
     });
-    const vault = { getMarkdownFiles: () => files };
+    const folder = new TFolder();
+    folder.path = "Calendar";
+    folder.name = "Calendar";
+    folder.children = files;
+    for (const file of files) file.parent = folder;
+    const vault = { getFolderByPath: (path: string) => path === folder.path ? folder : null };
     const metadataCache = {
       getFileCache: () => ({ frontmatter: { date: "2026-08-18" }, links: [] }),
       getFirstLinkpathDest: () => null,
+      resolvedLinks: {},
     };
     const profile = createProfile("Calendar");
     const index = new CalendarIndex(vault as never, metadataCache as never, [profile]);

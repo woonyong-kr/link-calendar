@@ -1,6 +1,12 @@
 export class TFile {
   basename = "";
   extension = "md";
-  parent: { name?: string; path: string } | null = null;
+  parent: TFolder | null = null;
+  path = "";
+}
+
+export class TFolder {
+  children: (TFile | TFolder)[] = [];
+  name = "";
   path = "";
 }

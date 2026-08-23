@@ -14,7 +14,7 @@ Context Calendar is a month-first Obsidian calendar for dated Markdown notes. Ev
 ## Quick start
 
 1. Open **Settings → Context Calendar**.
-2. Add a source folder or tag.
+2. Add a source folder. Optionally add a tag to narrow that folder.
 3. Map the date property. The default is `date`.
 4. Use the ribbon calendar icon or **Open month calendar** command.
 
@@ -36,6 +36,8 @@ related:
 ```
 
 Property names are configurable per source. Dates accept `YYYY-MM-DD` and ISO datetime strings; the calendar preserves the local date portion instead of converting it through a timezone. An optional end property creates a multi-day event. Invalid ranges and spans longer than 370 days are shown in Diagnostics instead of being partially rendered.
+
+Each source folder is a privacy and performance boundary. Context Calendar indexes Markdown files only inside enabled source folders; an optional tag filters files within that boundary and never expands access to the whole Vault. Legacy tag-only sources from older builds are preserved but disabled until a folder is chosen.
 
 ## Reading and editing
 
@@ -61,13 +63,15 @@ The embed shows upcoming notes and opens the dedicated month view. The source mu
 
 ## Privacy and security
 
-Context Calendar reads local metadata through Obsidian's `MetadataCache` and writes only through `Vault` and `FileManager.processFrontMatter()`. It does not:
+Context Calendar reads configured source folders through Obsidian's `Vault` API and uses the existing `MetadataCache` link graph for backlinks. It writes only through `Vault` and `FileManager.processFrontMatter()`. It does not:
 
 - send network requests;
 - ask for or store credentials;
 - execute note content as HTML;
 - read files outside the Vault;
 - edit a source marked read-only.
+
+The plugin requires Obsidian 1.13.0 or later so its settings are searchable through Obsidian's declarative settings interface.
 
 ## Development
 
@@ -82,7 +86,7 @@ npm run verify
 
 Context Calendar는 날짜가 있는 Markdown 문서를 월간 달력으로 모아 보고, 일정과 연결된 인물·프로젝트·관련 문서·backlink를 같은 화면에서 다시 찾는 Obsidian 플러그인입니다. 외부 계정이나 서버 없이 Vault 안에서만 동작하며, 직접 작성하는 폴더는 수정 가능하게 두고 자동 생성 자료는 읽기 전용으로 분리할 수 있습니다.
 
-설정에서 일정 폴더와 날짜 속성을 지정한 뒤 왼쪽 달력 아이콘을 누르면 됩니다. 카드는 한 번 누르면 맥락을 보여 주고, 두 번 누르면 원문을 엽니다. 긴 제목은 두 줄로 정리되며 전체 제목은 기본 tooltip과 접근성 이름으로 확인할 수 있습니다.
+설정에서 일정 폴더와 날짜 속성을 지정한 뒤 왼쪽 달력 아이콘을 누르면 됩니다. Tag는 반드시 지정 폴더 안에서만 추가 필터로 작동하며 Vault 전체 검색으로 범위를 넓히지 않습니다. 카드는 한 번 누르면 맥락을 보여 주고, 두 번 누르면 원문을 엽니다. 긴 제목은 두 줄로 정리되며 전체 제목은 기본 tooltip과 접근성 이름으로 확인할 수 있습니다.
 
 ## License
 

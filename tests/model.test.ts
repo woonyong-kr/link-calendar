@@ -59,6 +59,23 @@ describe("settings boundary", () => {
     expect(settings.profiles[0]?.editable).toBe(false);
   });
 
+  it("preserves but disables legacy tag-only sources until a folder is chosen", () => {
+    const settings = normalizeSettings({
+      sourceProfiles: [{
+        enabled: true,
+        id: "legacy-tag",
+        name: "Legacy tag",
+        source: { path: "", tag: "calendar", type: "folder" },
+      }],
+    });
+    expect(settings.profiles).toMatchObject([{
+      enabled: false,
+      folder: "",
+      id: "legacy-tag",
+      tag: "calendar",
+    }]);
+  });
+
   it("round-trips the public sourceProfiles schema", () => {
     const profile = normalizeSettings({
         sourceProfiles: [{

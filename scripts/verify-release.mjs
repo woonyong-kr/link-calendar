@@ -13,6 +13,7 @@ const source = await Promise.all(sourceFiles.map((file) => readFile(`src/${file}
 const publicDocs = await Promise.all(
   ["README.md", "CHANGELOG.md", "CONTRIBUTING.md"].map((file) => readFile(file, "utf8")),
 );
+const styles = await readFile("styles.css", "utf8");
 
 const { stdout: trackedBundle } = await run("git", ["ls-files", "main.js"]);
 if (trackedBundle.trim()) errors.push("main.js must be a release asset, not a tracked source file");
@@ -21,6 +22,10 @@ if (manifest.id !== "context-calendar") errors.push("manifest id must be context
 if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) errors.push("manifest version must use exact x.y.z format");
 if (manifest.version !== packageJson.version) errors.push("manifest/package versions differ");
 if (versions[manifest.version] !== manifest.minAppVersion) errors.push("versions.json does not match manifest");
+if (manifest.minAppVersion !== "1.13.0") errors.push("declarative settings require minAppVersion 1.13.0");
+if (manifest.description.length > 250 || !manifest.description.endsWith(".")) {
+  errors.push("manifest description must be at most 250 characters and end with a period");
+}
 for (const key of ["name", "description", "author", "authorUrl", "minAppVersion"]) {
   if (!manifest[key]) errors.push(`manifest is missing ${key}`);
 }
@@ -38,11 +43,18 @@ for (const forbidden of [
   /require\(["'](?:fs|child_process|http|https)["']\)/,
   /\.style\./,
   /setAttribute\(["']style["']/,
+  /\bgetMarkdownFiles\s*\(/,
+  /\bgetFiles\s*\(/,
+  /instanceof\s+InputEvent/,
 ]) {
   if (source.some((content) => forbidden.test(content))) {
     errors.push(`source contains forbidden capability: ${String(forbidden)}`);
   }
 }
+if (!source.some((content) => content.includes("getSettingDefinitions()"))) {
+  errors.push("settings must use the declarative settings API");
+}
+if (styles.includes("!important")) errors.push("styles.css must not use !important");
 
 if (errors.length) throw new Error(errors.join("\n"));
 console.log(JSON.stringify({ status: "ok", id: manifest.id, version: manifest.version }));

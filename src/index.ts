@@ -1,4 +1,4 @@
-import { TFile, type CachedMetadata, type MetadataCache, type Vault } from "obsidian";
+import { TFile, TFolder, type CachedMetadata, type MetadataCache, type Vault } from "obsidian";
 
 import {
   type CalendarEvent,
@@ -39,7 +39,7 @@ export class CalendarIndex {
 
   rebuild(): void {
     this.notes.clear();
-    for (const file of this.vault.getMarkdownFiles()) this.indexFile(file);
+    for (const file of sourceFiles(this.vault, this.profiles)) this.indexFile(file);
     this.revision += 1;
   }
 
@@ -93,11 +93,7 @@ export class CalendarIndex {
       ? metadataWithFrontmatter(cache, frontmatterOverride)
       : cache;
     const profile = selectProfile(file, effectiveCache, this.profiles);
-    if (!profile) {
-      const outgoing = this.resolveCachedLinks(file, cache);
-      if (outgoing.length) this.notes.set(file.path, { diagnostic: null, event: null, outgoing });
-      return;
-    }
+    if (!profile) return;
     const frontmatter = frontmatterOverride ?? (isRecord(cache?.frontmatter) ? cache.frontmatter : {});
     const rawStart = readField(frontmatter, profile.properties.start);
     const start = dateKey(rawStart);
@@ -180,18 +176,6 @@ export class CalendarIndex {
     return paths.map((path) => this.calendarLink(path));
   }
 
-  private resolveCachedLinks(file: TFile, cache: CachedMetadata | null): CalendarLink[] {
-    const candidates = new Set<string>();
-    for (const link of cache?.links ?? []) candidates.add(link.link);
-    for (const link of cache?.frontmatterLinks ?? []) candidates.add(link.link);
-    const paths = [...new Set(
-      [...candidates]
-        .map((candidate) => this.metadataCache.getFirstLinkpathDest(candidate, file.path)?.path)
-        .filter((path): path is string => Boolean(path) && path !== file.path),
-    )].sort();
-    return paths.map((path) => this.calendarLink(path));
-  }
-
   private resolveProperty(
     file: TFile,
     frontmatter: Record<string, unknown>,
@@ -208,11 +192,17 @@ export class CalendarIndex {
 
   private reverseLinks(): Map<string, CalendarLink[]> {
     const reverse = new Map<string, Set<string>>();
-    for (const [source, note] of this.notes) {
-      for (const target of note.outgoing) {
-        const sources = reverse.get(target.path) ?? new Set<string>();
+    const eventPaths = new Set(
+      [...this.notes.entries()]
+        .filter(([, note]) => note.event !== null)
+        .map(([path]) => path),
+    );
+    for (const [source, targets] of Object.entries(this.metadataCache.resolvedLinks)) {
+      for (const target of Object.keys(targets)) {
+        if (source === target || !eventPaths.has(target)) continue;
+        const sources = reverse.get(target) ?? new Set<string>();
         sources.add(source);
-        reverse.set(target.path, sources);
+        reverse.set(target, sources);
       }
     }
     return new Map([...reverse].map(([target, sources]) => [
@@ -242,12 +232,9 @@ export function matchesProfile(
   cache: CachedMetadata | null,
   profile: SourceProfile,
 ): boolean {
-  if (!profile.enabled) return false;
-  const folderMatches = !profile.folder
-    || (
-      file.path.startsWith(`${profile.folder}/`)
-      && (profile.recursive || !file.path.slice(profile.folder.length + 1).includes("/"))
-    );
+  if (!profile.enabled || !profile.folder) return false;
+  const folderMatches = file.path.startsWith(`${profile.folder}/`)
+    && (profile.recursive || !file.path.slice(profile.folder.length + 1).includes("/"));
   if (!folderMatches) return false;
   if (!profile.tag) return true;
   const expected = profile.tag.toLocaleLowerCase();
@@ -306,35 +293,20 @@ function invalidNote(
   return { diagnostic: { code, filePath, profileId }, event: null, outgoing };
 }
 
-export function suggestedProfiles(files: TFile[], metadataCache: MetadataCache): SourceProfile[] {
-  const counts = new Map<string, number>();
-  for (const file of files) {
-    const frontmatter = metadataCache.getFileCache(file)?.frontmatter;
-    if (!isRecord(frontmatter) || !Object.keys(frontmatter).some((key) => ["date", "start", "start date"].includes(key.toLocaleLowerCase()))) {
-      continue;
-    }
-    const folder = file.parent?.path ?? "";
-    if (folder) counts.set(folder, (counts.get(folder) ?? 0) + 1);
+export function sourceFiles(vault: Vault, profiles: SourceProfile[]): TFile[] {
+  const files = new Map<string, TFile>();
+  for (const profile of profiles) {
+    if (!profile.enabled || !profile.folder) continue;
+    const folder = vault.getFolderByPath(profile.folder);
+    if (!folder) continue;
+    collectMarkdownFiles(folder, profile.recursive, files);
   }
-  return [...counts]
-    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
-    .slice(0, 5)
-    .map(([folder]) => ({
-      editable: true,
-      enabled: true,
-      folder,
-      id: `suggested:${folder}`,
-      name: fileTitle(folder),
-      properties: {
-        category: "category",
-        end: "end",
-        people: "people",
-        project: "project",
-        related: "related",
-        start: "date",
-        title: "title",
-      },
-      recursive: true,
-      tag: "",
-    }));
+  return [...files.values()].sort((left, right) => left.path.localeCompare(right.path));
+}
+
+function collectMarkdownFiles(folder: TFolder, recursive: boolean, files: Map<string, TFile>): void {
+  for (const child of folder.children) {
+    if (child instanceof TFile && child.extension === "md") files.set(child.path, child);
+    else if (recursive && child instanceof TFolder) collectMarkdownFiles(child, true, files);
+  }
 }

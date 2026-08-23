@@ -18,8 +18,8 @@ export interface EventDraft {
 export type ProfileValidation = "missing-source" | "missing-start" | "unsafe-folder";
 
 export function validateProfile(profile: SourceProfile): ProfileValidation | null {
-  if (!profile.folder && !profile.tag) return "missing-source";
-  if (profile.folder && !isSafeVaultPath(profile.folder)) return "unsafe-folder";
+  if (!profile.folder) return "missing-source";
+  if (!isSafeVaultPath(profile.folder)) return "unsafe-folder";
   if (!profile.properties.start.trim()) return "missing-start";
   return null;
 }

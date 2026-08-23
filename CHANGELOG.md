@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.1
+
+- Adopt Obsidian 1.13 declarative settings so every option appears in settings search.
+- Restrict indexing to explicitly configured source folders; tags now narrow a folder instead of scanning the whole Vault.
+- Preserve legacy tag-only sources as disabled entries until the user chooses a folder.
+- Remove cross-window event checks and all `!important` declarations reported by automated review.
+
 ## 2.0.0
 
 - Keep the month at full width and present event context in a compact overlay drawer.

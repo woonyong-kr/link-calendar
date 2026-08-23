@@ -48,6 +48,13 @@ describe("mutation policy", () => {
     expect(writableProfiles([profile])).toEqual([]);
   });
 
+  it("does not treat a tag as a Vault-wide source boundary", () => {
+    const profile = createProfile();
+    profile.tag = "calendar";
+    expect(validateProfile(profile)).toBe("missing-source");
+    expect(writableProfiles([profile])).toEqual([]);
+  });
+
   it("rechecks current source capability before moving", () => {
     const profile = createProfile("Calendar");
     profile.id = "calendar";

@@ -1,11 +1,11 @@
-.context-calendar-view {
+.workspace-leaf-content .view-content.context-calendar-view {
   --cc-line: color-mix(in srgb, var(--background-modifier-border) 58%, transparent);
   --cc-muted: var(--text-muted);
   --cc-panel: color-mix(in srgb, var(--background-secondary) 82%, var(--background-primary));
   container-type: inline-size;
   height: 100%;
-  padding: 0 !important;
-  overflow: hidden !important;
+  padding: 0;
+  overflow: hidden;
   background: var(--background-primary);
 }
 
@@ -160,7 +160,7 @@
 
 .context-calendar__day:focus-visible { box-shadow: inset 0 0 0 2px var(--interactive-accent); }
 
-.context-calendar__day-number {
+.context-calendar .context-calendar__day-number {
   appearance: none;
   align-self: flex-end;
   width: 24px;
@@ -169,16 +169,16 @@
   border: 0;
   border-radius: 50%;
   color: var(--cc-muted);
-  background: transparent !important;
+  background: transparent;
   box-shadow: none;
   font-size: 12px;
   font-weight: 680;
   line-height: 24px;
 }
 
-.context-calendar__day-number.is-today {
+.context-calendar .context-calendar__day-number.is-today {
   color: var(--interactive-accent);
-  background: color-mix(in srgb, var(--interactive-accent) 12%, transparent) !important;
+  background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 58%, transparent);
 }
 

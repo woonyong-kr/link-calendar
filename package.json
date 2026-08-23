@@ -1,6 +1,6 @@
 {
   "name": "context-calendar",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A month-first calendar for dated Markdown notes and their context.",
   "main": "main.js",
   "scripts": {
@@ -11,7 +11,12 @@
     "test": "vitest run --coverage",
     "verify": "npm run check && npm test && npm run build && node scripts/verify-release.mjs"
   },
-  "keywords": ["obsidian", "calendar", "markdown", "notes"],
+  "keywords": [
+    "obsidian",
+    "calendar",
+    "markdown",
+    "notes"
+  ],
   "author": "Woonyong Choi",
   "license": "MIT",
   "repository": {
@@ -28,7 +33,7 @@
     "esbuild": "^0.25.9",
     "eslint": "^10.0.1",
     "eslint-plugin-obsidianmd": "^0.4.1",
-    "obsidian": "1.10.0",
+    "obsidian": "^1.13.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0",
     "vitest": "^4.1.11"
