@@ -2,46 +2,53 @@
 
 ## Product principles
 
-Context Calendar adopts four ideas from the [Cupertino theme](https://github.com/aaaaalexis/obsidian-cupertino) without vendoring or forking its implementation. The Woon runtime profile activates Cupertino itself, so the plugin consumes the exact variables and native control classes supplied by the installed theme.
+Context Calendar ships its own Calendar-scoped visual system, adapted from
+[Cupertino](https://github.com/aaaaalexis/obsidian-cupertino):
 
-1. **Native everywhere.** The active Obsidian theme owns typography, semantic color, radius, motion, and shadow.
-2. **Less visual noise.** The month and event title lead; borders, controls, diagnostics, and filters recede until they are useful.
-3. **Familiar interaction.** A month behaves like a calendar, and the selected event behaves like a property sheet rather than a second dashboard.
-4. **Minimal configuration.** Users configure data sources and meaning, not a second theme inside the plugin.
+1. **Fresh. Familiar. Focused.** The month is immediately recognizable, while
+   controls and metadata recede until they are useful.
+2. **Native-feeling, not theme-dependent.** Calendar typography, semantic color,
+   radius, motion, shadow, and control geometry live in this repository and do
+   not change when the active Obsidian community theme changes.
+3. **Less is more.** The month and event title lead. Borders, diagnostics, and
+   filters remain quiet.
+4. **Local and composable.** The plugin owns only elements beneath its own
+   selectors. It never restyles Obsidian's workspace, editor, navigation, or
+   another plugin.
 
-Cupertino is MIT-licensed and is credited as design inspiration. Context Calendar does not copy its CSS or inspect a theme-specific class. The tested Woon baseline is Cupertino `3.2.12` at upstream commit `080cea8d2c680c66e26b61b58970e56fd6f30ae4`; other themes remain supported because the same Obsidian semantic variables are public theme contracts.
+Cupertino 3.2.12 at upstream commit
+080cea8d2c680c66e26b61b58970e56fd6f30ae4 is the reference. The adapted
+primitives and MIT notice are retained in
+[THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 
 ## Source architecture
 
 | Source | Ownership |
 | --- | --- |
-| `src/styles/tokens.css` | The only local design-token definitions and Obsidian token fallbacks |
-| `src/styles/shell.css` | Toolbar, navigation, source lens, and main layout |
-| `src/styles/month-grid.css` | Week headings, days, event cards, and deterministic category tones |
-| `src/styles/event-detail.css` | Date header, event identity, read-only state, and property rows |
-| `src/styles/supporting.css` | Diagnostics, onboarding, settings, embeds, and responsive boundaries |
-| `styles.css` | Generated release artifact; never the source for manual edits |
+| src/styles/tokens.css | Calendar-scoped light/dark palette, typography, spacing, radius, motion, shadow, and controls |
+| src/styles/shell.css | Toolbar, navigation, source lens, and main layout |
+| src/styles/month-grid.css | Week headings, days, event cards, and deterministic category tones |
+| src/styles/event-detail.css | Date header, event identity, read-only state, and property rows |
+| src/styles/supporting.css | Diagnostics, onboarding, settings, embeds, and responsive boundaries |
+| styles.css | Generated release artifact; never edited manually |
 
-`scripts/build-styles.mjs` concatenates the sources in that order. It rejects component-level literal colors, appearance selectors, theme names, and `!important` before writing the release artifact.
+scripts/build-styles.mjs concatenates the sources in that order. Component files
+are rejected when they contain literal colors, active-theme variables,
+appearance selectors, theme names, important overrides, or unbalanced braces.
 
 ## Token contract
 
-- Components consume Obsidian semantic variables such as `--background-primary`, `--text-normal`, `--color-blue`, and `--interactive-accent`.
-- `--cc-*` tokens alias Obsidian variables directly. Typography, radius, control height, shadow, and motion do not provide plugin-owned visual fallbacks.
-- Buttons and search use Obsidian native classes and markup so the active theme, rather than component CSS, owns their appearance.
-- Category values never become CSS class names. The model assigns stable anonymous `tone-*` slots, and those slots resolve through the active theme palette.
-- Light and dark behavior comes from the active theme variables. Component files must not contain `.theme-light`, `.theme-dark`, or a named-theme selector.
-- Literal dimensions are limited to calendar geometry and unavoidable responsive boundaries. Reused spacing and visual values use Obsidian size or semantic tokens.
-
-## Woon runtime profile
-
-The Woon Vault keeps `cssTheme` set to `Cupertino`. Runtime verification must confirm all three layers together:
-
-1. `.obsidian/appearance.json` selects Cupertino;
-2. the installed Cupertino manifest and CSS are present;
-3. the installed Context Calendar build is reloaded after a visual change.
-
-Copying Cupertino into the plugin would create a second stale theme and is therefore forbidden. Exact visual unity comes from one active theme owning both Obsidian and the plugin.
+- Components consume only --cc-* design tokens.
+- Literal palette values and light/dark selectors exist only in
+  src/styles/tokens.css.
+- Every token selector is scoped to Context Calendar view, settings card, or
+  embed. body, html, and :root selectors are forbidden.
+- The plugin follows Obsidian's light/dark state, but it does not consume a
+  community theme's colors, fonts, radii, motion, or shadows.
+- Category values never become CSS class names. The model assigns stable
+  anonymous tone-* slots that resolve through the embedded palette.
+- Geometry and content behavior remain plugin-owned; design primitives remain
+  centralized rather than repeated in components.
 
 ## Component hierarchy
 
@@ -59,14 +66,16 @@ The property panel keeps this order:
 3. date, category, people, project, related notes, links, and backlinks;
 4. diagnostics only when invalid source data exists.
 
-A single event is never repeated as an agenda card. The agenda switcher appears only when the selected date has multiple events. Read-only status is capability information, not a warning banner.
+A single event is never repeated as an agenda card. The agenda switcher appears
+only when a selected date has multiple events. Read-only status is capability
+information, not a warning banner.
 
 ## Review gate
 
-Every visual change must pass:
+Every visual change must pass npm run verify.
 
-```bash
-npm run verify
-```
-
-Then install through the Woon receipt adapter, reload Obsidian, and visually attest the ribbon, month view, event card, context links, and read-only boundary. A generated hash or static screenshot alone does not prove the running plugin loaded the change.
+The verifier proves source isolation and release integrity. A release candidate
+must then be installed through the Woon receipt adapter, Obsidian reloaded, and
+the month, event card, context links, and read-only boundary checked at runtime.
+Independence is verified by rendering the same build with Cupertino disabled
+and then restoring the user's original theme.

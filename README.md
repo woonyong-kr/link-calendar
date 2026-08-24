@@ -26,11 +26,11 @@ Select an event to inspect its date, category, people, and connected notes witho
 
 ![Context Calendar event context](docs/media/context-calendar-context.png)
 
-## Adaptive design
+## Independent design
 
-Context Calendar follows Obsidian's active theme instead of shipping a competing visual skin. Its typography, semantic colors, control radii, motion, shadows, buttons, and search controls resolve from Obsidian theme variables and native component classes; category tones are derived from the active theme palette. With Cupertino active, the calendar uses Cupertino's actual runtime tokens rather than an imitation, while other themes keep their own identity.
+Context Calendar carries its Calendar-scoped typography, semantic colors, control radii, motion, shadows, and category palette in this repository. It follows Obsidian's light or dark appearance but does not depend on an installed community theme, so the month keeps the same visual identity in a default Vault and in a heavily customized one.
 
-The source design contract lives in [`docs/design-system.md`](docs/design-system.md). Component CSS cannot contain literal colors, light/dark selectors, theme names, or `!important`; the production build rejects those regressions before generating `styles.css`.
+The source design contract lives in [`docs/design-system.md`](docs/design-system.md). Component CSS can consume only `--cc-*` tokens; the production build rejects literal colors, active-theme variables, light/dark selectors, theme names, `!important`, and unbalanced source files before generating `styles.css`. The adapted Cupertino primitives and license are documented in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 ## Quick start
 
@@ -107,7 +107,7 @@ npm run verify
 
 `npm run verify` runs TypeScript, the official Obsidian ESLint rules, unit tests, coverage, the production bundle, and release-contract validation. Release assets are `main.js`, `manifest.json`, and `styles.css`.
 
-`styles.css` is a generated Community Plugin artifact. Edit the component sources under `src/styles/`: `tokens.css` is the only design-token source, while shell, month grid, event detail, and supporting surfaces remain independent components.
+`styles.css` is a generated Community Plugin artifact. Edit the component sources under `src/styles/`: `tokens.css` is the only design-token source, while shell, month grid, event detail, and supporting surfaces remain independent components. Do not copy the global selectors of an Obsidian theme into the plugin.
 
 ## 한국어 안내
 

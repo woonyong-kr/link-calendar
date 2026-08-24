@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.7
+
+- Embed the Calendar-scoped Cupertino design primitives so the plugin keeps its visual identity without requiring a particular Obsidian theme.
+- Restrict component CSS to local `--cc-*` tokens and reject theme dependencies, global roots, and unbalanced source files during the build.
+- Preserve Cupertino's MIT attribution while excluding its global workspace, editor, navigation, and mobile-shell selectors.
+- Repair the split stylesheet boundary so every source file is independently balanced.
+
 ## 2.0.6
 
 - Inherit Cupertino and other active themes through native Obsidian control classes and semantic UI tokens.
