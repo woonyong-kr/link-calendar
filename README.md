@@ -16,6 +16,16 @@ Context Calendar turns dated Markdown notes into a month you can navigate by sou
 - **Local by design:** no account, credential, analytics, network request, or external database.
 - **Theme and device aware:** light/dark themes, keyboard navigation, pop-out windows, and narrow layouts.
 
+## Interface
+
+The month remains the main workspace. Calendar geometry is owned by Context Calendar, while typography, controls, spacing language, color, radius, and motion come from the active Obsidian theme.
+
+![Context Calendar month view](docs/media/context-calendar-overview.png)
+
+Select an event to inspect its date, category, people, and connected notes without leaving the month. Opening a source note remains an explicit action.
+
+![Context Calendar event context](docs/media/context-calendar-context.png)
+
 ## Adaptive design
 
 Context Calendar follows Obsidian's active theme instead of shipping a competing visual skin. Its typography, semantic colors, control radii, motion, shadows, buttons, and search controls resolve from Obsidian theme variables and native component classes; category tones are derived from the active theme palette. With Cupertino active, the calendar uses Cupertino's actual runtime tokens rather than an imitation, while other themes keep their own identity.
