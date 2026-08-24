@@ -62,7 +62,7 @@ The month view keeps this order:
 The property panel keeps this order:
 
 1. localized date and close action;
-2. event title, subtle capability state, and explicit **Open note** action;
+2. event title, subtle capability state, and an explicit file-icon action with an accessible **Open note** name;
 3. date, category, people, project, related notes, links, and backlinks;
 4. diagnostics only when invalid source data exists.
 

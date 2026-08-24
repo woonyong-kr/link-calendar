@@ -29,7 +29,7 @@ Only a date property is required. Ordinary wikilinks and backlinks become contex
 
 ## Interface
 
-The month remains the main workspace. Calendar geometry is owned by Context Calendar, while typography, controls, spacing language, color, radius, and motion come from the active Obsidian theme.
+The month remains the main workspace. Context Calendar owns its scoped geometry and design tokens, follows Obsidian's light or dark appearance, and does not restyle the surrounding workspace.
 
 ![Context Calendar month view](docs/media/context-calendar-overview.png)
 
@@ -82,7 +82,6 @@ Each source folder is a privacy and performance boundary. Context Calendar index
 - Read-only sources never expose create or move operations and are checked again before any file mutation.
 - A writable tag constraint must be present in current frontmatter; inline-only tag matches remain read-only.
 - Use the source bar when more than one source is enabled.
-- In Context, use the filter control beside a person or project to turn it into a month-wide Context Lens. Clear the lens from the scope bar.
 - From an indexed Markdown note, run **Reveal active note in calendar** to locate the matching card.
 
 Category colors are generated from the category value rather than a fixed list, so any workflow works without code changes.
