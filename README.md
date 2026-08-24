@@ -75,7 +75,8 @@ Each source folder is a privacy and performance boundary. Context Calendar index
 ## Reading and editing
 
 - Single-click an event to open Agenda and Context.
-- Double-click, use the context menu, or press **Open note** to open the Markdown file.
+- Select a category, person, project, or connected-note chip to filter the month by that context.
+- Double-click a card, use its context menu, or select the file icon in Context to open the event Markdown file. Use a connected-note chip's context menu to open that note.
 - Drag an event to another day only when its source is writable.
 - Use **New event note** to create a Markdown file in a writable folder.
 - Read-only sources never expose create or move operations and are checked again before any file mutation.

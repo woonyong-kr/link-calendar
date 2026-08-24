@@ -1,6 +1,6 @@
 {
   "name": "context-calendar",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Navigate dated Markdown by month, then follow its links and context.",
   "main": "main.js",
   "scripts": {

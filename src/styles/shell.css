@@ -92,8 +92,7 @@
   height: var(--cc-control-height);
 }
 
-.context-calendar__today,
-.context-calendar__open {
+.context-calendar__today {
   min-height: var(--cc-control-height);
   margin: 0;
   padding-inline: var(--cc-space-3);

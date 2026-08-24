@@ -484,11 +484,11 @@ export class ContextCalendarView extends ItemView {
       setIcon(status.createSpan(), "lock-keyhole");
       status.createSpan({ text: translate(settings.locale, "readOnlyShort") });
     }
-    heading.createEl("button", {
-      cls: "context-calendar__open",
-      text: translate(settings.locale, "open"),
-      attr: { type: "button" },
-    }).onclick = () => void this.actions.open(event.filePath);
+    const open = iconButton("file-text", translate(settings.locale, "open"), () => {
+      void this.actions.open(event.filePath);
+    });
+    open.addClass("context-calendar__open");
+    heading.append(open);
 
     const details = section.createDiv({ cls: "context-calendar__properties" });
     const dateValue = propertyRow(details, "calendar-days", translate(settings.locale, "dateField"));
@@ -523,17 +523,23 @@ export class ContextCalendarView extends ItemView {
       const links = propertyRow(connections, propertyIcon(key), label);
       for (const link of linksForSection) {
         const row = links.createDiv({ cls: "context-calendar__property-value" });
-        row.createEl("button", {
+        const value = row.createEl("button", {
           cls: "context-calendar__property-link",
           text: link.label,
-          title: link.path,
+          title: translate(settings.locale, "filterMonth"),
           attr: { type: "button" },
-        }).onclick = () => void this.actions.open(link.path);
-        const filter = iconButton("list-filter", translate(settings.locale, "filterMonth"), () => {
-          this.setLens({ kind: key, label: link.label, value: link.path });
         });
-        filter.addClass("context-calendar__context-filter");
-        row.append(filter);
+        value.onclick = () => {
+          this.setLens({ kind: key, label: link.label, value: link.path });
+        };
+        value.oncontextmenu = (mouseEvent) => {
+          const menu = new Menu();
+          menu.addItem((item) => item
+            .setTitle(translate(settings.locale, "open"))
+            .setIcon("file-text")
+            .onClick(() => void this.actions.open(link.path)));
+          menu.showAtMouseEvent(mouseEvent);
+        };
       }
     }
   }
@@ -550,11 +556,6 @@ export class ContextCalendarView extends ItemView {
       attr: { type: "button" },
     });
     value.onclick = () => this.setLens(lens);
-    const filter = iconButton("list-filter", translate(settings.locale, "filterMonth"), () => {
-      this.setLens(lens);
-    });
-    filter.addClass("context-calendar__context-filter");
-    row.append(filter);
   }
 
   private setLens(lens: EventLens): void {

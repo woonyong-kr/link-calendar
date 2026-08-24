@@ -50,8 +50,8 @@
   --cc-day-min-height: 72px;
   --cc-day-min-height-compact: 58px;
   --cc-day-number-size: 22px;
-  --cc-card-height: 34px;
-  --cc-card-height-compact: 28px;
+  --cc-card-height: 36px;
+  --cc-card-height-compact: 32px;
   --cc-card-gap: 3px;
   --cc-card-padding-block: 3px;
   --cc-card-padding-inline: 6px;
@@ -59,9 +59,9 @@
   --cc-focus-ring-size: 2px;
   --cc-context-icon-size: 12px;
   --cc-context-gap: 3px;
-  --cc-card-tint: 15%;
-  --cc-card-tint-muted: 9%;
-  --cc-card-hover-mix: 82%;
+  --cc-card-tint: 16%;
+  --cc-card-tint-muted: 10%;
+  --cc-card-hover-mix: 74%;
   --cc-corner-shape: superellipse(1.1);
   --cc-motion: 320ms cubic-bezier(0.32, 0.72, 0, 1);
   --cc-motion-fast: 160ms cubic-bezier(0.32, 0.72, 0, 1);
@@ -128,6 +128,8 @@
   --cc-color-pink: rgb(255 55 95);
   --cc-tactile-shadow: 0 0 1px rgb(255 255 255 / 24%), 0 8px 16px rgb(0 0 0 / 20%);
   --cc-overlay-shadow: 0 16px 64px rgb(0 0 0 / 30%);
+  --cc-card-tint: 22%;
+  --cc-card-tint-muted: 14%;
 }
 
 .workspace-leaf-content .view-content.context-calendar-view {
@@ -231,8 +233,7 @@
   height: var(--cc-control-height);
 }
 
-.context-calendar__today,
-.context-calendar__open {
+.context-calendar__today {
   min-height: var(--cc-control-height);
   margin: 0;
   padding-inline: var(--cc-space-3);
@@ -413,7 +414,7 @@
 
 .context-calendar__cards {
   display: flex;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
@@ -432,6 +433,7 @@
   width: 100%;
   min-width: 0;
   height: var(--cc-card-height);
+  min-height: var(--cc-card-height);
   max-height: var(--cc-card-height);
   margin: 0;
   padding: var(--cc-card-padding-block) var(--cc-card-padding-inline);
@@ -459,6 +461,7 @@
   overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .context-calendar__card-context {
@@ -640,6 +643,12 @@
 
 .context-calendar__event-heading .context-calendar__open {
   flex: 0 0 auto;
+  width: var(--cc-control-height);
+  min-width: var(--cc-control-height);
+  height: var(--cc-control-height);
+  margin: 0;
+  padding: 0;
+  border-radius: var(--cc-button-radius);
 }
 
 .context-calendar__properties {
@@ -722,7 +731,8 @@
   border-radius: var(--cc-radius-xs);
   background: var(--cc-control);
   corner-shape: var(--cc-corner-shape);
-  transition: background-color var(--cc-motion);
+  overflow: hidden;
+  transition: background-color var(--cc-motion), color var(--cc-motion);
 }
 
 .context-calendar__property-value[class*="tone-"] {
@@ -730,6 +740,7 @@
 }
 
 .context-calendar button.context-calendar__property-link {
+  width: 100%;
   max-width: 100%;
   min-height: var(--cc-control-height);
   margin: 0;
@@ -743,27 +754,13 @@
   font-size: var(--cc-font-sm);
   font-weight: var(--cc-weight-medium);
   text-overflow: ellipsis;
+  text-align: left;
   white-space: nowrap;
 }
 
 .context-calendar button.context-calendar__property-link:hover {
-  background: var(--cc-control-hover);
+  background: color-mix(in srgb, var(--cc-control-hover) 78%, var(--cc-accent));
 }
-
-.context-calendar .context-calendar__context-filter {
-  width: 22px;
-  height: 22px;
-  margin-right: 1px;
-  padding: 0;
-  border-radius: var(--cc-icon-radius);
-  opacity: 0;
-  transition: opacity var(--cc-motion), background-color var(--cc-motion);
-}
-
-.context-calendar__property-value:hover .context-calendar__context-filter,
-.context-calendar__context-filter:focus-visible { opacity: 1; }
-
-.context-calendar__context-filter svg { width: 12px; height: 12px; }
 
 .context-calendar__diagnostics {
   margin-top: 18px;
@@ -874,6 +871,7 @@
   .context-calendar__day { padding: var(--cc-space-1); }
   .context-calendar button.context-calendar__card {
     height: var(--cc-card-height-compact);
+    min-height: var(--cc-card-height-compact);
     max-height: var(--cc-card-height-compact);
     padding: var(--cc-card-padding-block) var(--cc-card-padding-inline);
     font-size: var(--cc-font-xs);
@@ -915,6 +913,7 @@
   }
   .context-calendar button.context-calendar__card {
     height: var(--cc-card-height-compact);
+    min-height: var(--cc-card-height-compact);
     max-height: var(--cc-card-height-compact);
     padding: var(--cc-card-padding-block);
     font-size: var(--cc-font-xs);

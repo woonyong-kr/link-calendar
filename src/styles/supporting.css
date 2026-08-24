@@ -87,6 +87,7 @@
   .context-calendar__day { padding: var(--cc-space-1); }
   .context-calendar button.context-calendar__card {
     height: var(--cc-card-height-compact);
+    min-height: var(--cc-card-height-compact);
     max-height: var(--cc-card-height-compact);
     padding: var(--cc-card-padding-block) var(--cc-card-padding-inline);
     font-size: var(--cc-font-xs);
@@ -128,6 +129,7 @@
   }
   .context-calendar button.context-calendar__card {
     height: var(--cc-card-height-compact);
+    min-height: var(--cc-card-height-compact);
     max-height: var(--cc-card-height-compact);
     padding: var(--cc-card-padding-block);
     font-size: var(--cc-font-xs);

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.1
+
+- Make each category and context chip the filter control instead of repeating a separate filter icon.
+- Replace the event-detail text action with a compact, accessible file icon action.
+- Keep two-line event titles inside their day cells while preserving the full title in a tooltip.
+- Increase dark-mode category distinction with centrally managed Apple semantic color tokens.
+
 ## 2.1.0
 
 - Make ordinary wikilinks and backlinks first-class Context Lens filters, so a date property is the only required schema.
