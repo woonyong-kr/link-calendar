@@ -144,8 +144,10 @@ export class ContextCalendarView extends ItemView {
       attr: { "aria-live": "polite" },
     });
     const tools = header.createDiv({ cls: "context-calendar__tools" });
-    const search = tools.createEl("input", {
-      cls: "context-calendar__search",
+    const searchContainer = tools.createDiv({
+      cls: "search-input-container context-calendar__search",
+    });
+    const search = searchContainer.createEl("input", {
       attr: { "aria-label": translate(locale, "search"), type: "search" },
       placeholder: translate(locale, "search"),
       value: this.query,
@@ -154,7 +156,7 @@ export class ContextCalendarView extends ItemView {
       this.query = search.value;
       if ("isComposing" in event && event.isComposing === true) return;
       this.render();
-      const nextSearch = this.contentEl.querySelector<HTMLInputElement>(".context-calendar__search");
+      const nextSearch = this.contentEl.querySelector<HTMLInputElement>(".context-calendar__search input");
       nextSearch?.focus();
       nextSearch?.setSelectionRange(this.query.length, this.query.length);
     });
@@ -589,7 +591,9 @@ function diagnosticMessage(code: CalendarSnapshot["diagnostics"][number]["code"]
 }
 
 function iconButton(icon: string, label: string, action: () => void): HTMLButtonElement {
-  const button = createEl("button", { cls: "context-calendar__icon-button" });
+  const button = createEl("button", {
+    cls: "clickable-icon context-calendar__icon-button",
+  });
   button.type = "button";
   button.ariaLabel = label;
   button.title = label;

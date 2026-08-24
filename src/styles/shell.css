@@ -1,8 +1,11 @@
 .context-calendar {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 540px;
+  min-width: 0;
+  padding: 0 var(--cc-side-padding) var(--cc-side-padding);
   color: var(--text-normal);
   background: var(--background-primary);
   font-family: var(--font-interface);
@@ -20,10 +23,9 @@
   display: grid;
   grid-template-columns: auto minmax(140px, 1fr) auto;
   align-items: center;
-  gap: 12px;
-  min-height: 50px;
-  padding: 7px 10px;
-  border-bottom: 1px solid var(--cc-line);
+  gap: var(--size-4-3);
+  min-height: var(--header-height);
+  padding: var(--size-4-2) 0;
   background: var(--background-primary);
 }
 
@@ -31,12 +33,12 @@
 .context-calendar__tools {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--size-4-1);
 }
 
 .context-calendar__navigation {
   justify-self: start;
-  gap: 1px;
+  gap: 0;
   padding: 0;
 }
 
@@ -45,71 +47,53 @@
 .context-calendar__title {
   justify-self: start;
   margin: 0;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: var(--cc-font-title);
+  font-weight: var(--cc-weight-bold);
   letter-spacing: -0.025em;
   text-align: left;
 }
 
-.context-calendar__icon-button,
-.context-calendar__today,
-.context-calendar__add,
-.context-calendar__open {
-  display: inline-grid;
-  place-items: center;
-  height: 34px;
+.context-calendar__icon-button {
+  flex: 0 0 auto;
   margin: 0;
-  border: 0;
-  border-radius: 5px;
-  color: var(--text-muted);
-  background: transparent;
-  box-shadow: none;
-  corner-shape: var(--corner-shape, round);
-  transition: color var(--cc-motion), background-color var(--cc-motion);
+  border-radius: var(--cc-icon-radius);
+  corner-shape: var(--corner-shape);
 }
 
 .context-calendar button.context-calendar__icon-button {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  font-size: var(--cc-font-md);
-}
-.context-calendar__today,
-.context-calendar__open {
-  height: 28px;
-  padding: 0 7px;
-  font-size: var(--cc-font-md);
-  font-weight: 600;
+  width: var(--cc-control-height);
+  min-width: var(--cc-control-height);
+  height: var(--cc-control-height);
 }
 
-.context-calendar__icon-button:hover,
-.context-calendar__today:hover,
-.context-calendar__open:hover {
-  color: var(--text-normal);
-  background: var(--background-modifier-hover);
+.context-calendar__today,
+.context-calendar__open {
+  min-height: var(--cc-control-height);
+  margin: 0;
+  font-size: var(--cc-font-md);
+  font-weight: var(--cc-weight-semibold);
 }
 
 .context-calendar__search {
   width: clamp(130px, 15vw, 220px);
-  height: 30px;
-  padding: 0 11px;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  background: color-mix(in srgb, var(--background-secondary) 62%, transparent);
+  height: var(--cc-control-height);
+}
+
+.context-calendar__search input {
+  width: 100%;
+  height: var(--cc-control-height);
   font-size: var(--cc-font-md);
-  corner-shape: var(--corner-shape, round);
-  transition: border-color var(--cc-motion), background-color var(--cc-motion);
 }
 
 .context-calendar__scope {
   display: flex;
   align-items: center;
-  gap: 5px;
-  min-height: 38px;
-  padding: 5px 14px;
+  gap: var(--size-4-1);
+  min-height: calc(var(--cc-control-height) + var(--size-4-2));
+  padding: var(--size-4-1) var(--size-4-3);
   overflow-x: auto;
   border-bottom: 1px solid var(--cc-line);
-  background: color-mix(in srgb, var(--background-secondary) 38%, var(--background-primary));
+  background: var(--background-secondary);
   scrollbar-width: none;
 }
 
@@ -120,23 +104,17 @@
   flex: 0 0 auto;
   color: var(--text-faint);
   font-size: var(--cc-font-xs);
-  font-weight: 700;
+  font-weight: var(--cc-weight-semibold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .context-calendar__scope button {
   flex: 0 0 auto;
-  height: 26px;
+  min-height: var(--cc-control-height);
   margin: 0;
-  padding: 0 8px;
-  border: 0;
-  border-radius: 5px;
-  color: var(--text-muted);
-  background: transparent;
-  box-shadow: none;
   font-size: var(--cc-font-xs);
-  font-weight: 600;
+  font-weight: var(--cc-weight-semibold);
 }
 
 .context-calendar__scope button:hover,
@@ -162,6 +140,12 @@
   grid-template-columns: minmax(0, 1fr);
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--cc-line);
+  border-radius: var(--cc-radius-md);
+  background: var(--background-primary);
+  corner-shape: var(--corner-shape);
 }
 
 .context-calendar__body.has-side {

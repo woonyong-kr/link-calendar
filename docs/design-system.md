@@ -2,14 +2,14 @@
 
 ## Product principles
 
-Context Calendar adopts four ideas from the [Cupertino theme](https://github.com/aaaaalexis/obsidian-cupertino) without copying or depending on its implementation.
+Context Calendar adopts four ideas from the [Cupertino theme](https://github.com/aaaaalexis/obsidian-cupertino) without vendoring or forking its implementation. The Woon runtime profile activates Cupertino itself, so the plugin consumes the exact variables and native control classes supplied by the installed theme.
 
 1. **Native everywhere.** The active Obsidian theme owns typography, semantic color, radius, motion, and shadow.
 2. **Less visual noise.** The month and event title lead; borders, controls, diagnostics, and filters recede until they are useful.
 3. **Familiar interaction.** A month behaves like a calendar, and the selected event behaves like a property sheet rather than a second dashboard.
 4. **Minimal configuration.** Users configure data sources and meaning, not a second theme inside the plugin.
 
-Cupertino is MIT-licensed and is credited as design inspiration. Context Calendar does not import its CSS, inspect its theme class, or require it at runtime.
+Cupertino is MIT-licensed and is credited as design inspiration. Context Calendar does not copy its CSS or inspect a theme-specific class. The tested Woon baseline is Cupertino `3.2.12` at upstream commit `080cea8d2c680c66e26b61b58970e56fd6f30ae4`; other themes remain supported because the same Obsidian semantic variables are public theme contracts.
 
 ## Source architecture
 
@@ -27,10 +27,21 @@ Cupertino is MIT-licensed and is credited as design inspiration. Context Calenda
 ## Token contract
 
 - Components consume Obsidian semantic variables such as `--background-primary`, `--text-normal`, `--color-blue`, and `--interactive-accent`.
-- `--cc-*` tokens may alias an Obsidian variable and provide a conservative fallback in `tokens.css` only.
+- `--cc-*` tokens alias Obsidian variables directly. Typography, radius, control height, shadow, and motion do not provide plugin-owned visual fallbacks.
+- Buttons and search use Obsidian native classes and markup so the active theme, rather than component CSS, owns their appearance.
 - Category values never become CSS class names. The model assigns stable anonymous `tone-*` slots, and those slots resolve through the active theme palette.
 - Light and dark behavior comes from the active theme variables. Component files must not contain `.theme-light`, `.theme-dark`, or a named-theme selector.
-- Base token values and unavoidable responsive boundaries are the only literal dimensions. Component spacing and visual values should be promoted to a semantic token when reused or changed as part of the product language.
+- Literal dimensions are limited to calendar geometry and unavoidable responsive boundaries. Reused spacing and visual values use Obsidian size or semantic tokens.
+
+## Woon runtime profile
+
+The Woon Vault keeps `cssTheme` set to `Cupertino`. Runtime verification must confirm all three layers together:
+
+1. `.obsidian/appearance.json` selects Cupertino;
+2. the installed Cupertino manifest and CSS are present;
+3. the installed Context Calendar build is reloaded after a visual change.
+
+Copying Cupertino into the plugin would create a second stale theme and is therefore forbidden. Exact visual unity comes from one active theme owning both Obsidian and the plugin.
 
 ## Component hierarchy
 

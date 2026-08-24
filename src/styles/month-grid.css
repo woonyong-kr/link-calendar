@@ -15,7 +15,6 @@
   height: 100%;
   overflow: hidden;
   border: 0;
-  border-top: 1px solid var(--cc-line);
   border-radius: 0;
   background: var(--background-primary);
 }
@@ -28,13 +27,13 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 0 7px;
+  padding: 0 var(--size-4-2);
   color: var(--cc-muted);
-  background: color-mix(in srgb, var(--background-secondary) 28%, var(--background-primary));
+  background: var(--background-secondary);
   border-right: 1px solid var(--cc-line-soft);
   border-bottom: 1px solid var(--cc-line);
   font-size: var(--cc-font-xs);
-  font-weight: 700;
+  font-weight: var(--cc-weight-semibold);
   letter-spacing: 0.04em;
 }
 
@@ -46,7 +45,7 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding: 5px 6px 6px;
+  padding: var(--size-4-1) var(--size-4-2) var(--size-4-2);
   border-right: 1px solid var(--cc-line-soft);
   border-bottom: 1px solid var(--cc-line-soft);
   outline: none;
@@ -55,18 +54,17 @@
 
 .context-calendar__day.is-outside {
   color: var(--text-faint);
-  background: color-mix(in srgb, var(--background-secondary) 34%, var(--background-primary));
-  opacity: 0.42;
+  background: var(--background-secondary);
+  opacity: 0.5;
 }
 
 .context-calendar__day.is-selected {
-  background: color-mix(in srgb, var(--interactive-accent) 1.5%, var(--background-primary));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--interactive-accent) 18%, transparent);
+  background: var(--interactive-normal);
 }
 
 .context-calendar__day.is-selected .context-calendar__day-number:not(.is-today) {
   color: var(--text-normal);
-  background: var(--background-modifier-hover);
+  background: transparent;
 }
 
 .context-calendar__day:focus-visible { box-shadow: inset 0 0 0 2px var(--interactive-accent); }
@@ -83,13 +81,13 @@
   background: transparent;
   box-shadow: none;
   font-size: var(--cc-font-md);
-  font-weight: 600;
+  font-weight: var(--cc-weight-semibold);
   line-height: 22px;
 }
 
 .context-calendar .context-calendar__day-number.is-today {
   color: var(--text-on-accent);
-  background: color-mix(in srgb, var(--interactive-accent) 72%, var(--background-primary));
+  background: var(--interactive-accent);
 }
 
 .context-calendar__cards {
@@ -114,17 +112,17 @@
   padding: 3px 5px;
   overflow: hidden;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--cc-radius-sm);
   color: var(--text-normal);
   background: var(--cc-card);
   box-shadow: none;
-  font-size: clamp(10px, 1.1cqi, 11px);
-  font-weight: 600;
+  font-size: var(--cc-font-xs);
+  font-weight: var(--cc-weight-semibold);
   line-height: 1.2;
   text-align: left;
   cursor: pointer;
-  corner-shape: var(--corner-shape, round);
-  transition: background-color var(--cc-motion), color var(--cc-motion), box-shadow var(--cc-motion);
+  corner-shape: var(--corner-shape);
+  transition: background-color var(--cc-motion), color var(--cc-motion);
 }
 
 .context-calendar__card-title,
@@ -141,7 +139,6 @@
 .context-calendar button.context-calendar__card:hover,
 .context-calendar button.context-calendar__card.is-active {
   background: color-mix(in srgb, var(--cc-card) 86%, var(--text-normal));
-  box-shadow: var(--cc-tactile-shadow);
 }
 
 .context-calendar button.context-calendar__card:focus-visible {
@@ -149,18 +146,18 @@
   outline-offset: -2px;
 }
 
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-0 { --cc-card: color-mix(in srgb, var(--color-blue) 24%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-1 { --cc-card: color-mix(in srgb, var(--color-green) 24%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-2 { --cc-card: color-mix(in srgb, var(--color-orange) 24%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-3 { --cc-card: color-mix(in srgb, var(--color-cyan) 24%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-4 { --cc-card: color-mix(in srgb, var(--color-pink) 24%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-5 { --cc-card: color-mix(in srgb, var(--color-purple) 24%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-6 { --cc-card: color-mix(in srgb, var(--color-yellow) 24%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-7 { --cc-card: color-mix(in srgb, var(--color-red) 24%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-8 { --cc-card: color-mix(in srgb, var(--color-blue) 15%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-9 { --cc-card: color-mix(in srgb, var(--color-green) 15%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-10 { --cc-card: color-mix(in srgb, var(--color-orange) 15%, var(--background-primary)); }
-.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-11 { --cc-card: color-mix(in srgb, var(--color-purple) 15%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-0 { --cc-card: color-mix(in srgb, var(--color-blue) 12%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-1 { --cc-card: color-mix(in srgb, var(--color-green) 12%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-2 { --cc-card: color-mix(in srgb, var(--color-orange) 12%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-3 { --cc-card: color-mix(in srgb, var(--color-cyan) 12%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-4 { --cc-card: color-mix(in srgb, var(--color-pink) 12%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-5 { --cc-card: color-mix(in srgb, var(--color-purple) 12%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-6 { --cc-card: color-mix(in srgb, var(--color-yellow) 12%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-7 { --cc-card: color-mix(in srgb, var(--color-red) 12%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-8 { --cc-card: color-mix(in srgb, var(--color-blue) 7%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-9 { --cc-card: color-mix(in srgb, var(--color-green) 7%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-10 { --cc-card: color-mix(in srgb, var(--color-orange) 7%, var(--background-primary)); }
+.context-calendar :is(.context-calendar__card, .context-calendar__agenda-item, .context-calendar__property-value).tone-11 { --cc-card: color-mix(in srgb, var(--color-purple) 7%, var(--background-primary)); }
 
 .context-calendar__more {
   align-self: flex-start;
@@ -171,6 +168,5 @@
   background: transparent;
   box-shadow: none;
   font-size: var(--cc-font-xs);
-  font-weight: 600;
+  font-weight: var(--cc-weight-semibold);
 }
-

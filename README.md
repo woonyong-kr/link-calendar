@@ -18,7 +18,7 @@ Context Calendar turns dated Markdown notes into a month you can navigate by sou
 
 ## Adaptive design
 
-Context Calendar follows Obsidian's active theme instead of shipping a competing visual skin. Its typography, semantic colors, control radii, motion, and shadows resolve from Obsidian theme variables; category tones are derived from the active theme palette. Cupertino therefore feels native without a Cupertino-specific selector, while other themes keep their own identity.
+Context Calendar follows Obsidian's active theme instead of shipping a competing visual skin. Its typography, semantic colors, control radii, motion, shadows, buttons, and search controls resolve from Obsidian theme variables and native component classes; category tones are derived from the active theme palette. With Cupertino active, the calendar uses Cupertino's actual runtime tokens rather than an imitation, while other themes keep their own identity.
 
 The source design contract lives in [`docs/design-system.md`](docs/design-system.md). Component CSS cannot contain literal colors, light/dark selectors, theme names, or `!important`; the production build rejects those regressions before generating `styles.css`.
 

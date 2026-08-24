@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.6
+
+- Inherit Cupertino and other active themes through native Obsidian control classes and semantic UI tokens.
+- Remove plugin-owned typography, radius, shadow, motion, and appearance fallbacks from calendar components.
+- Refine full-screen spacing, event-card tones, and the event property panel for a consistent native layout.
+
 ## 2.0.5
 
 - Inherit Obsidian theme color, motion, radius, typography, and tactile-shadow tokens so Context Calendar feels native in Cupertino and remains compatible with other themes.

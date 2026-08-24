@@ -103,7 +103,7 @@ const messages = {
     agenda: "일정",
     apply: "적용",
     automatic: "자동",
-    backlinks: "이 문서를 연결한 노트",
+    backlinks: "연결한 노트",
     calendarNotes: "일정 문서",
     calendarScope: "캘린더 범위",
     calendarSource: "캘린더 소스",
