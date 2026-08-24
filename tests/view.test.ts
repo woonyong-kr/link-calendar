@@ -129,6 +129,11 @@ describe("Context Calendar view", () => {
   it("exposes month-grid selection semantics without a duplicate date button", async () => {
     const { view } = await openView(snapshot());
     const grid = view.contentEl.querySelector('[role="grid"]');
+    const startingDay = view.contentEl.querySelector<HTMLElement>(
+      '[role="gridcell"][aria-label="2026-08-25"]',
+    );
+    startingDay?.click();
+    await settle();
     const selected = view.contentEl.querySelector('[role="gridcell"][aria-selected="true"]');
     const today = view.contentEl.querySelector('[role="gridcell"][aria-current="date"]');
 
