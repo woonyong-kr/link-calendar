@@ -1,7 +1,7 @@
 {
   "id": "context-calendar",
   "name": "Context Calendar",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "minAppVersion": "1.13.0",
   "description": "Explore dated Markdown notes with their links and context in a month-first calendar.",
   "author": "Woonyong Choi",

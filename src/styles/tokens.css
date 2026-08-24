@@ -1,0 +1,21 @@
+.workspace-leaf-content .view-content.context-calendar-view {
+  --cc-line: color-mix(in srgb, var(--background-modifier-border) 58%, transparent);
+  --cc-line-soft: color-mix(in srgb, var(--background-modifier-border) 34%, transparent);
+  --cc-muted: var(--text-muted);
+  --cc-panel: color-mix(in srgb, var(--background-secondary) 54%, var(--background-primary));
+  --cc-font-xs: 10px;
+  --cc-font-sm: 11px;
+  --cc-font-md: 12px;
+  --cc-font-lg: 15px;
+  --cc-font-title: 18px;
+  --cc-radius-sm: var(--radius-s, 4px);
+  --cc-radius-md: var(--radius-m, 7px);
+  --cc-motion: var(--anim-duration-fast, 140ms) var(--anim-motion-baseline, ease-out);
+  --cc-tactile-shadow: var(--shadow-tactile, 0 1px 2px rgb(0 0 0 / 8%));
+  --cc-overlay-shadow: var(--shadow-l, 0 12px 32px rgb(0 0 0 / 18%));
+  container-type: inline-size;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  background: var(--background-primary);
+}

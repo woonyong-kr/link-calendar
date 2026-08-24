@@ -1,0 +1,23 @@
+import { readFile, writeFile } from "node:fs/promises";
+
+const sources = [
+  "src/styles/tokens.css",
+  "src/styles/shell.css",
+  "src/styles/month-grid.css",
+  "src/styles/event-detail.css",
+  "src/styles/supporting.css",
+];
+
+const parts = await Promise.all(sources.map((path) => readFile(path, "utf8")));
+const components = parts.slice(1).join("\n");
+const forbidden = [
+  [/(?:^|[^-])#[0-9a-f]{3,8}\b/iu, "literal color"],
+  [/\brgba?\(/u, "literal rgb color"],
+  [/\bcupertino\b/iu, "theme-specific selector"],
+];
+
+for (const [pattern, label] of forbidden) {
+  if (pattern.test(components)) throw new Error(`Component CSS contains ${label}`);
+}
+
+await writeFile("styles.css", `${parts.map((part) => part.trim()).join("\n\n")}\n`, "utf8");

@@ -514,6 +514,9 @@ export class ContextCalendarView extends ItemView {
 
   private renderFacet(parent: HTMLElement, lens: EventLens, settings: CalendarSettings): void {
     const row = parent.createDiv({ cls: "context-calendar__property-value" });
+    if (lens.kind === "category") {
+      row.addClass(categoryToken(lens.value, this.categoryTones));
+    }
     const value = row.createEl("button", {
       cls: "context-calendar__property-link",
       text: lens.label,

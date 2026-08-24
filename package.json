@@ -1,11 +1,11 @@
 {
   "name": "context-calendar",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A month-first calendar for dated Markdown notes and their context.",
   "main": "main.js",
   "scripts": {
-    "build": "node esbuild.config.mjs production",
-    "dev": "node esbuild.config.mjs",
+    "build": "node scripts/build-styles.mjs && node esbuild.config.mjs production",
+    "dev": "node scripts/build-styles.mjs && node esbuild.config.mjs",
     "check": "tsc --noEmit && npm run lint:obsidian",
     "lint:obsidian": "eslint src tests",
     "test": "vitest run --coverage",

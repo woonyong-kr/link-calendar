@@ -1,0 +1,138 @@
+.context-calendar__onboarding {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  flex: 1;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.context-calendar__onboarding h2,
+.context-calendar__onboarding p { margin: 0; }
+.context-calendar__onboarding p {
+  max-width: 480px;
+  color: var(--text-muted);
+  font-size: var(--cc-font-md);
+  line-height: 1.6;
+}
+
+.context-calendar-source-preview__folder {
+  padding: 8px 10px;
+  border-radius: 5px;
+  background: var(--background-secondary);
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-small);
+}
+
+.context-calendar-source-preview__warning { color: var(--text-warning); }
+
+.context-calendar__onboarding-icon { color: var(--text-muted); }
+.context-calendar__onboarding-icon svg { width: 42px; height: 42px; }
+
+.context-calendar-setting-source {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+}
+.context-calendar-setting-source details { margin-top: 8px; }
+
+.context-calendar-embed {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-secondary);
+}
+.context-calendar-embed__events { display: grid; gap: 3px; }
+.context-calendar-embed__events button {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 8px;
+  border: 0;
+  background: var(--background-primary);
+  text-align: left;
+}
+.context-calendar-embed__events time { color: var(--text-muted); }
+.context-calendar-embed__error {
+  color: var(--text-error);
+  font-size: var(--font-ui-small);
+}
+
+@container (max-width: 860px) {
+  .context-calendar__header { grid-template-columns: auto 1fr auto; padding: 7px 8px; }
+  .context-calendar__search { width: clamp(100px, 24vw, 160px); }
+  .context-calendar__month { min-height: 440px; padding: 0; }
+  .context-calendar__body.has-side { grid-template-columns: minmax(0, 1fr); }
+  .context-calendar__side {
+    position: absolute;
+    z-index: 20;
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: min(320px, calc(100% - 16px));
+    border: 1px solid var(--cc-line);
+    border-radius: var(--cc-radius-md);
+    background: color-mix(in srgb, var(--background-primary) 96%, var(--background-secondary));
+    box-shadow: var(--cc-overlay-shadow);
+  }
+  .context-calendar__day { padding: 3px; }
+  .context-calendar button.context-calendar__card {
+    max-height: 28px;
+    padding: 2px 4px;
+    font-size: 9px;
+  }
+  .context-calendar__scope { padding-inline: 8px; }
+}
+
+@media (max-width: 1100px) {
+  .context-calendar__body.has-side { grid-template-columns: minmax(0, 1fr); }
+  .context-calendar__side {
+    position: absolute;
+    z-index: 20;
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: min(320px, calc(100% - 16px));
+    border: 1px solid var(--cc-line);
+    border-radius: var(--cc-radius-md);
+    background: color-mix(in srgb, var(--background-primary) 96%, var(--background-secondary));
+    box-shadow: var(--cc-overlay-shadow);
+  }
+}
+
+@container (max-width: 560px) {
+  .context-calendar__header { grid-template-columns: auto 1fr auto; }
+  .context-calendar__title { font-size: 15px; }
+  .context-calendar__result-count,
+  .context-calendar__scope-label { display: none; }
+  .context-calendar__add { display: none; }
+  .context-calendar__grid { grid-template-rows: 24px repeat(6, minmax(58px, 1fr)); }
+  .context-calendar__grid.weeks-5 { grid-template-rows: 24px repeat(5, minmax(58px, 1fr)); }
+  .context-calendar__weekday { font-size: 9px; }
+  .context-calendar__day-number {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    line-height: 18px;
+  }
+  .context-calendar button.context-calendar__card {
+    max-height: 24px;
+    padding: 2px;
+    font-size: 8px;
+    line-height: 1.1;
+  }
+  .context-calendar__side {
+    top: auto;
+    left: 8px;
+    width: auto;
+    max-height: 56%;
+    border-radius: var(--cc-radius-md) var(--cc-radius-md) 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .context-calendar__card { transition: none; }
+}

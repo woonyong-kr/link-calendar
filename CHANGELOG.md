@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.5
+
+- Inherit Obsidian theme color, motion, radius, typography, and tactile-shadow tokens so Context Calendar feels native in Cupertino and remains compatible with other themes.
+- Render category properties with the same deterministic tone as their month cards without exposing category names as CSS classes.
+
 ## 2.0.4
 
 - Present the selected event as a compact property sheet with date, category, people, projects, and related notes instead of a repeated agenda card.
