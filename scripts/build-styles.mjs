@@ -13,7 +13,9 @@ const components = parts.slice(1).join("\n");
 const forbidden = [
   [/(?:^|[^-])#[0-9a-f]{3,8}\b/iu, "literal color"],
   [/\brgba?\(/u, "literal rgb color"],
+  [/\.theme-(?:dark|light)\b/u, "appearance-specific selector"],
   [/\bcupertino\b/iu, "theme-specific selector"],
+  [/!important\b/u, "important override"],
 ];
 
 for (const [pattern, label] of forbidden) {

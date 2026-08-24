@@ -16,6 +16,12 @@ Context Calendar turns dated Markdown notes into a month you can navigate by sou
 - **Local by design:** no account, credential, analytics, network request, or external database.
 - **Theme and device aware:** light/dark themes, keyboard navigation, pop-out windows, and narrow layouts.
 
+## Adaptive design
+
+Context Calendar follows Obsidian's active theme instead of shipping a competing visual skin. Its typography, semantic colors, control radii, motion, and shadows resolve from Obsidian theme variables; category tones are derived from the active theme palette. Cupertino therefore feels native without a Cupertino-specific selector, while other themes keep their own identity.
+
+The source design contract lives in [`docs/design-system.md`](docs/design-system.md). Component CSS cannot contain literal colors, light/dark selectors, theme names, or `!important`; the production build rejects those regressions before generating `styles.css`.
+
 ## Quick start
 
 1. Use the ribbon calendar icon or run **Open Context Calendar**.
@@ -90,6 +96,8 @@ npm run verify
 ```
 
 `npm run verify` runs TypeScript, the official Obsidian ESLint rules, unit tests, coverage, the production bundle, and release-contract validation. Release assets are `main.js`, `manifest.json`, and `styles.css`.
+
+`styles.css` is a generated Community Plugin artifact. Edit the component sources under `src/styles/`: `tokens.css` is the only design-token source, while shell, month grid, event detail, and supporting surfaces remain independent components.
 
 ## 한국어 안내
 
