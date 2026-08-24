@@ -16,7 +16,7 @@ export interface EventDraft {
 }
 
 export interface EventLens {
-  kind: "category" | "people" | "project";
+  kind: "category" | keyof CalendarEvent["context"];
   label: string;
   value: string;
 }

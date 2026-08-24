@@ -5,8 +5,8 @@
   min-width: 0;
   padding: 0;
   overflow: auto;
-  border-left: 1px solid var(--cc-line);
-  background: var(--cc-panel);
+  border-left: var(--cc-grid-line-size) solid var(--cc-line-soft);
+  background: var(--cc-background);
 }
 
 .context-calendar__side-topbar {
@@ -18,8 +18,8 @@
   justify-content: space-between;
   min-height: var(--cc-header-height);
   padding: var(--cc-space-2) var(--cc-side-padding);
-  border-bottom: 1px solid var(--cc-line-soft);
-  background: var(--cc-panel);
+  border-bottom: var(--cc-grid-line-size) solid var(--cc-line-soft);
+  background: var(--cc-background);
 }
 
 .context-calendar__side-date {
@@ -28,7 +28,7 @@
   gap: var(--cc-space-2);
   min-width: 0;
   color: var(--cc-text-muted);
-  font-size: var(--cc-font-md);
+  font-size: var(--cc-font-sm);
   font-weight: var(--cc-weight-medium);
 }
 
@@ -40,7 +40,7 @@
 
 .context-calendar__agenda-switcher {
   padding: var(--cc-space-3) var(--cc-side-padding);
-  border-bottom: 1px solid var(--cc-line-soft);
+  border-bottom: var(--cc-grid-line-size) solid var(--cc-line-soft);
 }
 
 .context-calendar__agenda-label {
@@ -63,7 +63,7 @@
   margin: 0 0 var(--cc-space-1);
   padding: var(--cc-space-2) var(--cc-space-3);
   border: 0;
-  border-radius: var(--cc-radius-sm);
+  border-radius: var(--cc-radius-xs);
   color: var(--cc-text);
   background: var(--cc-card);
   box-shadow: none;
@@ -77,7 +77,7 @@
 
 .context-calendar button.context-calendar__agenda-item:hover,
 .context-calendar button.context-calendar__agenda-item.is-active {
-  background: color-mix(in srgb, var(--cc-card) 82%, var(--cc-text));
+  background: color-mix(in srgb, var(--cc-card) var(--cc-card-hover-mix), var(--cc-text));
 }
 
 .context-calendar__event-detail {
@@ -105,7 +105,8 @@
   overflow-wrap: anywhere;
 }
 
-.context-calendar__event-status {
+.context-calendar__event-status,
+.context-calendar__event-summary {
   display: flex;
   align-items: center;
   gap: var(--cc-space-1);
@@ -115,10 +116,13 @@
   font-weight: var(--cc-weight-medium);
 }
 
-.context-calendar__event-status svg {
-  width: 11px;
-  height: 11px;
+.context-calendar__event-status svg,
+.context-calendar__event-summary svg {
+  width: var(--cc-context-icon-size);
+  height: var(--cc-context-icon-size);
 }
+
+.context-calendar__event-summary { color: var(--cc-text-muted); }
 
 .context-calendar__event-heading .context-calendar__open {
   flex: 0 0 auto;
@@ -128,14 +132,27 @@
   display: flex;
   flex-direction: column;
   gap: var(--cc-space-1);
+  margin-top: var(--cc-space-4);
+}
+
+.context-calendar__section-label {
   margin-top: var(--cc-space-6);
+  color: var(--cc-text-muted);
+  font-size: var(--cc-font-xs);
+  font-weight: var(--cc-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.context-calendar__section-label + .context-calendar__properties {
+  margin-top: var(--cc-space-2);
 }
 
 .context-calendar__property {
   display: grid;
-  grid-template-columns: minmax(104px, 0.38fr) minmax(0, 1fr);
+  grid-template-columns: minmax(var(--cc-property-label-width), 0.34fr) minmax(0, 1fr);
   align-items: start;
-  min-height: 34px;
+  min-height: var(--cc-control-height);
   border-radius: var(--cc-radius-sm);
   corner-shape: var(--cc-corner-shape);
   transition: background-color var(--cc-motion);
@@ -150,7 +167,7 @@
   align-items: center;
   gap: var(--cc-space-2);
   min-width: 0;
-  min-height: 34px;
+  min-height: var(--cc-control-height);
   padding: var(--cc-space-2);
   color: var(--cc-text-muted);
   font-size: var(--cc-font-sm);
@@ -172,7 +189,7 @@
   align-items: center;
   gap: var(--cc-space-1);
   min-width: 0;
-  min-height: 34px;
+  min-height: var(--cc-control-height);
   padding: var(--cc-space-1);
 }
 
@@ -188,7 +205,7 @@
   align-items: center;
   min-width: 0;
   max-width: 100%;
-  border-radius: var(--cc-button-radius);
+  border-radius: var(--cc-radius-xs);
   background: var(--cc-control);
   corner-shape: var(--cc-corner-shape);
   transition: background-color var(--cc-motion);
@@ -205,7 +222,7 @@
   padding: var(--cc-space-1) var(--cc-space-2);
   overflow: hidden;
   border: 0;
-  border-radius: var(--cc-button-radius);
+  border-radius: var(--cc-radius-xs);
   color: var(--cc-text);
   background: transparent;
   box-shadow: none;

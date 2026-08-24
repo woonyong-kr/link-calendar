@@ -162,6 +162,7 @@ describe("view policy", () => {
   it("combines source, search, and context lenses without duplicating indexes", () => {
     const candidate = event();
     candidate.context.project = [{ label: "Atlas", path: "Projects/Atlas.md" }];
+    candidate.context.links = [{ label: "Decision", path: "Notes/Decision.md" }];
     expect(filterCalendarEvents([candidate], {
       lens: { kind: "people", label: "Jane Doe", value: "People/Jane.md" },
       profileId: "calendar",
@@ -174,6 +175,11 @@ describe("view policy", () => {
     })).toEqual([]);
     expect(filterCalendarEvents([candidate], {
       lens: { kind: "category", label: "learning", value: "learning" },
+      profileId: "",
+      query: "",
+    })).toEqual([candidate]);
+    expect(filterCalendarEvents([candidate], {
+      lens: { kind: "links", label: "Decision", value: "Notes/Decision.md" },
       profileId: "",
       query: "",
     })).toEqual([candidate]);

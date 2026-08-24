@@ -1,15 +1,26 @@
 # Context Calendar
 
-Context Calendar turns dated Markdown notes into a month you can navigate by source and context. Events remain ordinary files, while links, backlinks, people, projects, and related notes stay beside the date instead of disappearing into a separate calendar database.
+Context Calendar is a local-first month view for people who plan, meet, learn, publish, and make decisions in Markdown. It turns any folder of dated notes into a calendar, then keeps each note's links and backlinks beside the date instead of hiding them in a separate calendar database.
 
 **Month → note → context.** See when something happened, open the source note, then follow the people, project, and related work around it.
+
+It is not a Google Calendar replacement or a time-grid scheduler. It is the missing time view for an Obsidian knowledge base: a direct way to move between **when something happened** and **what it was connected to**.
+
+## Who it is for
+
+- Meeting notes that should remain connected to decisions, attendees, and follow-up work.
+- Learning logs that need to lead back to concepts, sources, and practice notes.
+- Project journals where milestones should reveal the documents and people around them.
+- Content and research calendars whose entries are real, versionable Markdown files.
+
+Only a date property is required. Ordinary wikilinks and backlinks become context automatically; `people`, `project`, and `related` properties are optional enhancements, not a required schema.
 
 ## Why Context Calendar
 
 - **Month first:** the full month remains the primary screen, with no time grid.
 - **Markdown first:** every event is a real note that can be searched, linked, and versioned.
 - **Context beside time:** select an event to see its links, backlinks, people, projects, and related notes.
-- **Context Lens:** narrow the month by a person, project, or category without changing note data.
+- **Context Lens:** narrow the month by any linked note, backlink, person, project, related note, or category without changing note data.
 - **Multiple sources:** switch between source folders from the same calendar while each folder keeps its own property mapping and write capability.
 - **Reveal the note:** run **Reveal active note in calendar** to jump from the current Markdown file back to its month and event card.
 - **Source capabilities:** personal folders can be writable while generated or imported folders remain read-only.
@@ -57,7 +68,7 @@ related:
 # Program orientation
 ```
 
-Property names are configurable per source. Dates accept `YYYY-MM-DD` and ISO datetime strings; the calendar preserves the local date portion instead of converting it through a timezone. An optional end property creates a multi-day event. Invalid ranges and spans longer than 370 days are shown in Diagnostics instead of being partially rendered.
+Property names are configurable per source. Dates accept `YYYY-MM-DD` and ISO datetime strings; the calendar preserves the local date portion instead of converting it through a timezone. An optional end property creates a multi-day event. Invalid ranges and spans longer than 370 days are shown in Diagnostics instead of being partially rendered. Selecting a date or event is explicit, so merely opening the calendar does not expose the first note on today's date.
 
 Each source folder is a privacy and performance boundary. Context Calendar indexes Markdown files only inside enabled source folders; an optional tag filters files within that boundary and never expands access to the whole Vault. Legacy tag-only sources from older builds are preserved but disabled until a folder is chosen.
 
@@ -111,7 +122,9 @@ npm run verify
 
 ## 한국어 안내
 
-Context Calendar는 날짜가 있는 Markdown 문서를 월간 달력으로 모아 보고, 일정과 연결된 인물·프로젝트·관련 문서·backlink를 같은 화면에서 다시 찾는 Obsidian 플러그인입니다. 핵심 흐름은 **월 → 문서 → 맥락**이며, 외부 계정이나 서버 없이 Vault 안에서만 동작합니다.
+Context Calendar는 회의·학습·프로젝트·콘텐츠처럼 날짜가 있는 Markdown 문서를 월간 달력으로 모아 보고, 문서의 wikilink와 backlink를 같은 화면에서 다시 찾는 Obsidian 플러그인입니다. 핵심 흐름은 **월 → 문서 → 맥락**이며, 외부 계정이나 서버 없이 Vault 안에서만 동작합니다.
+
+필수 속성은 날짜 하나뿐입니다. 일반 wikilink와 backlink만 있어도 연결 맥락과 필터가 자동으로 동작하며, 인물·프로젝트·관련 문서 속성은 필요할 때만 추가합니다. 따라서 특정 Vault 구조나 Woon 워크플로우 없이 독립적으로 사용할 수 있습니다.
 
 처음 달력을 열어 폴더를 고르면 해당 폴더 안에서 날짜 속성과 문서 수를 미리 확인한 뒤 바로 소스로 추가할 수 있습니다. 여러 폴더를 연결했다면 소스별로 월간 보기를 좁힐 수 있고, 맥락 패널의 인물·프로젝트·분류를 필터로 적용하면 그 대상과 연결된 일정만 남습니다. 현재 Markdown 문서가 달력에서 어디에 있는지는 **현재 문서를 캘린더에서 찾기** 명령으로 바로 확인합니다.
 

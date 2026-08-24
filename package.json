@@ -1,7 +1,7 @@
 {
   "name": "context-calendar",
-  "version": "2.0.7",
-  "description": "A month-first calendar for dated Markdown notes and their context.",
+  "version": "2.1.0",
+  "description": "Navigate dated Markdown by month, then follow its links and context.",
   "main": "main.js",
   "scripts": {
     "build": "node scripts/build-styles.mjs && node esbuild.config.mjs production",

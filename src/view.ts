@@ -43,7 +43,7 @@ export class ContextCalendarView extends ItemView {
   private query = "";
   private selectedDate = localDateKey(new Date());
   private selectedEventId = "";
-  private sideClosed = false;
+  private sideClosed = true;
   private profileId = "";
   private lens: EventLens | null = null;
   private snapshot: CalendarSnapshot = { diagnostics: [], events: [], revision: 0 };
@@ -75,9 +75,6 @@ export class ContextCalendarView extends ItemView {
     this.categoryTones = categoryToneMap(snapshot.events.map((event) => event.category));
     if (this.selectedEventId && !snapshot.events.some((event) => event.id === this.selectedEventId)) {
       this.selectedEventId = "";
-    }
-    if (!this.selectedEventId && snapshot.events.length) {
-      this.selectedEventId = snapshot.events.find((event) => event.startDate === this.selectedDate)?.id ?? "";
     }
     this.render();
   }
@@ -368,6 +365,18 @@ export class ContextCalendarView extends ItemView {
       },
     });
     card.createSpan({ cls: "context-calendar__card-title", text: event.title });
+    const connectionCount = connectedNoteCount(event);
+    if (connectionCount > 0) {
+      const context = card.createSpan({
+        cls: "context-calendar__card-context",
+        title: formatMessage(settings.locale, "connectedNotes", {
+          count: String(connectionCount),
+        }),
+        attr: { "aria-hidden": "true" },
+      });
+      setIcon(context.createSpan(), "network");
+      context.createSpan({ text: String(connectionCount) });
+    }
     if (event.id === this.selectedEventId) card.addClass("is-active");
     card.onclick = (click) => {
       click.stopPropagation();
@@ -460,6 +469,16 @@ export class ContextCalendarView extends ItemView {
     const heading = section.createDiv({ cls: "context-calendar__event-heading" });
     const identity = heading.createDiv({ cls: "context-calendar__event-identity" });
     identity.createEl("h2", { text: event.title });
+    const connectionCount = connectedNoteCount(event);
+    if (connectionCount > 0) {
+      const summary = identity.createDiv({ cls: "context-calendar__event-summary" });
+      setIcon(summary.createSpan(), "network");
+      summary.createSpan({
+        text: formatMessage(settings.locale, "connectedNotes", {
+          count: String(connectionCount),
+        }),
+      });
+    }
     if (!event.editable) {
       const status = identity.createDiv({ cls: "context-calendar__event-status" });
       setIcon(status.createSpan(), "lock-keyhole");
@@ -471,30 +490,37 @@ export class ContextCalendarView extends ItemView {
       attr: { type: "button" },
     }).onclick = () => void this.actions.open(event.filePath);
 
-    const properties = section.createDiv({ cls: "context-calendar__properties" });
-    const dateValue = propertyRow(properties, "calendar-days", translate(settings.locale, "dateField"));
+    const details = section.createDiv({ cls: "context-calendar__properties" });
+    const dateValue = propertyRow(details, "calendar-days", translate(settings.locale, "dateField"));
     dateValue.createEl("time", {
       cls: "context-calendar__property-text",
       text: formatEventRange(settings.locale, event.startDate, event.endDate),
     });
     if (event.category) {
-      const value = propertyRow(properties, "tag", translate(settings.locale, "category"));
+      const value = propertyRow(details, "tag", translate(settings.locale, "category"));
       this.renderFacet(value, {
         kind: "category",
         label: event.category,
         value: event.category,
       }, settings);
     }
-    for (const [key, label] of [
+    const contextGroups = ([
       ["people", translate(settings.locale, "people")],
       ["project", translate(settings.locale, "project")],
       ["related", translate(settings.locale, "related")],
       ["links", translate(settings.locale, "links")],
       ["backlinks", translate(settings.locale, "backlinks")],
-    ] as const) {
+    ] as const).filter(([key]) => event.context[key].length > 0);
+    if (contextGroups.length > 0) {
+      section.createDiv({
+        cls: "context-calendar__section-label",
+        text: translate(settings.locale, "context"),
+      });
+    }
+    const connections = section.createDiv({ cls: "context-calendar__properties" });
+    for (const [key, label] of contextGroups) {
       const linksForSection = event.context[key];
-      if (!linksForSection.length) continue;
-      const links = propertyRow(properties, propertyIcon(key), label);
+      const links = propertyRow(connections, propertyIcon(key), label);
       for (const link of linksForSection) {
         const row = links.createDiv({ cls: "context-calendar__property-value" });
         row.createEl("button", {
@@ -503,13 +529,11 @@ export class ContextCalendarView extends ItemView {
           title: link.path,
           attr: { type: "button" },
         }).onclick = () => void this.actions.open(link.path);
-        if (key === "people" || key === "project") {
-          const filter = iconButton("list-filter", translate(settings.locale, "filterMonth"), () => {
-            this.setLens({ kind: key, label: link.label, value: link.path });
-          });
-          filter.addClass("context-calendar__context-filter");
-          row.append(filter);
-        }
+        const filter = iconButton("list-filter", translate(settings.locale, "filterMonth"), () => {
+          this.setLens({ kind: key, label: link.label, value: link.path });
+        });
+        filter.addClass("context-calendar__context-filter");
+        row.append(filter);
       }
     }
   }
@@ -635,4 +659,8 @@ function formatEventRange(
 ): string {
   const startLabel = formatEventDate(locale, start);
   return start === end ? startLabel : `${startLabel} → ${formatEventDate(locale, end)}`;
+}
+
+function connectedNoteCount(event: CalendarEvent): number {
+  return new Set(Object.values(event.context).flat().map((link) => link.path)).size;
 }

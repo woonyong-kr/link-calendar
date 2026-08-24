@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.0
+
+- Make ordinary wikilinks and backlinks first-class Context Lens filters, so a date property is the only required schema.
+- Show a deduplicated connected-note count on event cards and in event details.
+- Keep event details closed until the user explicitly selects a date, event, or active note.
+- Rework the calendar into a denser full-surface month with compact cards, clearer hierarchy, and a document-focused context panel.
+- Sharpen onboarding and public documentation around meetings, learning logs, project journals, research, and content planning.
+
 ## 2.0.7
 
 - Embed the Calendar-scoped Cupertino design primitives so the plugin keeps its visual identity without requiring a particular Obsidian theme.
