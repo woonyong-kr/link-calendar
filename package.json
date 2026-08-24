@@ -1,15 +1,18 @@
 {
   "name": "context-calendar",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Navigate dated Markdown by month, then follow its links and context.",
   "main": "main.js",
   "scripts": {
     "build": "node scripts/build-styles.mjs && node esbuild.config.mjs production",
     "dev": "node scripts/build-styles.mjs && node esbuild.config.mjs",
     "check": "tsc --noEmit && npm run lint:obsidian",
+    "knip": "knip",
     "lint:obsidian": "eslint src tests",
     "test": "vitest run --coverage",
-    "verify": "npm run check && npm test && npm run build && node scripts/verify-release.mjs"
+    "test:visual": "vitest run tests/view.test.ts tests/presentation.test.ts && node scripts/verify-visual-fixture.mjs",
+    "test:media": "node scripts/verify-release-media.mjs",
+    "verify": "npm run check && npm run knip && npm test && npm run test:visual && npm run test:media && npm run build && node scripts/verify-release.mjs"
   },
   "keywords": [
     "obsidian",
@@ -26,6 +29,15 @@
   "engines": {
     "node": ">=20"
   },
+  "knip": {
+    "entry": [
+      "scripts/*.mjs"
+    ],
+    "project": [
+      "src/**/*.ts",
+      "tests/**/*.ts"
+    ]
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.18.0",
@@ -33,6 +45,8 @@
     "esbuild": "^0.25.9",
     "eslint": "^10.0.1",
     "eslint-plugin-obsidianmd": "^0.4.1",
+    "happy-dom": "^20.11.6",
+    "knip": "^6.32.2",
     "obsidian": "^1.13.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0",

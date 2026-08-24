@@ -31,17 +31,40 @@ Only a date property is required. Ordinary wikilinks and backlinks become contex
 
 The month remains the main workspace. Context Calendar owns its scoped geometry and design tokens, follows Obsidian's light or dark appearance, and does not restyle the surrounding workspace.
 
+This short tour uses the public-safe release fixture rendered with the
+production plugin CSS. Its version, dimensions, file hashes, and README links
+are checked during every release build.
+
+![Context Calendar: month view and selected-note context](docs/media/context-calendar-demo.gif)
+
 ![Context Calendar month view](docs/media/context-calendar-overview.png)
 
 Select an event to inspect its date, category, people, and connected notes without leaving the month. Opening a source note remains an explicit action.
 
 ![Context Calendar event context](docs/media/context-calendar-context.png)
 
-## Independent design
+## Theme-native design
 
-Context Calendar carries its Calendar-scoped typography, semantic colors, control radii, motion, shadows, and category palette in this repository. It follows Obsidian's light or dark appearance but does not depend on an installed community theme, so the month keeps the same visual identity in a default Vault and in a heavily customized one.
+Context Calendar aliases Obsidian's public semantic CSS variables for surfaces, text, separators, accents, focus, spacing, radii, shadows, and motion. It therefore follows the active light, dark, high-contrast, and community-theme appearance without copying a theme or leaking styles outside the calendar. Calendar density, day-grid geometry, and deterministic category assignment remain plugin-owned.
 
-The source design contract lives in [`docs/design-system.md`](docs/design-system.md). Component CSS can consume only `--cc-*` tokens; the production build rejects literal colors, active-theme variables, light/dark selectors, theme names, `!important`, and unbalanced source files before generating `styles.css`. The adapted Cupertino primitives and license are documented in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+The source design contract lives in [`docs/design-system.md`](docs/design-system.md). Component CSS can consume only `--cc-*` tokens; the production build rejects literal colors, literal pixel geometry, private host variables, light/dark selectors, theme names, `!important`, and unbalanced source files before generating `styles.css`.
+
+## Installation
+
+Context Calendar is not yet listed in Obsidian's Community directory. Install
+the published GitHub release without building the repository:
+
+1. Download `main.js`, `manifest.json`, and `styles.css` from the same
+   [Context Calendar release](https://github.com/woonyong-kr/simple-calendar/releases/latest).
+2. Place all three files in:
+
+```text
+<vault>/.obsidian/plugins/context-calendar/
+```
+
+3. Reload Obsidian and enable **Context Calendar** under **Settings → Community
+   plugins**.
+4. Use the ribbon calendar icon or run **Open Context Calendar**.
 
 ## Quick start
 
@@ -74,10 +97,10 @@ Each source folder is a privacy and performance boundary. Context Calendar index
 
 ## Reading and editing
 
-- Single-click an event to open Agenda and Context.
+- Single-click an event to open its Markdown page peek. The excerpt is loaded only after that explicit selection.
 - Select a category, person, or project chip to filter the month by that context.
 - Select a related-note, wikilink, or backlink relation to open that Markdown page immediately. Its context menu also offers a month filter.
-- Double-click a card, use its context menu, or select the file icon in Context to open the event Markdown file.
+- Press `Cmd/Ctrl + Enter`, use the card context menu, or select the arrow icon in the page peek to open the event Markdown file.
 - Drag an event to another day only when its source is writable.
 - Use **New event note** to create a Markdown file in a writable folder.
 - Read-only sources never expose create or move operations and are checked again before any file mutation.
@@ -117,7 +140,7 @@ npm ci
 npm run verify
 ```
 
-`npm run verify` runs TypeScript, the official Obsidian ESLint rules, unit tests, coverage, the production bundle, and release-contract validation. Release assets are `main.js`, `manifest.json`, and `styles.css`.
+`npm run verify` runs TypeScript, the official Obsidian ESLint rules, dead-code checks, unit and DOM tests, coverage, the visual fixture and release-media gates, the production bundle, and release-contract validation. Release assets are `main.js`, `manifest.json`, and `styles.css`.
 
 `styles.css` is a generated Community Plugin artifact. Edit the component sources under `src/styles/`: `tokens.css` is the only design-token source, while shell, month grid, event detail, and supporting surfaces remain independent components. Do not copy the global selectors of an Obsidian theme into the plugin.
 
@@ -125,11 +148,11 @@ npm run verify
 
 Context Calendar는 회의·학습·프로젝트·콘텐츠처럼 날짜가 있는 Markdown 문서를 월간 달력으로 모아 보고, 문서의 wikilink와 backlink를 같은 화면에서 다시 찾는 Obsidian 플러그인입니다. 핵심 흐름은 **월 → 문서 → 맥락**이며, 외부 계정이나 서버 없이 Vault 안에서만 동작합니다.
 
-필수 속성은 날짜 하나뿐입니다. 일반 wikilink와 backlink만 있어도 연결 맥락과 필터가 자동으로 동작하며, 인물·프로젝트·관련 문서 속성은 필요할 때만 추가합니다. 따라서 특정 Vault 구조나 Woon 워크플로우 없이 독립적으로 사용할 수 있습니다.
+필수 속성은 날짜 하나뿐입니다. 일반 wikilink와 backlink만 있어도 연결 맥락과 필터가 자동으로 동작하며, 인물·프로젝트·관련 문서 속성은 필요할 때만 추가합니다. 따라서 특정 Vault 구조나 별도 워크플로우 없이 독립적으로 사용할 수 있습니다.
 
 처음 달력을 열어 폴더를 고르면 해당 폴더 안에서 날짜 속성과 문서 수를 미리 확인한 뒤 바로 소스로 추가할 수 있습니다. 여러 폴더를 연결했다면 소스별로 월간 보기를 좁힐 수 있고, 맥락 패널의 인물·프로젝트·분류를 필터로 적용하면 그 대상과 연결된 일정만 남습니다. 현재 Markdown 문서가 달력에서 어디에 있는지는 **현재 문서를 캘린더에서 찾기** 명령으로 바로 확인합니다.
 
-Tag는 반드시 지정 폴더 안에서만 추가 필터로 작동하며 Vault 전체 검색으로 범위를 넓히지 않습니다. 카드는 한 번 누르면 맥락을 보여 주고, 두 번 누르면 원문을 엽니다. 긴 제목은 두 줄로 정리되며 전체 제목은 기본 tooltip과 접근성 이름으로 확인할 수 있습니다.
+Tag는 반드시 지정 폴더 안에서만 추가 필터로 작동하며 Vault 전체 검색으로 범위를 넓히지 않습니다. 카드를 누르면 본문 일부와 연결 맥락을 먼저 보여 주며, 원문은 화살표 아이콘이나 `Cmd/Ctrl + Enter`로 명시적으로 엽니다. 긴 제목은 두 줄로 정리되며 전체 제목은 기본 tooltip과 접근성 이름으로 확인할 수 있습니다.
 
 ## License
 

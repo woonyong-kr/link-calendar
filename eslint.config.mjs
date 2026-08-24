@@ -21,5 +21,12 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    files: ["tests/**/*.ts"],
+    rules: {
+      "obsidianmd/no-global-this": "off",
+      "obsidianmd/prefer-create-el": "off",
+    },
+  },
   { ignores: ["main.js", "node_modules", "coverage"] },
 );

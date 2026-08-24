@@ -300,7 +300,7 @@ function invalidNote(
   return { diagnostic: { code, filePath, profileId }, event: null, outgoing };
 }
 
-export function sourceFiles(vault: Vault, profiles: SourceProfile[]): TFile[] {
+function sourceFiles(vault: Vault, profiles: SourceProfile[]): TFile[] {
   const files = new Map<string, TFile>();
   for (const profile of profiles) {
     if (!profile.enabled || !profile.folder) continue;

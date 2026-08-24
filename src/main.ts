@@ -39,10 +39,12 @@ import {
   resolveEventPath,
   writableProfiles,
 } from "./policy";
+import { markdownExcerpt } from "./presentation";
 import { ContextCalendarSettingTab, type SettingsHost } from "./settings";
 import { ContextCalendarView, VIEW_TYPE, type CalendarActions } from "./view";
 
 const CODE_BLOCK = "context-calendar";
+const PREVIEW_CHARACTER_LIMIT = 420;
 
 export default class ContextCalendarPlugin extends Plugin implements SettingsHost {
   override settings: CalendarSettings = structuredClone(DEFAULT_SETTINGS);
@@ -177,8 +179,15 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
       move: (event, date) => this.moveEvent(event, date),
       open: (path) => this.openPath(path),
       openSettings: () => this.openSettings(),
+      preview: (path) => this.previewPath(path),
       setup: () => this.chooseSourceFolder(),
     };
+  }
+
+  private async previewPath(path: string): Promise<string> {
+    const file = this.app.vault.getAbstractFileByPath(path);
+    if (!(file instanceof TFile)) throw new Error(`Note not found: ${path}`);
+    return markdownExcerpt(await this.app.vault.cachedRead(file), PREVIEW_CHARACTER_LIMIT);
   }
 
   private openSettings(): void {

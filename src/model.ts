@@ -1,7 +1,7 @@
 export type LocaleId = "auto" | "en" | "ko";
-export type WeekStart = "auto" | "sunday" | "monday";
+type WeekStart = "auto" | "sunday" | "monday";
 
-export interface PropertyMap {
+interface PropertyMap {
   category: string;
   end: string;
   people: string;
@@ -66,7 +66,7 @@ export interface CalendarSnapshot {
   revision: number;
 }
 
-export const DEFAULT_PROPERTIES: PropertyMap = {
+const DEFAULT_PROPERTIES: PropertyMap = {
   category: "category",
   end: "end",
   people: "people",
