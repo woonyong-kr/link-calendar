@@ -1,11 +1,19 @@
 import { ItemView, Menu, type WorkspaceLeaf, setIcon } from "obsidian";
 
-import { firstDayOfWeek, formatMessage, monthTitle, translate, weekdayNames } from "./i18n";
+import {
+  firstDayOfWeek,
+  formatMessage,
+  monthTitle,
+  resolvedLocale,
+  translate,
+  weekdayNames,
+} from "./i18n";
 import {
   type CalendarEvent,
   type CalendarSettings,
   type CalendarSnapshot,
   addMonths,
+  categoryToneMap,
   categoryToken,
   eachDate,
   fileTitle,
@@ -39,6 +47,7 @@ export class ContextCalendarView extends ItemView {
   private profileId = "";
   private lens: EventLens | null = null;
   private snapshot: CalendarSnapshot = { diagnostics: [], events: [], revision: 0 };
+  private categoryTones: ReadonlyMap<string, string> = new Map();
 
   constructor(
     leaf: WorkspaceLeaf,
@@ -63,6 +72,7 @@ export class ContextCalendarView extends ItemView {
 
   setSnapshot(snapshot: CalendarSnapshot): void {
     this.snapshot = snapshot;
+    this.categoryTones = categoryToneMap(snapshot.events.map((event) => event.category));
     if (this.selectedEventId && !snapshot.events.some((event) => event.id === this.selectedEventId)) {
       this.selectedEventId = "";
     }
@@ -118,6 +128,16 @@ export class ContextCalendarView extends ItemView {
         this.render();
       }),
     );
+    navigation.createEl("button", {
+      cls: "context-calendar__today",
+      text: translate(locale, "today"),
+      attr: { type: "button" },
+    }).addEventListener("click", () => {
+      const today = new Date();
+      this.month = new Date(today.getFullYear(), today.getMonth(), 1);
+      this.selectedDate = localDateKey(today);
+      this.render();
+    });
     header.createEl("h1", {
       cls: "context-calendar__title",
       text: monthTitle(locale, this.month),
@@ -137,16 +157,6 @@ export class ContextCalendarView extends ItemView {
       const nextSearch = this.contentEl.querySelector<HTMLInputElement>(".context-calendar__search");
       nextSearch?.focus();
       nextSearch?.setSelectionRange(this.query.length, this.query.length);
-    });
-    tools.createEl("button", {
-      cls: "context-calendar__today",
-      text: translate(locale, "today"),
-      attr: { type: "button" },
-    }).addEventListener("click", () => {
-      const today = new Date();
-      this.month = new Date(today.getFullYear(), today.getMonth(), 1);
-      this.selectedDate = localDateKey(today);
-      this.render();
     });
     if (settings.profiles.some((profile) => profile.enabled && profile.editable && profile.folder)) {
       const add = iconButton("plus", translate(locale, "create"), () => void this.actions.create(this.selectedDate));
@@ -346,8 +356,7 @@ export class ContextCalendarView extends ItemView {
     visibleDate: string,
   ): void {
     const card = parent.createEl("button", {
-      cls: `context-calendar__card ${categoryToken(event.category)}`,
-      text: event.title,
+      cls: `context-calendar__card ${categoryToken(event.category, this.categoryTones)}`,
       title: event.title,
       attr: {
         "aria-label": event.category ? `${event.title}, ${event.category}` : event.title,
@@ -356,6 +365,7 @@ export class ContextCalendarView extends ItemView {
         "data-event-id": event.id,
       },
     });
+    card.createSpan({ cls: "context-calendar__card-title", text: event.title });
     if (event.id === this.selectedEventId) card.addClass("is-active");
     card.onclick = (click) => {
       click.stopPropagation();
@@ -394,27 +404,38 @@ export class ContextCalendarView extends ItemView {
     const dateEvents = this.visibleEvents().filter(
       (event) => event.startDate <= this.selectedDate && event.endDate >= this.selectedDate,
     );
-    const heading = panel.createDiv({ cls: "context-calendar__side-heading" });
-    heading.createEl("h2", { text: translate(settings.locale, "agenda") });
-    heading.append(iconButton("x", translate(settings.locale, "closeContext"), () => {
+    const topbar = panel.createDiv({ cls: "context-calendar__side-topbar" });
+    const date = topbar.createDiv({ cls: "context-calendar__side-date" });
+    setIcon(date.createSpan({ cls: "context-calendar__side-date-icon" }), "calendar-days");
+    date.createEl("time", { text: formatEventDate(settings.locale, this.selectedDate) });
+    topbar.append(iconButton("x", translate(settings.locale, "closeContext"), () => {
       this.sideClosed = true;
       this.render();
     }));
-    panel.createEl("time", { cls: "context-calendar__selected-date", text: this.selectedDate });
     if (!dateEvents.length) panel.createDiv({ cls: "context-calendar__empty", text: translate(settings.locale, "empty") });
-    for (const event of dateEvents) {
-      const item = panel.createEl("button", {
-        cls: `context-calendar__agenda-item ${categoryToken(event.category)}${event.id === this.selectedEventId ? " is-active" : ""}`,
-        attr: { type: "button" },
+    if (dateEvents.length > 1) {
+      const agenda = panel.createDiv({ cls: "context-calendar__agenda-switcher" });
+      agenda.createDiv({
+        cls: "context-calendar__agenda-label",
+        text: formatMessage(settings.locale, "eventsOnDate", { count: String(dateEvents.length) }),
       });
-      item.createSpan({ text: event.title });
-      if (event.category) item.createEl("small", { text: event.category });
-      item.onclick = () => {
-        this.selectedEventId = event.id;
-        this.render();
-      };
+      for (const event of dateEvents) {
+        const item = agenda.createEl("button", {
+          cls: `context-calendar__agenda-item ${categoryToken(event.category, this.categoryTones)}${event.id === this.selectedEventId ? " is-active" : ""}`,
+          title: event.title,
+          attr: {
+            "aria-label": event.category ? `${event.title}, ${event.category}` : event.title,
+            type: "button",
+          },
+        });
+        item.createSpan({ cls: "context-calendar__agenda-title", text: event.title });
+        item.onclick = () => {
+          this.selectedEventId = event.id;
+          this.render();
+        };
+      }
     }
-    const selected = dateEvents.find((event) => event.id === this.selectedEventId);
+    const selected = dateEvents.find((event) => event.id === this.selectedEventId) ?? dateEvents[0];
     if (selected) this.renderContext(panel, selected, settings);
     const visibleDiagnostics = this.visibleDiagnostics();
     if (visibleDiagnostics.length) {
@@ -433,19 +454,30 @@ export class ContextCalendarView extends ItemView {
   }
 
   private renderContext(parent: HTMLElement, event: CalendarEvent, settings: CalendarSettings): void {
-    const section = parent.createEl("section", { cls: "context-calendar__context" });
-    const heading = section.createDiv({ cls: "context-calendar__context-heading" });
-    heading.createEl("h2", { text: translate(settings.locale, "context") });
+    const section = parent.createEl("article", { cls: "context-calendar__event-detail" });
+    const heading = section.createDiv({ cls: "context-calendar__event-heading" });
+    const identity = heading.createDiv({ cls: "context-calendar__event-identity" });
+    identity.createEl("h2", { text: event.title });
+    if (!event.editable) {
+      const status = identity.createDiv({ cls: "context-calendar__event-status" });
+      setIcon(status.createSpan(), "lock-keyhole");
+      status.createSpan({ text: translate(settings.locale, "readOnlyShort") });
+    }
     heading.createEl("button", {
       cls: "context-calendar__open",
       text: translate(settings.locale, "open"),
       attr: { type: "button" },
     }).onclick = () => void this.actions.open(event.filePath);
-    section.createEl("h3", { text: event.title });
-    if (!event.editable) section.createDiv({ cls: "context-calendar__readonly", text: translate(settings.locale, "readOnly") });
+
+    const properties = section.createDiv({ cls: "context-calendar__properties" });
+    const dateValue = propertyRow(properties, "calendar-days", translate(settings.locale, "dateField"));
+    dateValue.createEl("time", {
+      cls: "context-calendar__property-text",
+      text: formatEventRange(settings.locale, event.startDate, event.endDate),
+    });
     if (event.category) {
-      section.createEl("h4", { text: translate(settings.locale, "category") });
-      this.renderFacet(section, {
+      const value = propertyRow(properties, "tag", translate(settings.locale, "category"));
+      this.renderFacet(value, {
         kind: "category",
         label: event.category,
         value: event.category,
@@ -460,11 +492,11 @@ export class ContextCalendarView extends ItemView {
     ] as const) {
       const linksForSection = event.context[key];
       if (!linksForSection.length) continue;
-      section.createEl("h4", { text: label });
-      const links = section.createDiv({ cls: "context-calendar__context-links" });
+      const links = propertyRow(properties, propertyIcon(key), label);
       for (const link of linksForSection) {
-        const row = links.createDiv({ cls: "context-calendar__context-link" });
+        const row = links.createDiv({ cls: "context-calendar__property-value" });
         row.createEl("button", {
+          cls: "context-calendar__property-link",
           text: link.label,
           title: link.path,
           attr: { type: "button" },
@@ -481,8 +513,14 @@ export class ContextCalendarView extends ItemView {
   }
 
   private renderFacet(parent: HTMLElement, lens: EventLens, settings: CalendarSettings): void {
-    const row = parent.createDiv({ cls: "context-calendar__context-link" });
-    row.createSpan({ text: lens.label });
+    const row = parent.createDiv({ cls: "context-calendar__property-value" });
+    const value = row.createEl("button", {
+      cls: "context-calendar__property-link",
+      text: lens.label,
+      title: translate(settings.locale, "filterMonth"),
+      attr: { type: "button" },
+    });
+    value.onclick = () => this.setLens(lens);
     const filter = iconButton("list-filter", translate(settings.locale, "filterMonth"), () => {
       this.setLens(lens);
     });
@@ -555,4 +593,39 @@ function iconButton(icon: string, label: string, action: () => void): HTMLButton
   setIcon(button, icon);
   button.addEventListener("click", action);
   return button;
+}
+
+function propertyRow(parent: HTMLElement, icon: string, label: string): HTMLDivElement {
+  const row = parent.createDiv({ cls: "context-calendar__property" });
+  const name = row.createDiv({ cls: "context-calendar__property-name" });
+  setIcon(name.createSpan({ cls: "context-calendar__property-icon" }), icon);
+  name.createSpan({ text: label });
+  return row.createDiv({ cls: "context-calendar__property-values" });
+}
+
+function propertyIcon(
+  key: "backlinks" | "links" | "people" | "project" | "related",
+): string {
+  if (key === "people") return "users";
+  if (key === "project") return "folder-kanban";
+  if (key === "backlinks") return "corner-up-left";
+  if (key === "related") return "network";
+  return "link-2";
+}
+
+function formatEventDate(locale: CalendarSettings["locale"], date: string): string {
+  return new Intl.DateTimeFormat(resolvedLocale(locale), {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(parseDateKey(date));
+}
+
+function formatEventRange(
+  locale: CalendarSettings["locale"],
+  start: string,
+  end: string,
+): string {
+  const startLabel = formatEventDate(locale, start);
+  return start === end ? startLabel : `${startLabel} → ${formatEventDate(locale, end)}`;
 }

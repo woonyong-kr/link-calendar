@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.4
+
+- Present the selected event as a compact property sheet with date, category, people, projects, and related notes instead of a repeated agenda card.
+- Show a subtle read-only status, keep event switching only for dates with multiple events, and reduce the selected-day treatment.
+- Clamp long month and agenda titles to two lines while preserving the full title in a tooltip and accessible label.
+- Keep visible categories on distinct deterministic tones and refine the month grid into a quieter, denser calendar surface.
+
 ## 2.0.3
 
 - Add source-folder selection with scoped date-property detection before a calendar source is added.

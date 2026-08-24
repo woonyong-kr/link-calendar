@@ -4,6 +4,7 @@ import {
   addDays,
   MAX_EVENT_SPAN_DAYS,
   categoryToken,
+  categoryToneMap,
   dateKey,
   eachDate,
   isSafeVaultPath,
@@ -111,8 +112,19 @@ describe("settings boundary", () => {
   });
 
   it("uses stable generated tones without exposing category names as CSS classes", () => {
-    expect(categoryToken("Private category")).toMatch(/^tone-[0-7]$/);
+    expect(categoryToken("Private category")).toMatch(/^tone-(?:[0-9]|1[01])$/);
     expect(categoryToken("Private category")).toBe(categoryToken("Private category"));
+  });
+
+  it("assigns a distinct stable tone to each visible category while palette slots remain", () => {
+    const forward = categoryToneMap(["기타", "학습", "커리어"]);
+    const reverse = categoryToneMap(["커리어", "학습", "기타"]);
+    const tokens = ["기타", "학습", "커리어"].map((category) =>
+      categoryToken(category, forward));
+
+    expect(new Set(tokens).size).toBe(3);
+    expect([...forward]).toEqual([...reverse]);
+    expect(categoryToken(" 학습 ", forward)).toBe(categoryToken("학습", forward));
   });
 
   it("normalizes scalar and list properties", () => {

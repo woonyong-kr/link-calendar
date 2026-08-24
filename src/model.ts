@@ -279,11 +279,47 @@ export function linkTarget(value: string): string {
   return (match?.[1] ?? value).trim();
 }
 
-export function categoryToken(value: string): string {
-  const normalized = value.trim().toLocaleLowerCase();
+const CATEGORY_TONE_COUNT = 12;
+
+export function categoryToken(
+  value: string,
+  assignments?: ReadonlyMap<string, string>,
+): string {
+  const normalized = categoryKey(value);
+  const assigned = assignments?.get(normalized);
+  if (assigned) return assigned;
+  return `tone-${String(categoryHash(normalized) % CATEGORY_TONE_COUNT)}`;
+}
+
+export function categoryToneMap(values: readonly string[]): ReadonlyMap<string, string> {
+  const categories = [...new Set(values.map(categoryKey).filter(Boolean))]
+    .sort((left, right) => left.localeCompare(right));
+  const assignments = new Map<string, string>();
+  const occupied = new Set<number>();
+  for (const category of categories) {
+    const preferred = categoryHash(category) % CATEGORY_TONE_COUNT;
+    let tone = preferred;
+    for (let offset = 0; offset < CATEGORY_TONE_COUNT; offset += 1) {
+      const candidate = (preferred + offset) % CATEGORY_TONE_COUNT;
+      if (!occupied.has(candidate)) {
+        tone = candidate;
+        occupied.add(candidate);
+        break;
+      }
+    }
+    assignments.set(category, `tone-${String(tone)}`);
+  }
+  return assignments;
+}
+
+function categoryKey(value: string): string {
+  return value.trim().toLocaleLowerCase();
+}
+
+function categoryHash(value: string): number {
   let hash = 0;
-  for (const character of normalized) hash = Math.imul(31, hash) + character.charCodeAt(0) | 0;
-  return `tone-${String(Math.abs(hash) % 8)}`;
+  for (const character of value) hash = Math.imul(31, hash) + character.charCodeAt(0) | 0;
+  return Math.abs(hash);
 }
 
 export function fileTitle(path: string): string {
