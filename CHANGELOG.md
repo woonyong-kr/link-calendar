@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.2
+
+- Render related notes, wikilinks, and backlinks as direct Markdown page relations instead of ambiguous filter chips.
+- Keep category, people, and project values as direct month filters while moving relation filtering to the context menu.
+- Flatten event metadata into one property sheet and widen the detail panel for clearer page titles.
+
 ## 2.1.1
 
 - Make each category and context chip the filter control instead of repeating a separate filter icon.

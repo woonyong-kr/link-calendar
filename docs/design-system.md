@@ -63,8 +63,13 @@ The property panel keeps this order:
 
 1. localized date and close action;
 2. event title, subtle capability state, and an explicit file-icon action with an accessible **Open note** name;
-3. date, category, people, project, related notes, links, and backlinks;
+3. one flat property sheet for date, category, people, project, related notes, links, and backlinks;
 4. diagnostics only when invalid source data exists.
+
+Category, people, and project values are filter facets. Related notes, wikilinks,
+and backlinks are page relations: their primary click opens the Markdown file,
+while filtering remains a secondary context-menu action. Page relations carry a
+file icon and never reuse category-tone styling.
 
 A single event is never repeated as an agenda card. The agenda switcher appears
 only when a selected date has multiple events. Read-only status is capability

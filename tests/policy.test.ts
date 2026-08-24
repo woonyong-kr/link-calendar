@@ -5,6 +5,7 @@ import { type CalendarEvent, createProfile } from "../src/model";
 import {
   canMoveEvent,
   canCreateWithProfile,
+  contextLinkAction,
   embedSource,
   eventFrontmatter,
   filterCalendarEvents,
@@ -147,6 +148,14 @@ describe("mutation policy", () => {
 });
 
 describe("view policy", () => {
+  it("distinguishes filter facets from Markdown page relations", () => {
+    expect(contextLinkAction("people")).toBe("filter");
+    expect(contextLinkAction("project")).toBe("filter");
+    expect(contextLinkAction("related")).toBe("open");
+    expect(contextLinkAction("links")).toBe("open");
+    expect(contextLinkAction("backlinks")).toBe("open");
+  });
+
   it("keeps grid movement separate from card keys", () => {
     expect(gridMovement("ArrowLeft", 2)).toBe(-1);
     expect(gridMovement("Home", 2)).toBe(-2);

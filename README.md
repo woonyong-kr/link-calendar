@@ -20,7 +20,7 @@ Only a date property is required. Ordinary wikilinks and backlinks become contex
 - **Month first:** the full month remains the primary screen, with no time grid.
 - **Markdown first:** every event is a real note that can be searched, linked, and versioned.
 - **Context beside time:** select an event to see its links, backlinks, people, projects, and related notes.
-- **Context Lens:** narrow the month by any linked note, backlink, person, project, related note, or category without changing note data.
+- **Context Lens:** narrow the month by a category, person, or project without changing note data; linked pages remain direct Markdown navigation.
 - **Multiple sources:** switch between source folders from the same calendar while each folder keeps its own property mapping and write capability.
 - **Reveal the note:** run **Reveal active note in calendar** to jump from the current Markdown file back to its month and event card.
 - **Source capabilities:** personal folders can be writable while generated or imported folders remain read-only.
@@ -75,8 +75,9 @@ Each source folder is a privacy and performance boundary. Context Calendar index
 ## Reading and editing
 
 - Single-click an event to open Agenda and Context.
-- Select a category, person, project, or connected-note chip to filter the month by that context.
-- Double-click a card, use its context menu, or select the file icon in Context to open the event Markdown file. Use a connected-note chip's context menu to open that note.
+- Select a category, person, or project chip to filter the month by that context.
+- Select a related-note, wikilink, or backlink relation to open that Markdown page immediately. Its context menu also offers a month filter.
+- Double-click a card, use its context menu, or select the file icon in Context to open the event Markdown file.
 - Drag an event to another day only when its source is writable.
 - Use **New event note** to create a Markdown file in a writable folder.
 - Read-only sources never expose create or move operations and are checked again before any file mutation.

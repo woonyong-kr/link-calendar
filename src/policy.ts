@@ -27,6 +27,8 @@ export interface EventFilters {
   query: string;
 }
 
+export type ContextLinkAction = "filter" | "open";
+
 export type ProfileValidation = "missing-source" | "missing-start" | "unsafe-folder";
 
 export function validateProfile(profile: SourceProfile): ProfileValidation | null {
@@ -141,6 +143,12 @@ export function filterCalendarEvents(
     }
     return event.context[filters.lens.kind].some((link) => link.path === filters.lens?.value);
   });
+}
+
+export function contextLinkAction(
+  kind: keyof CalendarEvent["context"],
+): ContextLinkAction {
+  return kind === "people" || kind === "project" ? "filter" : "open";
 }
 
 export function resolveEventPath(

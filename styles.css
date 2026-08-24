@@ -43,8 +43,8 @@
   --cc-control-height: 30px;
   --cc-header-height: 54px;
   --cc-side-padding: 20px;
-  --cc-side-width: 376px;
-  --cc-property-label-width: 92px;
+  --cc-side-width: 408px;
+  --cc-property-label-width: 104px;
   --cc-month-min-height: 440px;
   --cc-weekday-height: 28px;
   --cc-day-min-height: 72px;
@@ -622,8 +622,7 @@
   overflow-wrap: anywhere;
 }
 
-.context-calendar__event-status,
-.context-calendar__event-summary {
+.context-calendar__event-status {
   display: flex;
   align-items: center;
   gap: var(--cc-space-1);
@@ -633,13 +632,10 @@
   font-weight: var(--cc-weight-medium);
 }
 
-.context-calendar__event-status svg,
-.context-calendar__event-summary svg {
+.context-calendar__event-status svg {
   width: var(--cc-context-icon-size);
   height: var(--cc-context-icon-size);
 }
-
-.context-calendar__event-summary { color: var(--cc-text-muted); }
 
 .context-calendar__event-heading .context-calendar__open {
   flex: 0 0 auto;
@@ -656,19 +652,6 @@
   flex-direction: column;
   gap: var(--cc-space-1);
   margin-top: var(--cc-space-4);
-}
-
-.context-calendar__section-label {
-  margin-top: var(--cc-space-6);
-  color: var(--cc-text-muted);
-  font-size: var(--cc-font-xs);
-  font-weight: var(--cc-weight-semibold);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.context-calendar__section-label + .context-calendar__properties {
-  margin-top: var(--cc-space-2);
 }
 
 .context-calendar__property {
@@ -760,6 +743,48 @@
 
 .context-calendar button.context-calendar__property-link:hover {
   background: color-mix(in srgb, var(--cc-control-hover) 78%, var(--cc-accent));
+}
+
+.context-calendar__property-value.context-calendar__relation {
+  background: transparent;
+}
+
+.context-calendar button.context-calendar__relation-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cc-space-2);
+  max-width: 100%;
+  min-height: var(--cc-control-height);
+  margin: 0;
+  padding: var(--cc-space-1) var(--cc-space-2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--cc-radius-xs);
+  color: var(--cc-text);
+  background: transparent;
+  box-shadow: none;
+  font-size: var(--cc-font-sm);
+  font-weight: var(--cc-weight-medium);
+  text-align: left;
+}
+
+.context-calendar button.context-calendar__relation-link:hover {
+  background: var(--cc-control-hover);
+}
+
+.context-calendar__relation-icon,
+.context-calendar__relation-icon svg {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  color: var(--cc-text-muted);
+}
+
+.context-calendar__relation-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .context-calendar__diagnostics {

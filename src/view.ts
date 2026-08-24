@@ -23,6 +23,7 @@ import {
 } from "./model";
 import {
   type EventLens,
+  contextLinkAction,
   filterCalendarEvents,
   gridMovement,
   resolveEventPath,
@@ -469,16 +470,6 @@ export class ContextCalendarView extends ItemView {
     const heading = section.createDiv({ cls: "context-calendar__event-heading" });
     const identity = heading.createDiv({ cls: "context-calendar__event-identity" });
     identity.createEl("h2", { text: event.title });
-    const connectionCount = connectedNoteCount(event);
-    if (connectionCount > 0) {
-      const summary = identity.createDiv({ cls: "context-calendar__event-summary" });
-      setIcon(summary.createSpan(), "network");
-      summary.createSpan({
-        text: formatMessage(settings.locale, "connectedNotes", {
-          count: String(connectionCount),
-        }),
-      });
-    }
     if (!event.editable) {
       const status = identity.createDiv({ cls: "context-calendar__event-status" });
       setIcon(status.createSpan(), "lock-keyhole");
@@ -511,37 +502,44 @@ export class ContextCalendarView extends ItemView {
       ["links", translate(settings.locale, "links")],
       ["backlinks", translate(settings.locale, "backlinks")],
     ] as const).filter(([key]) => event.context[key].length > 0);
-    if (contextGroups.length > 0) {
-      section.createDiv({
-        cls: "context-calendar__section-label",
-        text: translate(settings.locale, "context"),
-      });
-    }
-    const connections = section.createDiv({ cls: "context-calendar__properties" });
     for (const [key, label] of contextGroups) {
       const linksForSection = event.context[key];
-      const links = propertyRow(connections, propertyIcon(key), label);
+      const links = propertyRow(details, propertyIcon(key), label);
       for (const link of linksForSection) {
-        const row = links.createDiv({ cls: "context-calendar__property-value" });
-        const value = row.createEl("button", {
-          cls: "context-calendar__property-link",
-          text: link.label,
-          title: translate(settings.locale, "filterMonth"),
-          attr: { type: "button" },
-        });
-        value.onclick = () => {
-          this.setLens({ kind: key, label: link.label, value: link.path });
-        };
-        value.oncontextmenu = (mouseEvent) => {
-          const menu = new Menu();
-          menu.addItem((item) => item
-            .setTitle(translate(settings.locale, "open"))
-            .setIcon("file-text")
-            .onClick(() => void this.actions.open(link.path)));
-          menu.showAtMouseEvent(mouseEvent);
-        };
+        const lens = { kind: key, label: link.label, value: link.path } as const;
+        if (contextLinkAction(key) === "filter") {
+          this.renderFacet(links, lens, settings);
+        } else {
+          this.renderRelation(links, lens, settings);
+        }
       }
     }
+  }
+
+  private renderRelation(parent: HTMLElement, lens: EventLens, settings: CalendarSettings): void {
+    const relation = parent.createDiv({
+      cls: "context-calendar__property-value context-calendar__relation",
+    });
+    const value = relation.createEl("button", {
+      cls: "context-calendar__relation-link",
+      title: `${translate(settings.locale, "open")}: ${lens.label}`,
+      attr: { type: "button" },
+    });
+    setIcon(value.createSpan({ cls: "context-calendar__relation-icon" }), "file-text");
+    value.createSpan({ cls: "context-calendar__relation-label", text: lens.label });
+    value.onclick = () => void this.actions.open(lens.value);
+    value.oncontextmenu = (mouseEvent) => {
+      const menu = new Menu();
+      menu.addItem((item) => item
+        .setTitle(translate(settings.locale, "open"))
+        .setIcon("file-text")
+        .onClick(() => void this.actions.open(lens.value)));
+      menu.addItem((item) => item
+        .setTitle(translate(settings.locale, "filterMonth"))
+        .setIcon("list-filter")
+        .onClick(() => this.setLens(lens)));
+      menu.showAtMouseEvent(mouseEvent);
+    };
   }
 
   private renderFacet(parent: HTMLElement, lens: EventLens, settings: CalendarSettings): void {
