@@ -4,7 +4,7 @@
 
 - Rename the product and plugin ID to Link Calendar.
 - Replace the event preview, metadata property sheet, backlinks, people, projects, and related-note browser with a compact selected-date agenda of canonical Markdown links.
-- Keep the legacy `context-calendar` code block as a compatibility alias while adding `link-calendar`.
+- Use only the `link-calendar` code block so the new plugin can be verified beside the legacy plugin before retirement.
 - Add an explicit design contract and release checks for the canonical-note-only boundary.
 
 ## 2.1.3

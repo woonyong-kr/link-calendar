@@ -66,6 +66,9 @@ if (!source.some((content) => content.includes('VIEW_TYPE = "link-calendar-view"
 if (source.some((content) => content.includes('VIEW_TYPE = "context-calendar-view"'))) {
   errors.push("legacy context-calendar view type would collide during migration");
 }
+if (source.some((content) => content.includes('registerMarkdownCodeBlockProcessor("context-calendar"'))) {
+  errors.push("legacy context-calendar code block would collide during migration");
+}
 if (styles.includes("!important")) errors.push("styles.css must not use !important");
 for (const removedSelector of ["link-calendar__preview", "link-calendar__properties", "link-calendar__relation"]) {
   if (styles.includes(removedSelector)) errors.push(`styles contain removed UI: ${removedSelector}`);

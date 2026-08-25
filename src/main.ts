@@ -43,7 +43,6 @@ import { LinkCalendarSettingTab, type SettingsHost } from "./settings";
 import { LinkCalendarView, VIEW_TYPE, type CalendarActions } from "./view";
 
 const CODE_BLOCK = "link-calendar";
-const LEGACY_CODE_BLOCK_ALIAS = "context-calendar";
 
 export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
   override settings: CalendarSettings = structuredClone(DEFAULT_SETTINGS);
@@ -96,10 +95,6 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
     this.registerMarkdownCodeBlockProcessor(CODE_BLOCK, (source, element, context) => {
       context.addChild(new CalendarEmbedChild(element, this, source));
     });
-    this.registerMarkdownCodeBlockProcessor(LEGACY_CODE_BLOCK_ALIAS, (source, element, context) => {
-      context.addChild(new CalendarEmbedChild(element, this, source));
-    });
-
     this.app.workspace.onLayoutReady(() => {
       this.index.rebuild();
       this.publishSnapshot();

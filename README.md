@@ -63,7 +63,7 @@ It does not edit Apple Calendar, contact an external service, or write outside t
 
 ## Embedded month
 
-The legacy `context-calendar` code block remains supported. New notes may use `link-calendar`.
+Embed the read-only view with the `link-calendar` code block. Legacy `context-calendar` blocks must be migrated before enabling this release.
 
 ~~~markdown
 ```link-calendar
