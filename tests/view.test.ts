@@ -130,6 +130,11 @@ describe("Link Calendar view", () => {
   it("exposes month-grid selection semantics without a duplicate date button", async () => {
     const { view } = await openView(snapshot());
     const grid = view.contentEl.querySelector('[role="grid"]');
+    const startingDay = view.contentEl.querySelector<HTMLElement>(
+      '[role="gridcell"][aria-label="2026-08-25"]',
+    );
+    startingDay?.click();
+    await settle();
     const selected = view.contentEl.querySelector('[role="gridcell"][aria-selected="true"]');
     const today = view.contentEl.querySelector('[role="gridcell"][aria-current="date"]');
 
@@ -141,7 +146,7 @@ describe("Link Calendar view", () => {
     selected?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowRight" }));
     await settle();
     const next = view.contentEl.querySelector('[role="gridcell"][aria-selected="true"]');
-    expect(next?.getAttribute("aria-label")).toBe("2026-08-27");
+    expect(next?.getAttribute("aria-label")).toMatch(/^2026-08-26(?:,|$)/);
     expect(document.activeElement).toBe(next);
   });
 
