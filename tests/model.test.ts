@@ -84,7 +84,7 @@ describe("settings boundary", () => {
           enabled: true,
           id: "generated",
           name: "Generated",
-          properties: { start: "Date", projects: "projects" },
+          properties: { start: "Date" },
           source: { path: "Generated/Events", recursive: false, tag: "event", type: "folder" },
         }],
       }).profiles[0];
@@ -96,7 +96,7 @@ describe("settings boundary", () => {
       folder: "Generated/Events",
       recursive: false,
       tag: "event",
-      properties: { start: "Date", project: "projects" },
+      properties: { start: "Date" },
     });
     const serialized = serializeSettings({
       ...normalizeSettings({}),

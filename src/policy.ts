@@ -15,19 +15,10 @@ export interface EventDraft {
   title: string;
 }
 
-export interface EventLens {
-  kind: "category" | keyof CalendarEvent["context"];
-  label: string;
-  value: string;
-}
-
 export interface EventFilters {
-  lens: EventLens | null;
   profileId: string;
   query: string;
 }
-
-export type ContextLinkAction = "filter" | "open";
 
 export type ProfileValidation = "missing-source" | "missing-start" | "unsafe-folder";
 
@@ -125,7 +116,6 @@ export function matchesEventQuery(event: CalendarEvent, query: string): boolean 
     event.title,
     event.category,
     event.filePath,
-    ...Object.values(event.context).flat().flatMap((link) => [link.label, link.path]),
   ].some((value) => value.toLocaleLowerCase().includes(normalized));
 }
 
@@ -135,20 +125,8 @@ export function filterCalendarEvents(
 ): CalendarEvent[] {
   return events.filter((event) => {
     if (filters.profileId && event.profileId !== filters.profileId) return false;
-    if (!matchesEventQuery(event, filters.query)) return false;
-    if (!filters.lens) return true;
-    if (filters.lens.kind === "category") {
-      return event.category.trim().toLocaleLowerCase()
-        === filters.lens.value.trim().toLocaleLowerCase();
-    }
-    return event.context[filters.lens.kind].some((link) => link.path === filters.lens?.value);
+    return matchesEventQuery(event, filters.query);
   });
-}
-
-export function contextLinkAction(
-  kind: keyof CalendarEvent["context"],
-): ContextLinkAction {
-  return kind === "people" || kind === "project" ? "filter" : "open";
 }
 
 export function resolveEventPath(

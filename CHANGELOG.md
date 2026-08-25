@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.0.0
+
+- Rename the product and plugin ID to Link Calendar.
+- Replace the event preview, metadata property sheet, backlinks, people, projects, and related-note browser with a compact selected-date agenda of canonical Markdown links.
+- Keep the legacy `context-calendar` code block as a compatibility alias while adding `link-calendar`.
+- Add an explicit design contract and release checks for the canonical-note-only boundary.
+
+## 2.1.3
+
+- Replace the agenda-style detail view with an explicit Markdown page peek that loads an excerpt only after the user selects an event.
+- Add measured responsive event density plus distinct loading, empty, filtered-empty, and invalid-note states.
+- Rebase Calendar-scoped design aliases on public Obsidian theme variables, including high-contrast and forced-colors behavior, without owning a global palette.
+- Add month-grid ARIA semantics, keyboard navigation, focus restoration, DOM interaction tests, dead-code checks, and a reproducible visual fixture.
+- Refresh the README screenshots from the current generated CSS and remove stale interaction guidance.
+
 ## 2.1.2
 
 - Render related notes, wikilinks, and backlinks as direct Markdown page relations instead of ambiguous filter chips.

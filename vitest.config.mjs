@@ -7,9 +7,17 @@ export default defineConfig({
     },
   },
   test: {
+    environment: "happy-dom",
+    setupFiles: ["./tests/dom-setup.ts"],
     coverage: {
       exclude: ["src/main.ts", "src/settings.ts", "src/view.ts"],
-      include: ["src/model.ts", "src/index.ts", "src/i18n.ts", "src/policy.ts"],
+      include: [
+        "src/model.ts",
+        "src/index.ts",
+        "src/i18n.ts",
+        "src/policy.ts",
+        "src/presentation.ts",
+      ],
       provider: "v8",
       reporter: ["text", "json-summary"],
       thresholds: {

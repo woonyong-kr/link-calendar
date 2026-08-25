@@ -1,13 +1,13 @@
 export type LocaleId = "auto" | "en" | "ko";
-export type WeekStart = "auto" | "sunday" | "monday";
+type WeekStart = "auto" | "sunday" | "monday";
 
-export interface PropertyMap {
+interface PropertyMap {
+  allDay: string;
   category: string;
   end: string;
-  people: string;
-  project: string;
-  related: string;
+  endTime: string;
   start: string;
+  startTime: string;
   title: string;
 }
 
@@ -25,31 +25,22 @@ export interface SourceProfile {
 export interface CalendarSettings {
   locale: LocaleId;
   profiles: SourceProfile[];
-  showContext: boolean;
+  showAgenda: boolean;
   weekStart: WeekStart;
 }
 
 export interface CalendarEvent {
+  allDay: boolean;
   category: string;
-  context: {
-    backlinks: CalendarLink[];
-    links: CalendarLink[];
-    people: CalendarLink[];
-    project: CalendarLink[];
-    related: CalendarLink[];
-  };
   editable: boolean;
   endDate: string;
+  endTime: string;
   filePath: string;
   id: string;
   profileId: string;
   startDate: string;
+  startTime: string;
   title: string;
-}
-
-export interface CalendarLink {
-  label: string;
-  path: string;
 }
 
 export interface Diagnostic {
@@ -66,20 +57,20 @@ export interface CalendarSnapshot {
   revision: number;
 }
 
-export const DEFAULT_PROPERTIES: PropertyMap = {
+const DEFAULT_PROPERTIES: PropertyMap = {
+  allDay: "allDay",
   category: "category",
   end: "end",
-  people: "people",
-  project: "project",
-  related: "related",
+  endTime: "endTime",
   start: "date",
+  startTime: "startTime",
   title: "title",
 };
 
 export const DEFAULT_SETTINGS: CalendarSettings = {
   locale: "auto",
   profiles: [],
-  showContext: true,
+  showAgenda: true,
   weekStart: "auto",
 };
 
@@ -113,7 +104,7 @@ export function normalizeSettings(value: unknown): CalendarSettings {
   return {
     locale: value.locale === "en" || value.locale === "ko" ? value.locale : "auto",
     profiles,
-    showContext: value.showContext !== false,
+    showAgenda: value.showAgenda !== false && value.showContext !== false,
     weekStart: value.weekStart === "sunday" || value.weekStart === "monday"
       ? value.weekStart
       : "auto",
@@ -124,7 +115,7 @@ export function serializeSettings(settings: CalendarSettings): Record<string, un
   return {
     schemaVersion: 1,
     locale: settings.locale,
-    showContext: settings.showContext,
+    showAgenda: settings.showAgenda,
     sourceProfiles: settings.profiles.map((profile) => ({
       editable: profile.editable,
       enabled: profile.enabled,
@@ -156,12 +147,12 @@ function normalizeProfile(value: unknown): SourceProfile | null {
     id: stringValue(value.id) || crypto.randomUUID(),
     name: stringValue(value.name) || folder || tag,
     properties: {
+      allDay: propertyName(source.allDay, DEFAULT_PROPERTIES.allDay),
       category: propertyName(source.category, DEFAULT_PROPERTIES.category),
       end: propertyName(source.end, DEFAULT_PROPERTIES.end),
-      people: propertyName(source.people, DEFAULT_PROPERTIES.people),
-      project: propertyName(source.project ?? source.projects, DEFAULT_PROPERTIES.project),
-      related: propertyName(source.related, DEFAULT_PROPERTIES.related),
+      endTime: propertyName(source.endTime, DEFAULT_PROPERTIES.endTime),
       start: propertyName(source.start, DEFAULT_PROPERTIES.start),
+      startTime: propertyName(source.startTime, DEFAULT_PROPERTIES.startTime),
       title: propertyName(source.title, DEFAULT_PROPERTIES.title),
     },
     recursive: sourceConfig.recursive !== false && value.recursive !== false,
@@ -272,11 +263,6 @@ function splitPropertyValue(value: string): string[] {
   }
   result.push(current);
   return result;
-}
-
-export function linkTarget(value: string): string {
-  const match = /^\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]$/.exec(value.trim());
-  return (match?.[1] ?? value).trim();
 }
 
 const CATEGORY_TONE_COUNT = 12;

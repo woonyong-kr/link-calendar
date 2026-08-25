@@ -57,9 +57,9 @@ export class ContextCalendarSettingTab extends PluginSettingTab {
             },
           },
           {
-            name: translate(locale, "contextPanel"),
-            desc: translate(locale, "contextPanelDesc"),
-            control: { type: "toggle", key: "showContext" },
+            name: translate(locale, "agendaPanel"),
+            desc: translate(locale, "agendaPanelDesc"),
+            control: { type: "toggle", key: "showAgenda" },
           },
         ],
       },
@@ -86,7 +86,7 @@ export class ContextCalendarSettingTab extends PluginSettingTab {
   override getControlValue(key: string): unknown {
     if (key === "locale") return this.host.settings.locale;
     if (key === "weekStart") return this.host.settings.weekStart;
-    if (key === "showContext") return this.host.settings.showContext;
+    if (key === "showAgenda") return this.host.settings.showAgenda;
     return undefined;
   }
 
@@ -95,8 +95,8 @@ export class ContextCalendarSettingTab extends PluginSettingTab {
       this.host.settings.locale = value;
     } else if (key === "weekStart" && (value === "auto" || value === "sunday" || value === "monday")) {
       this.host.settings.weekStart = value;
-    } else if (key === "showContext" && typeof value === "boolean") {
-      this.host.settings.showContext = value;
+    } else if (key === "showAgenda" && typeof value === "boolean") {
+      this.host.settings.showAgenda = value;
     } else {
       return;
     }
@@ -110,11 +110,11 @@ export class ContextCalendarSettingTab extends PluginSettingTab {
     const fields = [
       ["start", translate(locale, "startDate")],
       ["end", translate(locale, "endDate")],
+      ["startTime", translate(locale, "startTime")],
+      ["endTime", translate(locale, "endTime")],
+      ["allDay", translate(locale, "allDay")],
       ["title", translate(locale, "titleField")],
       ["category", translate(locale, "category")],
-      ["people", translate(locale, "people")],
-      ["project", translate(locale, "project")],
-      ["related", translate(locale, "related")],
     ] as const;
     return {
       type: "page",

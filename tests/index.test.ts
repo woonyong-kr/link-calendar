@@ -28,6 +28,9 @@ function fixture() {
       frontmatter: {
         Date: "2026-08-18",
         End: "2026-08-19",
+        "Start Date": "2026-08-18T16:00:00+09:00",
+        "End Date": "2026-08-18T17:30:00+09:00",
+        "All Day": false,
         Title: "Alpha event",
         Category: "Learning",
         People: ["[[Jane]]"],
@@ -56,12 +59,12 @@ function fixture() {
   const profile = createProfile("Calendar");
   profile.id = "calendar";
   profile.properties = {
+    allDay: "All Day",
     category: "Category",
     end: "End",
-    people: "People",
-    project: "Project",
-    related: "Related",
+    endTime: "End Date",
     start: "Date",
+    startTime: "Start Date",
     title: "Title",
   };
   return { caches, files, metadataCache, profile, vault };
@@ -106,14 +109,10 @@ describe("CalendarIndex", () => {
       endDate: "2026-08-19",
       category: "Learning",
       editable: true,
+      allDay: false,
+      startTime: "2026-08-18T16:00:00+09:00",
+      endTime: "2026-08-18T17:30:00+09:00",
     });
-    expect(snapshot.events[0]?.context.people).toEqual([
-      { label: "Jane", path: "People/Jane.md" },
-    ]);
-    expect(snapshot.events[0]?.context.links).toEqual([]);
-    expect(snapshot.events[0]?.context.backlinks).toEqual([
-      { label: "Jane", path: "People/Jane.md" },
-    ]);
     expect(snapshot.diagnostics).toEqual([
       { code: "invalid-date", filePath: "Calendar/Bad.md", profileId: "calendar" },
     ]);
@@ -160,22 +159,6 @@ describe("CalendarIndex", () => {
     index.update(files[0] as never, { Date: "2026-08-18", tags: ["calendar"] });
 
     expect(index.snapshot().events).toHaveLength(1);
-  });
-
-  it("refreshes linked titles when the target note changes", () => {
-    const { caches, files, metadataCache, profile, vault } = fixture();
-    const index = new CalendarIndex(vault as never, metadataCache as never, [profile]);
-    index.rebuild();
-    caches.set("People/Jane.md", {
-      frontmatter: { title: "Jane Doe" },
-      links: [{ link: "Calendar/Alpha" }],
-    });
-
-    index.update(files[2] as never);
-
-    expect(index.snapshot().events[0]?.context.people).toEqual([
-      { label: "Jane Doe", path: "People/Jane.md" },
-    ]);
   });
 
   it("rejects invalid explicit ends and spans longer than 370 days", () => {
@@ -232,7 +215,7 @@ describe("source detection", () => {
     expect(detection.noteCount).toBe(2);
     expect(detection.datedNoteCount).toBe(1);
     expect(detection.dateProperties[0]).toEqual({ count: 1, name: "Date" });
-    expect(detection.dateProperties[1]).toEqual({ count: 2, name: "Modified" });
+    expect(detection.dateProperties).toContainEqual({ count: 2, name: "Modified" });
     expect(detection.suggestedStart).toBe("Date");
   });
 

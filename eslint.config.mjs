@@ -17,8 +17,15 @@ export default tseslint.config(
       "@typescript-eslint/require-await": "off",
       "obsidianmd/ui/sentence-case": [
         "warn",
-        { brands: ["Context Calendar", "Markdown", "Obsidian"] },
+        { brands: ["Link Calendar", "Markdown", "Obsidian"] },
       ],
+    },
+  },
+  {
+    files: ["tests/**/*.ts"],
+    rules: {
+      "obsidianmd/no-global-this": "off",
+      "obsidianmd/prefer-create-el": "off",
     },
   },
   { ignores: ["main.js", "node_modules", "coverage"] },

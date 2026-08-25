@@ -5,7 +5,6 @@ import { type CalendarEvent, createProfile } from "../src/model";
 import {
   canMoveEvent,
   canCreateWithProfile,
-  contextLinkAction,
   embedSource,
   eventFrontmatter,
   filterCalendarEvents,
@@ -19,20 +18,16 @@ import {
 
 function event(): CalendarEvent {
   return {
+    allDay: false,
     category: "Learning",
-    context: {
-      backlinks: [],
-      links: [],
-      people: [{ label: "Jane Doe", path: "People/Jane.md" }],
-      project: [],
-      related: [],
-    },
     editable: true,
     endDate: "2026-08-18",
+    endTime: "",
     filePath: "Calendar/Event.md",
     id: "calendar:Calendar/Event.md",
     profileId: "calendar",
     startDate: "2026-08-18",
+    startTime: "",
     title: "Program orientation",
   };
 }
@@ -148,50 +143,38 @@ describe("mutation policy", () => {
 });
 
 describe("view policy", () => {
-  it("distinguishes filter facets from Markdown page relations", () => {
-    expect(contextLinkAction("people")).toBe("filter");
-    expect(contextLinkAction("project")).toBe("filter");
-    expect(contextLinkAction("related")).toBe("open");
-    expect(contextLinkAction("links")).toBe("open");
-    expect(contextLinkAction("backlinks")).toBe("open");
-  });
-
   it("keeps grid movement separate from card keys", () => {
     expect(gridMovement("ArrowLeft", 2)).toBe(-1);
     expect(gridMovement("Home", 2)).toBe(-2);
     expect(gridMovement("Enter", 2)).toBeNull();
   });
 
-  it("searches titles and context labels", () => {
+  it("searches calendar titles, categories, and paths without a relationship index", () => {
     expect(matchesEventQuery(event(), "orientation")).toBe(true);
-    expect(matchesEventQuery(event(), "jane")).toBe(true);
+    expect(matchesEventQuery(event(), "learning")).toBe(true);
+    expect(matchesEventQuery(event(), "calendar/event")).toBe(true);
+    expect(matchesEventQuery(event(), "jane")).toBe(false);
     expect(matchesEventQuery(event(), "unrelated")).toBe(false);
   });
 
-  it("combines source, search, and context lenses without duplicating indexes", () => {
+  it("combines source and search filters without changing notes", () => {
     const candidate = event();
-    candidate.context.project = [{ label: "Atlas", path: "Projects/Atlas.md" }];
-    candidate.context.links = [{ label: "Decision", path: "Notes/Decision.md" }];
     expect(filterCalendarEvents([candidate], {
-      lens: { kind: "people", label: "Jane Doe", value: "People/Jane.md" },
       profileId: "calendar",
       query: "orientation",
     })).toEqual([candidate]);
     expect(filterCalendarEvents([candidate], {
-      lens: { kind: "project", label: "Other", value: "Projects/Other.md" },
-      profileId: "calendar",
+      profileId: "other",
       query: "",
     })).toEqual([]);
     expect(filterCalendarEvents([candidate], {
-      lens: { kind: "category", label: "learning", value: "learning" },
       profileId: "",
-      query: "",
+      query: "learning",
     })).toEqual([candidate]);
     expect(filterCalendarEvents([candidate], {
-      lens: { kind: "links", label: "Decision", value: "Notes/Decision.md" },
       profileId: "",
-      query: "",
-    })).toEqual([candidate]);
+      query: "decision",
+    })).toEqual([]);
   });
 
   it("resolves an active note to its indexed calendar event", () => {

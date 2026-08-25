@@ -1,140 +1,131 @@
 /*
- * Calendar-scoped primitives adapted from Cupertino 3.2.12.
- * Source: https://github.com/aaaaalexis/obsidian-cupertino
- * Copyright (c) 2025 aaaaalexis
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to inclusion of this copyright and permission
- * notice. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
- * Full license and attribution: THIRD_PARTY_NOTICES.md
+ * Link Calendar aliases Obsidian's public semantic CSS variables so the
+ * active host theme remains the single global token source. Component files
+ * consume only these --cc-* aliases. Calendar geometry stays plugin-local.
  */
 :is(
   .workspace-leaf-content .view-content.context-calendar-view,
   .context-calendar-setting-source,
   .context-calendar-embed
 ) {
-  --cc-font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --cc-font-mono: "SF Mono", ui-monospace, monospace;
-  --cc-font-xs: 11px;
-  --cc-font-sm: 12px;
-  --cc-font-md: 13px;
-  --cc-font-lg: 16px;
-  --cc-font-title: 19px;
-  --cc-font-display: 22px;
-  --cc-weight-medium: 500;
-  --cc-weight-semibold: 600;
-  --cc-weight-bold: 700;
-  --cc-space-1: 4px;
-  --cc-space-2: 8px;
-  --cc-space-3: 12px;
-  --cc-space-4: 16px;
-  --cc-space-6: 24px;
-  --cc-space-8: 32px;
-  --cc-radius-xs: 4px;
-  --cc-radius-sm: 6px;
-  --cc-radius-md: 10px;
-  --cc-radius-lg: 14px;
-  --cc-button-radius: 6px;
-  --cc-icon-radius: 999px;
-  --cc-control-height: 30px;
-  --cc-header-height: 54px;
-  --cc-side-padding: 20px;
-  --cc-side-width: 408px;
-  --cc-property-label-width: 104px;
-  --cc-month-min-height: 440px;
-  --cc-weekday-height: 28px;
-  --cc-day-min-height: 72px;
-  --cc-day-min-height-compact: 58px;
-  --cc-day-number-size: 22px;
-  --cc-card-height: 36px;
-  --cc-card-height-compact: 32px;
-  --cc-card-gap: 3px;
-  --cc-card-padding-block: 3px;
-  --cc-card-padding-inline: 6px;
-  --cc-grid-line-size: 1px;
-  --cc-focus-ring-size: 2px;
-  --cc-context-icon-size: 12px;
-  --cc-context-gap: 3px;
-  --cc-card-tint: 16%;
-  --cc-card-tint-muted: 10%;
-  --cc-card-hover-mix: 74%;
-  --cc-corner-shape: superellipse(1.1);
-  --cc-motion: 320ms cubic-bezier(0.32, 0.72, 0, 1);
-  --cc-motion-fast: 160ms cubic-bezier(0.32, 0.72, 0, 1);
-  --cc-overlay-shadow: 0 16px 64px rgb(0 0 0 / 20%);
+  /* Shared semantic aliases. */
+  --cc-surface-canvas: var(--background-primary);
+  --cc-surface-panel: var(--background-primary);
+  --cc-surface-subtle: var(--background-secondary);
+  --cc-surface-raised: var(--background-secondary-alt);
+  --cc-surface-hover: var(--background-modifier-hover);
+  --cc-surface-active: var(--background-modifier-active-hover);
+  --cc-text-primary: var(--text-normal);
+  --cc-text-secondary: var(--text-muted);
+  --cc-text-tertiary: var(--text-faint);
+  --cc-text-on-accent: var(--text-on-accent);
+  --cc-separator: var(--divider-color);
+  --cc-separator-strong: var(--background-modifier-border-hover);
+  --cc-accent: var(--interactive-accent);
+  --cc-accent-hover: var(--interactive-accent-hover);
+  --cc-focus: var(--interactive-accent);
+  --cc-warning: var(--text-warning);
+  --cc-error: var(--text-error);
+  --cc-font-family: var(--font-interface);
+  --cc-font-mono: var(--font-monospace);
+  --cc-font-xs: var(--font-ui-smaller);
+  --cc-font-sm: var(--font-ui-small);
+  --cc-font-md: var(--font-ui-medium);
+  --cc-font-lg: var(--font-ui-large);
+  --cc-font-title: var(--h4-size);
+  --cc-font-display: var(--h3-size);
+  --cc-weight-medium: var(--font-medium);
+  --cc-weight-semibold: var(--font-semibold);
+  --cc-weight-bold: var(--font-bold);
+  --cc-line-height: var(--line-height-normal);
+  --cc-letter-tight: var(--letter-spacing-tight);
+  --cc-letter-wide: var(--letter-spacing-wide);
+  --cc-space-1: var(--size-4-1);
+  --cc-space-2: var(--size-4-2);
+  --cc-space-3: var(--size-4-3);
+  --cc-space-4: var(--size-4-4);
+  --cc-space-5: var(--size-4-5);
+  --cc-space-6: var(--size-4-6);
+  --cc-space-8: var(--size-4-8);
+  --cc-radius-xs: var(--radius-s);
+  --cc-radius-sm: var(--radius-s);
+  --cc-radius-md: var(--radius-m);
+  --cc-radius-lg: var(--radius-l);
+  --cc-radius-pill: var(--radius-xl);
+  --cc-shadow-overlay: var(--shadow-l);
+  --cc-motion-fast: var(--anim-duration-fast) var(--anim-motion-smooth);
+  --cc-motion-base: var(--anim-duration-moderate) var(--anim-motion-smooth);
+  --cc-control-height: var(--input-height);
+  --cc-icon-size: var(--icon-size);
+  --cc-focus-width: var(--focus-ring-width);
+
+  /* Calendar-only geometry and density. */
+  --cc-calendar-header-height: calc(var(--cc-control-height) + var(--cc-space-4));
+  --cc-calendar-side-width: calc(var(--cc-space-8) * 12);
+  --cc-calendar-side-padding: var(--cc-space-5);
+  --cc-calendar-property-label-width: calc(var(--cc-space-8) * 3);
+  --cc-calendar-month-min-height: calc(var(--cc-space-8) * 14);
+  --cc-calendar-weekday-height: calc(var(--cc-space-6) + var(--cc-space-1));
+  --cc-calendar-day-min-height: calc(var(--cc-space-8) * 2 + var(--cc-space-2));
+  --cc-calendar-day-min-height-compact: calc(var(--cc-space-8) + var(--cc-space-6));
+  --cc-calendar-day-number-size: calc(var(--cc-space-4) + var(--cc-space-2));
+  --cc-calendar-card-height: calc(var(--cc-space-6) + var(--cc-space-2));
+  --cc-calendar-card-height-compact: calc(var(--cc-space-5) + var(--cc-space-2));
+  --cc-calendar-card-gap: var(--cc-space-1);
+  --cc-calendar-card-padding-block: var(--cc-space-1);
+  --cc-calendar-card-padding-inline: var(--cc-space-2);
+  --cc-calendar-grid-line: var(--border-width);
+  --cc-calendar-category-tint: 14%;
+  --cc-calendar-category-tint-muted: 9%;
+  --cc-calendar-category-hover: 70%;
+
+  /* Category hues stay theme-owned and are mixed into the active surface. */
+  --cc-category-blue: var(--color-blue);
+  --cc-category-green: var(--color-green);
+  --cc-category-orange: var(--color-orange);
+  --cc-category-cyan: var(--color-cyan);
+  --cc-category-pink: var(--color-pink);
+  --cc-category-purple: var(--color-purple);
+  --cc-category-yellow: var(--color-yellow);
+  --cc-category-red: var(--color-red);
   container-type: inline-size;
 }
 
-.theme-light :is(
-  .workspace-leaf-content .view-content.context-calendar-view,
-  .context-calendar-setting-source,
-  .context-calendar-embed
-) {
-  --cc-background: #ffffff;
-  --cc-background-muted: #f7f7f7;
-  --cc-panel: #fafafa;
-  --cc-control: rgb(0 0 0 / 5%);
-  --cc-control-hover: rgb(0 0 0 / 9%);
-  --cc-line: rgb(0 0 0 / 12%);
-  --cc-line-soft: rgb(0 0 0 / 7.5%);
-  --cc-text: #262626;
-  --cc-text-muted: #737373;
-  --cc-text-faint: #a3a3a3;
-  --cc-text-on-accent: #ffffff;
-  --cc-accent: #0088ff;
-  --cc-warning: #b45309;
-  --cc-error: #dc2626;
-  --cc-color-red: rgb(255 56 60);
-  --cc-color-orange: rgb(255 141 40);
-  --cc-color-yellow: rgb(255 204 0);
-  --cc-color-green: rgb(52 199 89);
-  --cc-color-cyan: rgb(0 192 232);
-  --cc-color-blue: rgb(0 136 255);
-  --cc-color-purple: rgb(203 48 224);
-  --cc-color-pink: rgb(255 45 85);
-  --cc-tactile-shadow: 0 0 1px rgb(0 0 0 / 35%), 0 4px 24px rgb(0 0 0 / 8%);
+@media (prefers-contrast: more) {
+  :is(
+    .workspace-leaf-content .view-content.context-calendar-view,
+    .context-calendar-setting-source,
+    .context-calendar-embed
+  ) {
+    --cc-text-secondary: var(--text-normal);
+    --cc-text-tertiary: var(--text-muted);
+    --cc-separator: var(--background-modifier-border-hover);
+    --cc-calendar-category-tint: 22%;
+    --cc-calendar-category-tint-muted: 16%;
+  }
 }
 
-.theme-dark :is(
-  .workspace-leaf-content .view-content.context-calendar-view,
-  .context-calendar-setting-source,
-  .context-calendar-embed
-) {
-  --cc-background: #1e1e1e;
-  --cc-background-muted: #222222;
-  --cc-panel: #232323;
-  --cc-control: rgb(255 255 255 / 6%);
-  --cc-control-hover: rgb(255 255 255 / 10%);
-  --cc-line: rgb(255 255 255 / 12%);
-  --cc-line-soft: rgb(255 255 255 / 7.5%);
-  --cc-text: #dddddd;
-  --cc-text-muted: #9a9a9a;
-  --cc-text-faint: #666666;
-  --cc-text-on-accent: #ffffff;
-  --cc-accent: #0091ff;
-  --cc-warning: #ff9f0a;
-  --cc-error: #ff453a;
-  --cc-color-red: rgb(255 66 69);
-  --cc-color-orange: rgb(255 146 48);
-  --cc-color-yellow: rgb(255 214 0);
-  --cc-color-green: rgb(48 209 88);
-  --cc-color-cyan: rgb(60 211 254);
-  --cc-color-blue: rgb(0 145 255);
-  --cc-color-purple: rgb(107 52 242);
-  --cc-color-pink: rgb(255 55 95);
-  --cc-tactile-shadow: 0 0 1px rgb(255 255 255 / 24%), 0 8px 16px rgb(0 0 0 / 20%);
-  --cc-overlay-shadow: 0 16px 64px rgb(0 0 0 / 30%);
-  --cc-card-tint: 22%;
-  --cc-card-tint-muted: 14%;
-}
-
-.workspace-leaf-content .view-content.context-calendar-view {
-  height: 100%;
-  padding: 0;
-  overflow: hidden;
-  background: var(--cc-background);
+@media (forced-colors: active) {
+  :is(
+    .workspace-leaf-content .view-content.context-calendar-view,
+    .context-calendar-setting-source,
+    .context-calendar-embed
+  ) {
+    --cc-surface-canvas: Canvas;
+    --cc-surface-panel: Canvas;
+    --cc-surface-subtle: Canvas;
+    --cc-surface-raised: ButtonFace;
+    --cc-surface-hover: Highlight;
+    --cc-surface-active: Highlight;
+    --cc-text-primary: CanvasText;
+    --cc-text-secondary: CanvasText;
+    --cc-text-tertiary: GrayText;
+    --cc-text-on-accent: HighlightText;
+    --cc-separator: CanvasText;
+    --cc-separator-strong: CanvasText;
+    --cc-accent: Highlight;
+    --cc-accent-hover: Highlight;
+    --cc-focus: Highlight;
+    --cc-shadow-overlay: none;
+  }
 }

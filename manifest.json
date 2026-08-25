@@ -1,9 +1,9 @@
 {
-  "id": "context-calendar",
-  "name": "Context Calendar",
-  "version": "2.1.2",
+  "id": "link-calendar",
+  "name": "Link Calendar",
+  "version": "3.0.0",
   "minAppVersion": "1.13.0",
-  "description": "Navigate dated Markdown by month, then follow its links, backlinks, people, projects, and related notes.",
+  "description": "Navigate dated Markdown by month and open canonical notes from a compact daily agenda.",
   "author": "Woonyong Choi",
   "authorUrl": "https://github.com/woonyong-kr",
   "isDesktopOnly": false

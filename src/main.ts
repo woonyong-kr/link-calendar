@@ -43,6 +43,7 @@ import { ContextCalendarSettingTab, type SettingsHost } from "./settings";
 import { ContextCalendarView, VIEW_TYPE, type CalendarActions } from "./view";
 
 const CODE_BLOCK = "context-calendar";
+const CODE_BLOCK_ALIAS = "link-calendar";
 
 export default class ContextCalendarPlugin extends Plugin implements SettingsHost {
   override settings: CalendarSettings = structuredClone(DEFAULT_SETTINGS);
@@ -93,6 +94,9 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
     });
     this.addSettingTab(new ContextCalendarSettingTab(this.app, this));
     this.registerMarkdownCodeBlockProcessor(CODE_BLOCK, (source, element, context) => {
+      context.addChild(new CalendarEmbedChild(element, this, source));
+    });
+    this.registerMarkdownCodeBlockProcessor(CODE_BLOCK_ALIAS, (source, element, context) => {
       context.addChild(new CalendarEmbedChild(element, this, source));
     });
 
@@ -343,7 +347,7 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
     const config = parseBlock(source);
     element.empty();
     const root = element.createDiv({ cls: "context-calendar-embed" });
-    root.createEl("strong", { text: config.title || "Context Calendar" });
+    root.createEl("strong", { text: config.title || "Link Calendar" });
     if (config.invalid) {
       root.createDiv({
         cls: "context-calendar-embed__error",

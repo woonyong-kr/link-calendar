@@ -18,7 +18,12 @@ const styles = await readFile("styles.css", "utf8");
 const { stdout: trackedBundle } = await run("git", ["ls-files", "main.js"]);
 if (trackedBundle.trim()) errors.push("main.js must be a release asset, not a tracked source file");
 
-if (manifest.id !== "context-calendar") errors.push("manifest id must be context-calendar");
+if (manifest.id !== "link-calendar") errors.push("manifest id must be link-calendar");
+if (manifest.name !== "Link Calendar") errors.push("manifest name must be Link Calendar");
+if (packageJson.name !== "link-calendar") errors.push("package name must be link-calendar");
+if (!packageJson.repository?.url?.endsWith("woonyong-kr/link-calendar.git")) {
+  errors.push("package repository must be woonyong-kr/link-calendar");
+}
 if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) errors.push("manifest version must use exact x.y.z format");
 if (manifest.version !== packageJson.version) errors.push("manifest/package versions differ");
 if (versions[manifest.version] !== manifest.minAppVersion) errors.push("versions.json does not match manifest");
@@ -56,6 +61,9 @@ if (!source.some((content) => content.includes("getSettingDefinitions()"))) {
   errors.push("settings must use the declarative settings API");
 }
 if (styles.includes("!important")) errors.push("styles.css must not use !important");
+for (const removedSelector of ["context-calendar__preview", "context-calendar__properties", "context-calendar__relation"]) {
+  if (styles.includes(removedSelector)) errors.push(`styles contain removed UI: ${removedSelector}`);
+}
 
 if (errors.length) throw new Error(errors.join("\n"));
 console.log(JSON.stringify({ status: "ok", id: manifest.id, version: manifest.version }));

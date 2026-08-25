@@ -1,114 +1,77 @@
-# Context Calendar
+# Link Calendar
 
-Context Calendar is a local-first month view for people who plan, meet, learn, publish, and make decisions in Markdown. It turns any folder of dated notes into a calendar, then keeps each note's links and backlinks beside the date instead of hiding them in a separate calendar database.
+Link Calendar turns date properties already written in Markdown into a month view and a compact daily agenda. Select a date, then open the canonical note directly.
 
-**Month → note → context.** See when something happened, open the source note, then follow the people, project, and related work around it.
+**Month → date → canonical note.**
 
-It is not a Google Calendar replacement or a time-grid scheduler. It is the missing time view for an Obsidian knowledge base: a direct way to move between **when something happened** and **what it was connected to**.
+![Link Calendar month view](docs/media/link-calendar-overview.png)
 
-## Who it is for
+![Link Calendar daily agenda](docs/media/link-calendar-agenda.png)
 
-- Meeting notes that should remain connected to decisions, attendees, and follow-up work.
-- Learning logs that need to lead back to concepts, sources, and practice notes.
-- Project journals where milestones should reveal the documents and people around them.
-- Content and research calendars whose entries are real, versionable Markdown files.
+## Why use it
 
-Only a date property is required. Ordinary wikilinks and backlinks become context automatically; `people`, `project`, and `related` properties are optional enhancements, not a required schema.
+Obsidian's native Graph answers “what links to what.” Link Calendar answers “what happened when” without creating a second calendar database.
 
-## Why Context Calendar
+- Existing Markdown stays canonical.
+- Configured folders provide explicit privacy and performance boundaries.
+- A month grid makes dated notes visible at a glance.
+- The selected date shows only direct note links, not a duplicated metadata inspector.
+- Search and source filters narrow the current month without modifying notes.
+- Optional creation and drag-to-move update the canonical note only for sources explicitly marked writable.
 
-- **Month first:** the full month remains the primary screen, with no time grid.
-- **Markdown first:** every event is a real note that can be searched, linked, and versioned.
-- **Context beside time:** select an event to see its links, backlinks, people, projects, and related notes.
-- **Context Lens:** narrow the month by a category, person, or project without changing note data; linked pages remain direct Markdown navigation.
-- **Multiple sources:** switch between source folders from the same calendar while each folder keeps its own property mapping and write capability.
-- **Reveal the note:** run **Reveal active note in calendar** to jump from the current Markdown file back to its month and event card.
-- **Source capabilities:** personal folders can be writable while generated or imported folders remain read-only.
-- **Local by design:** no account, credential, analytics, network request, or external database.
-- **Theme and device aware:** light/dark themes, keyboard navigation, pop-out windows, and narrow layouts.
+Link Calendar does not store relationships, copy note bodies, render backlinks, or maintain a second layout. The daily agenda is derived from the current Vault and can always be rebuilt.
 
-## Interface
+## Setup
 
-The month remains the main workspace. Context Calendar owns its scoped geometry and design tokens, follows Obsidian's light or dark appearance, and does not restyle the surrounding workspace.
+1. Install `main.js`, `manifest.json`, and `styles.css` in `.obsidian/plugins/link-calendar/`.
+2. Enable **Link Calendar**.
+3. Run **Open Link Calendar** or select the calendar ribbon icon.
+4. Choose a folder containing Markdown notes with a date property.
 
-![Context Calendar month view](docs/media/context-calendar-overview.png)
+Only a date is required:
 
-Select an event to inspect its date, category, people, and connected notes without leaving the month. Opening a source note remains an explicit action.
-
-![Context Calendar event context](docs/media/context-calendar-context.png)
-
-## Independent design
-
-Context Calendar carries its Calendar-scoped typography, semantic colors, control radii, motion, shadows, and category palette in this repository. It follows Obsidian's light or dark appearance but does not depend on an installed community theme, so the month keeps the same visual identity in a default Vault and in a heavily customized one.
-
-The source design contract lives in [`docs/design-system.md`](docs/design-system.md). Component CSS can consume only `--cc-*` tokens; the production build rejects literal colors, active-theme variables, light/dark selectors, theme names, `!important`, and unbalanced source files before generating `styles.css`. The adapted Cupertino primitives and license are documented in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
-
-## Quick start
-
-1. Use the ribbon calendar icon or run **Open Context Calendar**.
-2. Select a source folder. Context Calendar previews the Markdown count and detects valid date properties inside that folder only.
-3. Confirm the date property, then open the month. Nothing is copied or uploaded.
-
-Add more sources or adjust property mappings later in **Settings → Context Calendar**. An optional tag can narrow a configured folder, but never expands indexing to the whole Vault.
-
-A minimal event note is:
-
-```markdown
+```yaml
 ---
-date: 2026-08-18
+date: 2026-08-29
+startTime: 2026-08-29T16:00:00+09:00
+endTime: 2026-08-29T17:30:00+09:00
+allDay: false
+title: AICE Associate exam
 category: Learning
-people:
-  - "[[Jane Doe]]"
-project:
-  - "[[Compiler study]]"
-related:
-  - "[[Admission checklist]]"
 ---
-
-# Program orientation
 ```
 
-Property names are configurable per source. Dates accept `YYYY-MM-DD` and ISO datetime strings; the calendar preserves the local date portion instead of converting it through a timezone. An optional end property creates a multi-day event. Invalid ranges and spans longer than 370 days are shown in Diagnostics instead of being partially rendered. Selecting a date or event is explicit, so merely opening the calendar does not expose the first note on today's date.
+The default mappings are `date`, `end`, `startTime`, `endTime`, `allDay`, `title`, and `category`. Each source can use different property names. An optional tag can narrow a configured folder but never expands the indexed scope.
 
-Each source folder is a privacy and performance boundary. Context Calendar indexes Markdown files only inside enabled source folders; an optional tag filters files within that boundary and never expands access to the whole Vault. Legacy tag-only sources from older builds are preserved but disabled until a folder is chosen.
+## Navigation
 
-## Reading and editing
+- Select a day or event card to open the daily agenda.
+- Select the linked title or arrow icon to open the canonical Markdown note.
+- Press `Cmd/Ctrl + Enter` on an event card to open its note directly.
+- Run **Reveal active note in calendar** to locate the current dated note.
+- Use arrow keys on the month grid to move the selected day; `Enter` or `Space` opens its agenda.
+- Press `Escape` to close the agenda and return focus to the selected event or day.
 
-- Single-click an event to open Agenda and Context.
-- Select a category, person, or project chip to filter the month by that context.
-- Select a related-note, wikilink, or backlink relation to open that Markdown page immediately. Its context menu also offers a month filter.
-- Double-click a card, use its context menu, or select the file icon in Context to open the event Markdown file.
-- Drag an event to another day only when its source is writable.
-- Use **New event note** to create a Markdown file in a writable folder.
-- Read-only sources never expose create or move operations and are checked again before any file mutation.
-- A writable tag constraint must be present in current frontmatter; inline-only tag matches remain read-only.
-- Use the source bar when more than one source is enabled.
-- From an indexed Markdown note, run **Reveal active note in calendar** to locate the matching card.
+## Writable sources
 
-Category colors are generated from the category value rather than a fixed list, so any workflow works without code changes.
+Sources are read-only by default when configured that way. For a source explicitly marked writable, Link Calendar can:
 
-## Optional Markdown embed
+- create a Markdown event note through Obsidian's `Vault` API;
+- move an event by updating its mapped start and end properties.
 
-````markdown
-```context-calendar
-source: Calendar/Events
-title: Team calendar
+It does not edit Apple Calendar, contact an external service, or write outside the Vault.
+
+## Embedded month
+
+The legacy `context-calendar` code block remains supported. New notes may use `link-calendar`.
+
+~~~markdown
+```link-calendar
+source: Learning
+month: 2026-08
+title: Learning calendar
 ```
-````
-
-The embed shows upcoming notes and opens the dedicated month view. The source must be a safe Vault-relative path.
-
-## Privacy and security
-
-Context Calendar reads configured source folders through Obsidian's `Vault` API and uses the existing `MetadataCache` link graph for backlinks. It writes only through `Vault` and `FileManager.processFrontMatter()`. It does not:
-
-- send network requests;
-- ask for or store credentials;
-- execute note content as HTML;
-- read files outside the Vault;
-- edit a source marked read-only.
-
-The plugin requires Obsidian 1.13.0 or later so its settings are searchable through Obsidian's declarative settings interface.
+~~~
 
 ## Development
 
@@ -117,20 +80,10 @@ npm ci
 npm run verify
 ```
 
-`npm run verify` runs TypeScript, the official Obsidian ESLint rules, unit tests, coverage, the production bundle, and release-contract validation. Release assets are `main.js`, `manifest.json`, and `styles.css`.
+The verification gate runs TypeScript, Obsidian lint, unused-code checks, unit and DOM tests, visual-fixture checks, a production build, and release validation.
 
-`styles.css` is a generated Community Plugin artifact. Edit the component sources under `src/styles/`: `tokens.css` is the only design-token source, while shell, month grid, event detail, and supporting surfaces remain independent components. Do not copy the global selectors of an Obsidian theme into the plugin.
+The checked light/dark surfaces and removed UI are recorded in [design QA](docs/design-qa.md).
 
-## 한국어 안내
+## 한국어 요약
 
-Context Calendar는 회의·학습·프로젝트·콘텐츠처럼 날짜가 있는 Markdown 문서를 월간 달력으로 모아 보고, 문서의 wikilink와 backlink를 같은 화면에서 다시 찾는 Obsidian 플러그인입니다. 핵심 흐름은 **월 → 문서 → 맥락**이며, 외부 계정이나 서버 없이 Vault 안에서만 동작합니다.
-
-필수 속성은 날짜 하나뿐입니다. 일반 wikilink와 backlink만 있어도 연결 맥락과 필터가 자동으로 동작하며, 인물·프로젝트·관련 문서 속성은 필요할 때만 추가합니다. 따라서 특정 Vault 구조나 Woon 워크플로우 없이 독립적으로 사용할 수 있습니다.
-
-처음 달력을 열어 폴더를 고르면 해당 폴더 안에서 날짜 속성과 문서 수를 미리 확인한 뒤 바로 소스로 추가할 수 있습니다. 여러 폴더를 연결했다면 소스별로 월간 보기를 좁힐 수 있고, 맥락 패널의 인물·프로젝트·분류를 필터로 적용하면 그 대상과 연결된 일정만 남습니다. 현재 Markdown 문서가 달력에서 어디에 있는지는 **현재 문서를 캘린더에서 찾기** 명령으로 바로 확인합니다.
-
-Tag는 반드시 지정 폴더 안에서만 추가 필터로 작동하며 Vault 전체 검색으로 범위를 넓히지 않습니다. 카드는 한 번 누르면 맥락을 보여 주고, 두 번 누르면 원문을 엽니다. 긴 제목은 두 줄로 정리되며 전체 제목은 기본 tooltip과 접근성 이름으로 확인할 수 있습니다.
-
-## License
-
-[MIT](LICENSE)
+Link Calendar는 Markdown의 날짜 속성을 월간 보기로 모으고, 선택한 날짜에서 정본 문서 링크만 보여주는 Obsidian 플러그인입니다. 별도 일정 데이터베이스나 관계 구조를 만들지 않으며, 모든 일정 정보와 수정 결과는 원본 Markdown에만 남습니다.

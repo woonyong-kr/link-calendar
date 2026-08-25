@@ -2,16 +2,13 @@ import { TFile, TFolder, type CachedMetadata, type MetadataCache, type Vault } f
 
 import {
   type CalendarEvent,
-  type CalendarLink,
   type CalendarSnapshot,
   type Diagnostic,
   type SourceProfile,
   MAX_EVENT_SPAN_DAYS,
   calendarSpanLength,
   dateKey,
-  fileTitle,
   isRecord,
-  linkTarget,
   readField,
   values,
 } from "./model";
@@ -21,7 +18,6 @@ export { readField } from "./model";
 interface IndexedNote {
   diagnostic: Diagnostic | null;
   event: CalendarEvent | null;
-  outgoing: CalendarLink[];
 }
 
 export interface SourceDetection {
@@ -66,27 +62,15 @@ export class CalendarIndex {
   }
 
   snapshot(): CalendarSnapshot {
-    const reverse = this.reverseLinks();
     const diagnostics: Diagnostic[] = [];
     const events: CalendarEvent[] = [];
     for (const note of this.notes.values()) {
       if (note.diagnostic) diagnostics.push(note.diagnostic);
-      if (note.event) {
-        const refreshLinks = (links: CalendarLink[]) => links.map((link) => this.calendarLink(link.path));
-        events.push({
-          ...note.event,
-          context: {
-            links: refreshLinks(note.event.context.links),
-            people: refreshLinks(note.event.context.people),
-            project: refreshLinks(note.event.context.project),
-            related: refreshLinks(note.event.context.related),
-            backlinks: reverse.get(note.event.filePath) ?? [],
-          },
-        });
-      }
+      if (note.event) events.push(note.event);
     }
     events.sort((left, right) =>
       left.startDate.localeCompare(right.startDate)
+      || left.startTime.localeCompare(right.startTime)
       || left.title.localeCompare(right.title)
       || left.filePath.localeCompare(right.filePath),
     );
@@ -104,7 +88,6 @@ export class CalendarIndex {
     const frontmatter = frontmatterOverride ?? (isRecord(cache?.frontmatter) ? cache.frontmatter : {});
     const rawStart = readField(frontmatter, profile.properties.start);
     const start = dateKey(rawStart);
-    const outgoing = this.resolveOutgoing(file, cache, frontmatter, profile);
     if (!start) {
       this.notes.set(file.path, {
         diagnostic: {
@@ -113,7 +96,6 @@ export class CalendarIndex {
           profileId: profile.id,
         },
         event: null,
-        outgoing,
       });
       return;
     }
@@ -121,116 +103,38 @@ export class CalendarIndex {
     const explicitEnd = rawEnd !== undefined;
     const parsedEnd = explicitEnd ? dateKey(rawEnd) : start;
     if (!parsedEnd) {
-      this.notes.set(file.path, invalidNote(file.path, profile.id, outgoing, "invalid-end"));
+      this.notes.set(file.path, invalidNote(file.path, profile.id, "invalid-end"));
       return;
     }
     const end = parsedEnd;
     if (end < start) {
-      this.notes.set(file.path, invalidNote(file.path, profile.id, outgoing, "end-before-start"));
+      this.notes.set(file.path, invalidNote(file.path, profile.id, "end-before-start"));
       return;
     }
     if (calendarSpanLength(start, end) > MAX_EVENT_SPAN_DAYS) {
-      this.notes.set(file.path, invalidNote(file.path, profile.id, outgoing, "event-too-long"));
+      this.notes.set(file.path, invalidNote(file.path, profile.id, "event-too-long"));
       return;
     }
     const title = stringField(frontmatter, profile.properties.title) || file.basename;
     const category = stringField(frontmatter, profile.properties.category);
-    const people = this.resolveProperty(file, frontmatter, profile.properties.people);
-    const project = this.resolveProperty(file, frontmatter, profile.properties.project);
-    const related = this.resolveProperty(file, frontmatter, profile.properties.related);
-    const classified = new Set([...people, ...project, ...related].map((link) => link.path));
+    const allDay = booleanField(frontmatter, profile.properties.allDay);
     const writableProfile = selectProfileFromFrontmatter(file, frontmatter, this.profiles);
     this.notes.set(file.path, {
       diagnostic: null,
       event: {
+        allDay,
         category,
-        context: {
-          backlinks: [],
-          links: outgoing.filter((link) => !classified.has(link.path)),
-          people,
-          project,
-          related,
-        },
         editable: profile.editable && writableProfile?.id === profile.id,
         endDate: end,
+        endTime: allDay ? "" : stringField(frontmatter, profile.properties.endTime),
         filePath: file.path,
         id: `${profile.id}:${file.path}`,
         profileId: profile.id,
         startDate: start,
+        startTime: allDay ? "" : stringField(frontmatter, profile.properties.startTime),
         title,
       },
-      outgoing,
     });
-  }
-
-  private resolveOutgoing(
-    file: TFile,
-    cache: CachedMetadata | null,
-    frontmatter: Record<string, unknown>,
-    profile: SourceProfile,
-  ): CalendarLink[] {
-    const candidates = new Set<string>();
-    for (const link of cache?.links ?? []) candidates.add(link.link);
-    for (const link of cache?.frontmatterLinks ?? []) candidates.add(link.link);
-    for (const field of [profile.properties.people, profile.properties.project, profile.properties.related]) {
-      for (const item of values(readField(frontmatter, field))) candidates.add(linkTarget(item));
-    }
-    const paths = [...new Set(
-      [...candidates]
-        .map((candidate) => this.metadataCache.getFirstLinkpathDest(candidate, file.path)?.path)
-        .filter((path): path is string => Boolean(path) && path !== file.path),
-    )].sort();
-    return paths.map((path) => this.calendarLink(path));
-  }
-
-  private resolveProperty(
-    file: TFile,
-    frontmatter: Record<string, unknown>,
-    field: string,
-  ): CalendarLink[] {
-    const paths = [...new Set(
-      values(readField(frontmatter, field))
-        .map(linkTarget)
-        .map((candidate) => this.metadataCache.getFirstLinkpathDest(candidate, file.path)?.path)
-        .filter((path): path is string => Boolean(path) && path !== file.path),
-    )].sort();
-    return paths.map((path) => this.calendarLink(path));
-  }
-
-  private reverseLinks(): Map<string, CalendarLink[]> {
-    const reverse = new Map<string, Set<string>>();
-    const eventPaths = new Set(
-      [...this.notes.entries()]
-        .filter(([, note]) => note.event !== null)
-        .map(([path]) => path),
-    );
-    for (const [source, targets] of Object.entries(this.metadataCache.resolvedLinks)) {
-      for (const target of Object.keys(targets)) {
-        if (source === target || !eventPaths.has(target)) continue;
-        const sources = reverse.get(target) ?? new Set<string>();
-        sources.add(source);
-        reverse.set(target, sources);
-      }
-    }
-    return new Map([...reverse].map(([target, sources]) => [
-      target,
-      [...sources].sort().map((path) => this.calendarLink(path)),
-    ]));
-  }
-
-  private calendarLink(path: string): CalendarLink {
-    const file = this.vault.getAbstractFileByPath(path);
-    if (!(file instanceof TFile)) return { label: fileTitle(path), path };
-    const markdownFile = file;
-    const frontmatter = this.metadataCache.getFileCache(markdownFile)?.frontmatter;
-    const title = isRecord(frontmatter) ? readField(frontmatter, "title") : undefined;
-    const fallback = markdownFile.basename === "README"
-      ? markdownFile.parent?.name ?? markdownFile.basename
-      : markdownFile.basename;
-    return {
-      label: typeof title === "string" && title.trim() ? title.trim() : fallback,
-      path,
-    };
   }
 }
 
@@ -291,16 +195,20 @@ function stringField(frontmatter: Record<string, unknown>, name: string): string
   return typeof value === "number" ? String(value) : "";
 }
 
+function booleanField(frontmatter: Record<string, unknown>, name: string): boolean {
+  const value = readField(frontmatter, name);
+  return value === true || (typeof value === "string" && value.toLocaleLowerCase() === "true");
+}
+
 function invalidNote(
   filePath: string,
   profileId: string,
-  outgoing: CalendarLink[],
   code: Diagnostic["code"],
 ): IndexedNote {
-  return { diagnostic: { code, filePath, profileId }, event: null, outgoing };
+  return { diagnostic: { code, filePath, profileId }, event: null };
 }
 
-export function sourceFiles(vault: Vault, profiles: SourceProfile[]): TFile[] {
+function sourceFiles(vault: Vault, profiles: SourceProfile[]): TFile[] {
   const files = new Map<string, TFile>();
   for (const profile of profiles) {
     if (!profile.enabled || !profile.folder) continue;

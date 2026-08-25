@@ -1,15 +1,17 @@
 {
-  "name": "context-calendar",
-  "version": "2.1.2",
-  "description": "Navigate dated Markdown by month, then follow its links and context.",
+  "name": "link-calendar",
+  "version": "3.0.0",
+  "description": "Navigate dated Markdown by month and open canonical notes from a compact daily agenda.",
   "main": "main.js",
   "scripts": {
     "build": "node scripts/build-styles.mjs && node esbuild.config.mjs production",
     "dev": "node scripts/build-styles.mjs && node esbuild.config.mjs",
     "check": "tsc --noEmit && npm run lint:obsidian",
+    "knip": "knip",
     "lint:obsidian": "eslint src tests",
     "test": "vitest run --coverage",
-    "verify": "npm run check && npm test && npm run build && node scripts/verify-release.mjs"
+    "test:visual": "vitest run tests/view.test.ts tests/presentation.test.ts && node scripts/verify-visual-fixture.mjs",
+    "verify": "npm run check && npm run knip && npm test && npm run test:visual && npm run build && node scripts/verify-release.mjs"
   },
   "keywords": [
     "obsidian",
@@ -21,10 +23,19 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/woonyong-kr/simple-calendar.git"
+    "url": "git+https://github.com/woonyong-kr/link-calendar.git"
   },
   "engines": {
     "node": ">=20"
+  },
+  "knip": {
+    "entry": [
+      "scripts/*.mjs"
+    ],
+    "project": [
+      "src/**/*.ts",
+      "tests/**/*.ts"
+    ]
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -33,6 +44,8 @@
     "esbuild": "^0.25.9",
     "eslint": "^10.0.1",
     "eslint-plugin-obsidianmd": "^0.4.1",
+    "happy-dom": "^20.11.6",
+    "knip": "^6.32.2",
     "obsidian": "^1.13.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0",
