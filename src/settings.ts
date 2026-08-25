@@ -19,7 +19,7 @@ export interface SettingsHost {
   chooseFolder(onChoose: (folder: TFolder) => void): void;
 }
 
-export class ContextCalendarSettingTab extends PluginSettingTab {
+export class LinkCalendarSettingTab extends PluginSettingTab {
   constructor(app: App, private readonly host: SettingsHost & Plugin) {
     super(app, host);
   }

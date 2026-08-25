@@ -39,13 +39,13 @@ import {
   resolveEventPath,
   writableProfiles,
 } from "./policy";
-import { ContextCalendarSettingTab, type SettingsHost } from "./settings";
+import { LinkCalendarSettingTab, type SettingsHost } from "./settings";
 import { LinkCalendarView, VIEW_TYPE, type CalendarActions } from "./view";
 
 const CODE_BLOCK = "link-calendar";
 const LEGACY_CODE_BLOCK_ALIAS = "context-calendar";
 
-export default class ContextCalendarPlugin extends Plugin implements SettingsHost {
+export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
   override settings: CalendarSettings = structuredClone(DEFAULT_SETTINGS);
   private index!: CalendarIndex;
   private readonly listeners = new Set<() => void>();
@@ -92,7 +92,7 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
         return true;
       },
     });
-    this.addSettingTab(new ContextCalendarSettingTab(this.app, this));
+    this.addSettingTab(new LinkCalendarSettingTab(this.app, this));
     this.registerMarkdownCodeBlockProcessor(CODE_BLOCK, (source, element, context) => {
       context.addChild(new CalendarEmbedChild(element, this, source));
     });
@@ -346,11 +346,11 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
   renderEmbed(source: string, element: HTMLElement): void {
     const config = parseBlock(source);
     element.empty();
-    const root = element.createDiv({ cls: "context-calendar-embed" });
+    const root = element.createDiv({ cls: "link-calendar-embed" });
     root.createEl("strong", { text: config.title || "Link Calendar" });
     if (config.invalid) {
       root.createDiv({
-        cls: "context-calendar-embed__error",
+        cls: "link-calendar-embed__error",
         text: translate(this.settings.locale, "invalidEmbedSource"),
       });
       return;
@@ -360,7 +360,7 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
     const upcoming = events
       .filter((event) => event.endDate >= (dateKey(new Date()) ?? ""))
       .slice(0, 5);
-    const list = root.createDiv({ cls: "context-calendar-embed__events" });
+    const list = root.createDiv({ cls: "link-calendar-embed__events" });
     for (const event of upcoming) {
       const button = list.createEl("button", { attr: { type: "button" } });
       button.createEl("time", { text: event.startDate });
@@ -378,7 +378,7 @@ class EventMutationRejected extends Error {}
 
 class FolderSuggestModal extends FuzzySuggestModal<TFolder> {
   constructor(
-    app: ContextCalendarPlugin["app"],
+    app: LinkCalendarPlugin["app"],
     private readonly locale: CalendarSettings["locale"],
     private readonly choose: (folder: TFolder) => void,
   ) {
@@ -410,7 +410,7 @@ class SourcePreviewModal extends Modal {
   private startProperty: string;
 
   constructor(
-    app: ContextCalendarPlugin["app"],
+    app: LinkCalendarPlugin["app"],
     private readonly locale: CalendarSettings["locale"],
     private readonly folder: TFolder,
     private readonly detection: SourceDetection,
@@ -423,7 +423,7 @@ class SourcePreviewModal extends Modal {
   override onOpen(): void {
     this.titleEl.setText(translate(this.locale, "sourcePreview"));
     this.contentEl.createEl("p", {
-      cls: "context-calendar-source-preview__folder",
+      cls: "link-calendar-source-preview__folder",
       text: this.folder.path,
     });
     this.contentEl.createEl("p", {
@@ -448,7 +448,7 @@ class SourcePreviewModal extends Modal {
       });
     if (!this.detection.datedNoteCount) {
       this.contentEl.createEl("p", {
-        cls: "context-calendar-source-preview__warning",
+        cls: "link-calendar-source-preview__warning",
         text: translate(this.locale, "noDatedNotes"),
       });
     }
@@ -464,7 +464,7 @@ class SourcePreviewModal extends Modal {
 class CalendarEmbedChild extends MarkdownRenderChild {
   constructor(
     container: HTMLElement,
-    private readonly plugin: ContextCalendarPlugin,
+    private readonly plugin: LinkCalendarPlugin,
     private readonly source: string,
   ) {
     super(container);
@@ -485,7 +485,7 @@ class EventModal extends Modal {
   private input: EventInput;
 
   constructor(
-    app: ContextCalendarPlugin["app"],
+    app: LinkCalendarPlugin["app"],
     private readonly profiles: SourceProfile[],
     initialDate: string,
     private readonly locale: CalendarSettings["locale"],

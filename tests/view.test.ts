@@ -108,22 +108,22 @@ describe("Link Calendar view", () => {
   it("shows only direct canonical note links after an event is selected", async () => {
     const currentActions = actions();
     const { view } = await openView(snapshot(), currentActions);
-    expect(view.contentEl.querySelector(".context-calendar__side")).toBeNull();
+    expect(view.contentEl.querySelector(".link-calendar__side")).toBeNull();
 
     view.contentEl.querySelector<HTMLButtonElement>("[data-event-id]")?.click();
     await settle();
 
-    expect(view.contentEl.querySelector(".context-calendar__side")).not.toBeNull();
-    expect(view.contentEl.querySelector(".context-calendar__agenda-link")?.textContent).toContain(
+    expect(view.contentEl.querySelector(".link-calendar__side")).not.toBeNull();
+    expect(view.contentEl.querySelector(".link-calendar__agenda-link")?.textContent).toContain(
       "Practical certification exam",
     );
-    expect(view.contentEl.querySelector(".context-calendar__agenda-category")?.textContent).toContain(
+    expect(view.contentEl.querySelector(".link-calendar__agenda-category")?.textContent).toContain(
       "04:00 PM–05:30 PM · Learning",
     );
-    expect(view.contentEl.querySelector(".context-calendar__preview")).toBeNull();
-    expect(view.contentEl.querySelector(".context-calendar__properties")).toBeNull();
+    expect(view.contentEl.querySelector(".link-calendar__preview")).toBeNull();
+    expect(view.contentEl.querySelector(".link-calendar__properties")).toBeNull();
 
-    view.contentEl.querySelector<HTMLButtonElement>(".context-calendar__agenda-link")?.click();
+    view.contentEl.querySelector<HTMLButtonElement>(".link-calendar__agenda-link")?.click();
     expect(vi.mocked(currentActions.open)).toHaveBeenCalledWith("Calendar/Exam.md");
   });
 
@@ -135,7 +135,7 @@ describe("Link Calendar view", () => {
 
     expect(grid?.getAttribute("aria-label")).toBe("August 2026");
     expect(selected?.getAttribute("tabindex")).toBe("0");
-    expect(selected?.querySelector("button.context-calendar__day-number")).toBeNull();
+    expect(selected?.querySelector("button.link-calendar__day-number")).toBeNull();
     expect(today).not.toBeNull();
 
     selected?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "ArrowRight" }));
@@ -147,7 +147,7 @@ describe("Link Calendar view", () => {
 
   it("distinguishes a filtered-empty month and restores it without changing notes", async () => {
     const { view } = await openView(snapshot());
-    const search = view.contentEl.querySelector<HTMLInputElement>(".context-calendar__search input");
+    const search = view.contentEl.querySelector<HTMLInputElement>(".link-calendar__search input");
     if (!search) throw new Error("Search input did not render");
     search.value = "no matching note";
     search.dispatchEvent(new Event("input", { bubbles: true }));
@@ -173,12 +173,12 @@ describe("Link Calendar view", () => {
 
     card?.click();
     await settle();
-    view.contentEl.querySelector<HTMLElement>(".context-calendar__side")?.dispatchEvent(
+    view.contentEl.querySelector<HTMLElement>(".link-calendar__side")?.dispatchEvent(
       new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }),
     );
     await settle();
 
-    expect(view.contentEl.querySelector(".context-calendar__side")).toBeNull();
+    expect(view.contentEl.querySelector(".link-calendar__side")).toBeNull();
     expect(document.activeElement?.getAttribute("data-event-id")).toBe(calendarEvent().id);
   });
 
@@ -189,6 +189,6 @@ describe("Link Calendar view", () => {
 
     expect(view.contentEl.textContent).not.toContain("Jane Doe");
     expect(view.contentEl.textContent).not.toContain("Study plan");
-    expect(view.contentEl.querySelector(".context-calendar__relation-link")).toBeNull();
+    expect(view.contentEl.querySelector(".link-calendar__relation-link")).toBeNull();
   });
 });

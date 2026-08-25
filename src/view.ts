@@ -123,7 +123,7 @@ export class LinkCalendarView extends ItemView {
     const settings = this.getSettings();
     const root = this.contentEl;
     root.empty();
-    const shell = root.createDiv({ cls: "context-calendar" });
+    const shell = root.createDiv({ cls: "link-calendar" });
     this.renderHeader(shell, settings);
 
     const enabledProfiles = settings.profiles.filter((profile) => profile.enabled && profile.folder);
@@ -137,7 +137,7 @@ export class LinkCalendarView extends ItemView {
       this.renderScope(shell, settings, enabledProfiles);
     }
 
-    const body = shell.createDiv({ cls: "context-calendar__body" });
+    const body = shell.createDiv({ cls: "link-calendar__body" });
     const monthPanel = this.renderMonth(body, settings);
     const visibleEvents = this.visibleEvents();
     const monthEvents = visibleEvents.filter((event) => this.overlapsCurrentMonth(event));
@@ -161,8 +161,8 @@ export class LinkCalendarView extends ItemView {
 
   private renderHeader(parent: HTMLElement, settings: CalendarSettings): void {
     const locale = settings.locale;
-    const header = parent.createEl("header", { cls: "context-calendar__header" });
-    const navigation = header.createDiv({ cls: "context-calendar__navigation" });
+    const header = parent.createEl("header", { cls: "link-calendar__header" });
+    const navigation = header.createDiv({ cls: "link-calendar__navigation" });
     navigation.append(
       iconButton("chevron-left", translate(locale, "previous"), () => {
         this.month = addMonths(this.month, -1);
@@ -174,7 +174,7 @@ export class LinkCalendarView extends ItemView {
       }),
     );
     navigation.createEl("button", {
-      cls: "context-calendar__today",
+      cls: "link-calendar__today",
       text: translate(locale, "today"),
       attr: { type: "button" },
     }).addEventListener("click", () => {
@@ -184,13 +184,13 @@ export class LinkCalendarView extends ItemView {
       this.render();
     });
     header.createEl("h1", {
-      cls: "context-calendar__title",
+      cls: "link-calendar__title",
       text: monthTitle(locale, this.month),
       attr: { "aria-live": "polite" },
     });
-    const tools = header.createDiv({ cls: "context-calendar__tools" });
+    const tools = header.createDiv({ cls: "link-calendar__tools" });
     const searchContainer = tools.createDiv({
-      cls: "search-input-container context-calendar__search",
+      cls: "search-input-container link-calendar__search",
     });
     const search = searchContainer.createEl("input", {
       attr: { "aria-label": translate(locale, "search"), type: "search" },
@@ -205,7 +205,7 @@ export class LinkCalendarView extends ItemView {
         this.searchTimer = null;
         this.normalizeSelection();
         this.render();
-        const next = this.contentEl.querySelector<HTMLInputElement>(".context-calendar__search input");
+        const next = this.contentEl.querySelector<HTMLInputElement>(".link-calendar__search input");
         next?.focus();
         next?.setSelectionRange(this.query.length, this.query.length);
       }, SEARCH_DELAY_MS);
@@ -214,7 +214,7 @@ export class LinkCalendarView extends ItemView {
       const add = iconButton("plus", translate(locale, "create"), () => {
         void this.actions.create(this.selectedDate);
       });
-      add.addClass("context-calendar__add");
+      add.addClass("link-calendar__add");
       tools.append(add);
     }
     tools.append(iconButton(
@@ -229,10 +229,10 @@ export class LinkCalendarView extends ItemView {
 
   private renderOnboarding(parent: HTMLElement, settings: CalendarSettings): void {
     const empty = parent.createDiv({
-      cls: "context-calendar__onboarding",
+      cls: "link-calendar__onboarding",
       attr: { "aria-live": "polite", role: "status" },
     });
-    setIcon(empty.createDiv({ cls: "context-calendar__onboarding-icon" }), "calendar-search");
+    setIcon(empty.createDiv({ cls: "link-calendar__onboarding-icon" }), "calendar-search");
     empty.createEl("h2", { text: translate(settings.locale, "noSources") });
     empty.createEl("p", { text: translate(settings.locale, "onboarding") });
     empty.createEl("button", {
@@ -253,10 +253,10 @@ export class LinkCalendarView extends ItemView {
     profiles: CalendarSettings["profiles"],
   ): void {
     const scope = parent.createEl("nav", {
-      cls: "context-calendar__scope",
+      cls: "link-calendar__scope",
       attr: { "aria-label": translate(settings.locale, "calendarScope") },
     });
-    scope.createSpan({ cls: "context-calendar__scope-label", text: translate(settings.locale, "sources") });
+    scope.createSpan({ cls: "link-calendar__scope-label", text: translate(settings.locale, "sources") });
     const all = scope.createEl("button", {
       text: translate(settings.locale, "allSources"),
       attr: { "aria-pressed": String(!this.profileId), type: "button" },
@@ -280,10 +280,10 @@ export class LinkCalendarView extends ItemView {
       };
     }
     if (this.query) {
-      scope.createDiv({ cls: "context-calendar__scope-divider" });
+      scope.createDiv({ cls: "link-calendar__scope-divider" });
       const label = this.query;
       const clear = scope.createEl("button", {
-        cls: "context-calendar__lens",
+        cls: "link-calendar__lens",
         text: `${label} ×`,
         title: translate(settings.locale, "clearFilter"),
         attr: { type: "button" },
@@ -291,7 +291,7 @@ export class LinkCalendarView extends ItemView {
       clear.onclick = () => this.clearFilters();
     }
     scope.createSpan({
-      cls: "context-calendar__result-count",
+      cls: "link-calendar__result-count",
       text: formatMessage(settings.locale, "visibleEvents", {
         count: String(this.visibleEvents().filter((event) => this.overlapsCurrentMonth(event)).length),
       }),
@@ -300,12 +300,12 @@ export class LinkCalendarView extends ItemView {
   }
 
   private renderMonth(parent: HTMLElement, settings: CalendarSettings): HTMLElement {
-    const monthPanel = parent.createEl("section", { cls: "context-calendar__month" });
+    const monthPanel = parent.createEl("section", { cls: "link-calendar__month" });
     const firstDay = firstDayOfWeek(settings.locale, settings.weekStart);
     const dates = monthGrid(this.month, firstDay);
     const weekCount = dates.length / 7;
     const grid = monthPanel.createDiv({
-      cls: `context-calendar__grid weeks-${String(weekCount)}`,
+      cls: `link-calendar__grid weeks-${String(weekCount)}`,
       attr: {
         "aria-colcount": "7",
         "aria-label": monthTitle(settings.locale, this.month),
@@ -315,7 +315,7 @@ export class LinkCalendarView extends ItemView {
     });
     weekdayNames(settings.locale, firstDay).forEach((weekday, index) => {
       grid.createDiv({
-        cls: "context-calendar__weekday",
+        cls: "link-calendar__weekday",
         text: weekday,
         attr: { "aria-colindex": String(index + 1), role: "columnheader" },
       });
@@ -334,7 +334,7 @@ export class LinkCalendarView extends ItemView {
       const day = parseDateKey(date);
       const outside = day.getMonth() !== this.month.getMonth();
       const cell = grid.createDiv({
-        cls: `context-calendar__day${outside ? " is-outside" : ""}${date === this.selectedDate ? " is-selected" : ""}`,
+        cls: `link-calendar__day${outside ? " is-outside" : ""}${date === this.selectedDate ? " is-selected" : ""}`,
         attr: {
           "aria-colindex": String((index % 7) + 1),
           "aria-current": date === today ? "date" : null,
@@ -346,7 +346,7 @@ export class LinkCalendarView extends ItemView {
         },
       });
       cell.createSpan({
-        cls: `context-calendar__day-number${date === today ? " is-today" : ""}`,
+        cls: `link-calendar__day-number${date === today ? " is-today" : ""}`,
         text: String(day.getDate()),
         attr: { "aria-hidden": "true" },
       });
@@ -357,19 +357,19 @@ export class LinkCalendarView extends ItemView {
       cell.addEventListener("dragover", (event) => event.preventDefault());
       cell.addEventListener("drop", (event) => {
         event.preventDefault();
-        const id = event.dataTransfer?.getData("text/context-calendar-event");
+        const id = event.dataTransfer?.getData("text/link-calendar-event");
         const calendarEvent = this.snapshot.events.find((candidate) => candidate.id === id);
         if (calendarEvent?.editable) void this.actions.move(calendarEvent, date);
       });
       const events = eventsByDate.get(date) ?? [];
       const cards = cell.createDiv({
-        cls: "context-calendar__cards",
+        cls: "link-calendar__cards",
         attr: { "data-event-count": String(events.length) },
       });
       for (const event of events) this.renderCard(cards, event, settings, date);
       if (events.length > 0) {
         const more = cards.createEl("button", {
-          cls: "context-calendar__more",
+          cls: "link-calendar__more",
           attr: { hidden: "", type: "button" },
         });
         more.onclick = () => this.selectDate(date);
@@ -410,7 +410,7 @@ export class LinkCalendarView extends ItemView {
   ): void {
     const accessibleName = [event.title, event.category].filter(Boolean).join(", ");
     const card = parent.createEl("button", {
-      cls: `context-calendar__card ${categoryToken(event.category, this.categoryTones)}`,
+      cls: `link-calendar__card ${categoryToken(event.category, this.categoryTones)}`,
       title: event.title,
       attr: {
         "aria-controls": PANEL_ID,
@@ -422,7 +422,7 @@ export class LinkCalendarView extends ItemView {
         "data-event-id": event.id,
       },
     });
-    card.createSpan({ cls: "context-calendar__card-title", text: event.title });
+    card.createSpan({ cls: "link-calendar__card-title", text: event.title });
     if (event.id === this.selectedEventId) card.addClass("is-active");
     card.onclick = (click) => {
       click.stopPropagation();
@@ -454,7 +454,7 @@ export class LinkCalendarView extends ItemView {
         dragEvent.preventDefault();
         return;
       }
-      dragEvent.dataTransfer?.setData("text/context-calendar-event", event.id);
+      dragEvent.dataTransfer?.setData("text/link-calendar-event", event.id);
       if (dragEvent.dataTransfer) dragEvent.dataTransfer.effectAllowed = "move";
     });
   }
@@ -473,10 +473,10 @@ export class LinkCalendarView extends ItemView {
     } as const;
     const [icon, title, description] = keys[state];
     const surface = parent.createDiv({
-      cls: `context-calendar__surface-state is-${state}`,
+      cls: `link-calendar__surface-state is-${state}`,
       attr: { "aria-live": "polite", role: state === "error" ? "alert" : "status" },
     });
-    setIcon(surface.createDiv({ cls: "context-calendar__surface-icon" }), icon);
+    setIcon(surface.createDiv({ cls: "link-calendar__surface-icon" }), icon);
     surface.createEl("h2", { text: translate(settings.locale, title) });
     surface.createEl("p", { text: translate(settings.locale, description) });
     if (state === "filtered-empty") {
@@ -502,7 +502,7 @@ export class LinkCalendarView extends ItemView {
     count: number,
   ): void {
     const notice = parent.createEl("button", {
-      cls: "context-calendar__diagnostic-notice",
+      cls: "link-calendar__diagnostic-notice",
       title: translate(settings.locale, "reviewDiagnostics"),
       attr: { type: "button" },
     });
@@ -519,20 +519,20 @@ export class LinkCalendarView extends ItemView {
 
   private renderSidePanel(parent: HTMLElement, settings: CalendarSettings): void {
     const panel = parent.createEl("aside", {
-      cls: "context-calendar__side",
+      cls: "link-calendar__side",
       attr: { "aria-labelledby": PANEL_TITLE_ID, id: PANEL_ID, tabindex: "-1" },
     });
     const dateEvents = this.visibleEvents().filter(
       (event) => event.startDate <= this.selectedDate && event.endDate >= this.selectedDate,
     );
-    const topbar = panel.createDiv({ cls: "context-calendar__side-topbar" });
-    const date = topbar.createDiv({ cls: "context-calendar__side-date", attr: { id: PANEL_TITLE_ID } });
-    setIcon(date.createSpan({ cls: "context-calendar__side-date-icon" }), "calendar-days");
+    const topbar = panel.createDiv({ cls: "link-calendar__side-topbar" });
+    const date = topbar.createDiv({ cls: "link-calendar__side-date", attr: { id: PANEL_TITLE_ID } });
+    setIcon(date.createSpan({ cls: "link-calendar__side-date-icon" }), "calendar-days");
     date.createEl("time", { text: formatEventDate(settings.locale, this.selectedDate) });
     topbar.append(iconButton("x", translate(settings.locale, "closeAgenda"), () => {
       this.closeSidePanel();
     }));
-    if (!dateEvents.length) panel.createDiv({ cls: "context-calendar__empty", text: translate(settings.locale, "empty") });
+    if (!dateEvents.length) panel.createDiv({ cls: "link-calendar__empty", text: translate(settings.locale, "empty") });
     else this.renderAgenda(panel, dateEvents, settings);
     this.renderDiagnostics(panel, settings);
   }
@@ -542,24 +542,24 @@ export class LinkCalendarView extends ItemView {
     events: CalendarEvent[],
     settings: CalendarSettings,
   ): void {
-    const agenda = parent.createDiv({ cls: "context-calendar__agenda" });
+    const agenda = parent.createDiv({ cls: "link-calendar__agenda" });
     agenda.createDiv({
-      cls: "context-calendar__agenda-label",
+      cls: "link-calendar__agenda-label",
       text: formatMessage(settings.locale, "eventsOnDate", { count: String(events.length) }),
     });
     for (const event of events) {
       const item = agenda.createDiv({
-        cls: `context-calendar__agenda-item ${categoryToken(event.category, this.categoryTones)}${event.id === this.selectedEventId ? " is-active" : ""}`,
+        cls: `link-calendar__agenda-item ${categoryToken(event.category, this.categoryTones)}${event.id === this.selectedEventId ? " is-active" : ""}`,
       });
-      const identity = item.createDiv({ cls: "context-calendar__agenda-identity" });
+      const identity = item.createDiv({ cls: "link-calendar__agenda-identity" });
       const metadata = [formatEventTimeRange(settings.locale, event), event.category]
         .filter(Boolean)
         .join(" · ");
       if (metadata) {
-        identity.createSpan({ cls: "context-calendar__agenda-category", text: metadata });
+        identity.createSpan({ cls: "link-calendar__agenda-category", text: metadata });
       }
       const link = identity.createEl("button", {
-        cls: "context-calendar__agenda-link",
+        cls: "link-calendar__agenda-link",
         text: event.title,
         title: `${translate(settings.locale, "open")}: ${event.title}`,
         attr: {
@@ -571,7 +571,7 @@ export class LinkCalendarView extends ItemView {
       const open = iconButton("arrow-up-right", translate(settings.locale, "open"), () => {
         void this.actions.open(event.filePath);
       });
-      open.addClass("context-calendar__agenda-open");
+      open.addClass("link-calendar__agenda-open");
       item.append(open);
     }
   }
@@ -579,7 +579,7 @@ export class LinkCalendarView extends ItemView {
   private renderDiagnostics(parent: HTMLElement, settings: CalendarSettings): void {
     const diagnostics = this.visibleDiagnostics();
     if (!diagnostics.length) return;
-    const details = parent.createEl("details", { cls: "context-calendar__diagnostics" });
+    const details = parent.createEl("details", { cls: "link-calendar__diagnostics" });
     details.createEl("summary", {
       text: `${translate(settings.locale, "diagnostics")} · ${String(diagnostics.length)}`,
     });
@@ -693,9 +693,9 @@ export class LinkCalendarView extends ItemView {
   }
 
   private applyResponsiveDensity(grid: HTMLElement, settings: CalendarSettings): void {
-    for (const container of grid.findAll(".context-calendar__cards")) {
-      const cards = container.findAll(":scope > .context-calendar__card");
-      const more = container.querySelector<HTMLButtonElement>(":scope > .context-calendar__more");
+    for (const container of grid.findAll(".link-calendar__cards")) {
+      const cards = container.findAll(":scope > .link-calendar__card");
+      const more = container.querySelector<HTMLButtonElement>(":scope > .link-calendar__more");
       if (!cards.length || !more) continue;
       for (const card of cards) card.hidden = false;
       more.hidden = false;
@@ -744,7 +744,7 @@ function diagnosticMessage(code: CalendarSnapshot["diagnostics"][number]["code"]
 }
 
 function iconButton(icon: string, label: string, action: () => void): HTMLButtonElement {
-  const button = createEl("button", { cls: "clickable-icon context-calendar__icon-button" });
+  const button = createEl("button", { cls: "clickable-icon link-calendar__icon-button" });
   button.type = "button";
   button.ariaLabel = label;
   button.title = label;

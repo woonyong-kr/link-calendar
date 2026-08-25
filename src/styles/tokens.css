@@ -5,8 +5,8 @@
  */
 :is(
   .workspace-leaf-content .view-content.link-calendar-view,
-  .context-calendar-setting-source,
-  .context-calendar-embed
+  .link-calendar-setting-source,
+  .link-calendar-embed
 ) {
   /* Shared semantic aliases. */
   --cc-surface-canvas: var(--background-primary);
@@ -94,8 +94,8 @@
 @media (prefers-contrast: more) {
   :is(
     .workspace-leaf-content .view-content.link-calendar-view,
-    .context-calendar-setting-source,
-    .context-calendar-embed
+    .link-calendar-setting-source,
+    .link-calendar-embed
   ) {
     --cc-text-secondary: var(--text-normal);
     --cc-text-tertiary: var(--text-muted);
@@ -108,8 +108,8 @@
 @media (forced-colors: active) {
   :is(
     .workspace-leaf-content .view-content.link-calendar-view,
-    .context-calendar-setting-source,
-    .context-calendar-embed
+    .link-calendar-setting-source,
+    .link-calendar-embed
   ) {
     --cc-surface-canvas: Canvas;
     --cc-surface-panel: Canvas;

@@ -83,72 +83,72 @@
       --shadow-l: 0 16px 48px #0002;
     }
     html, body, .workspace-leaf-content, .view-content { height: 100%; margin: 0; }
-    body.is-overview .context-calendar__body { grid-template-columns: minmax(0, 1fr); }
-    body.is-overview .context-calendar__side { display: none; }
+    body.is-overview .link-calendar__body { grid-template-columns: minmax(0, 1fr); }
+    body.is-overview .link-calendar__side { display: none; }
   </style>
 </head>
 <body>
   <main class="workspace-leaf-content">
     <div class="view-content link-calendar-view">
-      <div class="context-calendar">
-        <header class="context-calendar__header">
-          <div class="context-calendar__navigation"><button>‹</button><button>›</button><button class="context-calendar__today">Today</button></div>
-          <h1 class="context-calendar__title">August 2026</h1>
-          <div class="context-calendar__tools"><div class="context-calendar__search"><input aria-label="Search events" placeholder="Search events"></div><button>↗</button><button>⚙</button></div>
+      <div class="link-calendar">
+        <header class="link-calendar__header">
+          <div class="link-calendar__navigation"><button>‹</button><button>›</button><button class="link-calendar__today">Today</button></div>
+          <h1 class="link-calendar__title">August 2026</h1>
+          <div class="link-calendar__tools"><div class="link-calendar__search"><input aria-label="Search events" placeholder="Search events"></div><button>↗</button><button>⚙</button></div>
         </header>
-        <div class="context-calendar__body has-side">
-          <section class="context-calendar__month">
-            <div class="context-calendar__grid weeks-5" role="grid" aria-label="August 2026">
-              <div class="context-calendar__weekday">Sun</div><div class="context-calendar__weekday">Mon</div><div class="context-calendar__weekday">Tue</div><div class="context-calendar__weekday">Wed</div><div class="context-calendar__weekday">Thu</div><div class="context-calendar__weekday">Fri</div><div class="context-calendar__weekday">Sat</div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">26</span></div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">27</span></div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">28</span></div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">29</span></div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">30</span></div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">31</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">1</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">2</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">3</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">4</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">5</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">6</span><div class="context-calendar__cards"><button class="context-calendar__card tone-4"><span class="context-calendar__card-title">Design review with a deliberately long title</span></button></div></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">7</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">8</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">9</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">10</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">11</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">12</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">13</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">14</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">15</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">16</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">17</span></div>
-              <div class="context-calendar__day is-selected"><span class="context-calendar__day-number is-today">18</span><div class="context-calendar__cards"><button class="context-calendar__card tone-0 is-active"><span class="context-calendar__card-title">Product launch and release notes</span></button></div></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">19</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">20</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">21</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">22</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">23</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">24</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">25</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">26</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">27</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">28</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">29</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">30</span></div>
-              <div class="context-calendar__day"><span class="context-calendar__day-number">31</span></div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">1</span></div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">2</span></div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">3</span></div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">4</span></div>
-              <div class="context-calendar__day is-outside"><span class="context-calendar__day-number">5</span></div>
+        <div class="link-calendar__body has-side">
+          <section class="link-calendar__month">
+            <div class="link-calendar__grid weeks-5" role="grid" aria-label="August 2026">
+              <div class="link-calendar__weekday">Sun</div><div class="link-calendar__weekday">Mon</div><div class="link-calendar__weekday">Tue</div><div class="link-calendar__weekday">Wed</div><div class="link-calendar__weekday">Thu</div><div class="link-calendar__weekday">Fri</div><div class="link-calendar__weekday">Sat</div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">26</span></div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">27</span></div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">28</span></div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">29</span></div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">30</span></div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">31</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">1</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">2</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">3</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">4</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">5</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">6</span><div class="link-calendar__cards"><button class="link-calendar__card tone-4"><span class="link-calendar__card-title">Design review with a deliberately long title</span></button></div></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">7</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">8</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">9</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">10</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">11</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">12</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">13</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">14</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">15</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">16</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">17</span></div>
+              <div class="link-calendar__day is-selected"><span class="link-calendar__day-number is-today">18</span><div class="link-calendar__cards"><button class="link-calendar__card tone-0 is-active"><span class="link-calendar__card-title">Product launch and release notes</span></button></div></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">19</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">20</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">21</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">22</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">23</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">24</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">25</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">26</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">27</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">28</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">29</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">30</span></div>
+              <div class="link-calendar__day"><span class="link-calendar__day-number">31</span></div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">1</span></div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">2</span></div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">3</span></div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">4</span></div>
+              <div class="link-calendar__day is-outside"><span class="link-calendar__day-number">5</span></div>
             </div>
           </section>
-          <aside class="context-calendar__side" id="context-calendar-page-peek">
-            <div class="context-calendar__side-topbar"><div class="context-calendar__side-date">August 18, 2026</div><button>×</button></div>
-            <div class="context-calendar__agenda">
-              <div class="context-calendar__agenda-label">1 event on this date</div>
-              <div class="context-calendar__agenda-item tone-0 is-active"><div class="context-calendar__agenda-identity"><span class="context-calendar__agenda-category">04:00 PM–05:30 PM · Product</span><button class="context-calendar__agenda-link">Product launch and release notes</button></div><button class="context-calendar__agenda-open">↗</button></div>
+          <aside class="link-calendar__side" id="link-calendar-page-peek">
+            <div class="link-calendar__side-topbar"><div class="link-calendar__side-date">August 18, 2026</div><button>×</button></div>
+            <div class="link-calendar__agenda">
+              <div class="link-calendar__agenda-label">1 event on this date</div>
+              <div class="link-calendar__agenda-item tone-0 is-active"><div class="link-calendar__agenda-identity"><span class="link-calendar__agenda-category">04:00 PM–05:30 PM · Product</span><button class="link-calendar__agenda-link">Product launch and release notes</button></div><button class="link-calendar__agenda-open">↗</button></div>
             </div>
           </aside>
         </div>
