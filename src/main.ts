@@ -40,10 +40,10 @@ import {
   writableProfiles,
 } from "./policy";
 import { ContextCalendarSettingTab, type SettingsHost } from "./settings";
-import { ContextCalendarView, VIEW_TYPE, type CalendarActions } from "./view";
+import { LinkCalendarView, VIEW_TYPE, type CalendarActions } from "./view";
 
-const CODE_BLOCK = "context-calendar";
-const CODE_BLOCK_ALIAS = "link-calendar";
+const CODE_BLOCK = "link-calendar";
+const LEGACY_CODE_BLOCK_ALIAS = "context-calendar";
 
 export default class ContextCalendarPlugin extends Plugin implements SettingsHost {
   override settings: CalendarSettings = structuredClone(DEFAULT_SETTINGS);
@@ -56,7 +56,7 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
     this.settings = normalizeSettings(await this.loadData());
     this.index = new CalendarIndex(this.app.vault, this.app.metadataCache, this.settings.profiles);
     this.registerView(VIEW_TYPE, (leaf) =>
-      new ContextCalendarView(
+      new LinkCalendarView(
         leaf,
         () => this.settings,
         () => this.index.snapshot(),
@@ -96,7 +96,7 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
     this.registerMarkdownCodeBlockProcessor(CODE_BLOCK, (source, element, context) => {
       context.addChild(new CalendarEmbedChild(element, this, source));
     });
-    this.registerMarkdownCodeBlockProcessor(CODE_BLOCK_ALIAS, (source, element, context) => {
+    this.registerMarkdownCodeBlockProcessor(LEGACY_CODE_BLOCK_ALIAS, (source, element, context) => {
       context.addChild(new CalendarEmbedChild(element, this, source));
     });
 
@@ -170,7 +170,7 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
     const snapshot = this.index.snapshot();
     for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE)) {
       const view = leaf.view;
-      if (view instanceof ContextCalendarView) view.setSnapshot(snapshot);
+      if (view instanceof LinkCalendarView) view.setSnapshot(snapshot);
     }
     for (const listener of this.listeners) listener();
   }
@@ -206,7 +206,7 @@ export default class ContextCalendarPlugin extends Plugin implements SettingsHos
     await this.app.workspace.revealLeaf(leaf);
     this.app.workspace.setActiveLeaf(leaf, { focus: true });
     const view = leaf.view;
-    if (view instanceof ContextCalendarView) {
+    if (view instanceof LinkCalendarView) {
       view.setSnapshot(this.index.snapshot());
       if (revealPath) view.revealPath(revealPath);
     }

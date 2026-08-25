@@ -60,6 +60,12 @@ for (const forbidden of [
 if (!source.some((content) => content.includes("getSettingDefinitions()"))) {
   errors.push("settings must use the declarative settings API");
 }
+if (!source.some((content) => content.includes('VIEW_TYPE = "link-calendar-view"'))) {
+  errors.push("view type must use the link-calendar namespace");
+}
+if (source.some((content) => content.includes('VIEW_TYPE = "context-calendar-view"'))) {
+  errors.push("legacy context-calendar view type would collide during migration");
+}
 if (styles.includes("!important")) errors.push("styles.css must not use !important");
 for (const removedSelector of ["context-calendar__preview", "context-calendar__properties", "context-calendar__relation"]) {
   if (styles.includes(removedSelector)) errors.push(`styles contain removed UI: ${removedSelector}`);

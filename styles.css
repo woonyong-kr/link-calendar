@@ -4,7 +4,7 @@
  * consume only these --cc-* aliases. Calendar geometry stays plugin-local.
  */
 :is(
-  .workspace-leaf-content .view-content.context-calendar-view,
+  .workspace-leaf-content .view-content.link-calendar-view,
   .context-calendar-setting-source,
   .context-calendar-embed
 ) {
@@ -93,7 +93,7 @@
 
 @media (prefers-contrast: more) {
   :is(
-    .workspace-leaf-content .view-content.context-calendar-view,
+    .workspace-leaf-content .view-content.link-calendar-view,
     .context-calendar-setting-source,
     .context-calendar-embed
   ) {
@@ -107,7 +107,7 @@
 
 @media (forced-colors: active) {
   :is(
-    .workspace-leaf-content .view-content.context-calendar-view,
+    .workspace-leaf-content .view-content.link-calendar-view,
     .context-calendar-setting-source,
     .context-calendar-embed
   ) {
@@ -130,7 +130,7 @@
   }
 }
 
-.workspace-leaf-content .view-content.context-calendar-view {
+.workspace-leaf-content .view-content.link-calendar-view {
   height: 100%;
   padding: 0;
   overflow: hidden;

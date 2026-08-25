@@ -32,10 +32,10 @@ import {
   responsiveEventLimit,
 } from "./presentation";
 
-export const VIEW_TYPE = "context-calendar-view";
+export const VIEW_TYPE = "link-calendar-view";
 
-const PANEL_ID = "context-calendar-page-peek";
-const PANEL_TITLE_ID = "context-calendar-page-peek-title";
+const PANEL_ID = "link-calendar-agenda";
+const PANEL_TITLE_ID = "link-calendar-agenda-title";
 const SEARCH_DELAY_MS = 80;
 const PRODUCT_NAME = ["Link", "Calendar"].join(" ");
 
@@ -47,7 +47,7 @@ export interface CalendarActions {
   setup: () => void;
 }
 
-export class ContextCalendarView extends ItemView {
+export class LinkCalendarView extends ItemView {
   private month = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   private query = "";
   private selectedDate = localDateKey(new Date());
@@ -101,7 +101,7 @@ export class ContextCalendarView extends ItemView {
   }
 
   override async onOpen(): Promise<void> {
-    this.contentEl.addClass("context-calendar-view");
+    this.contentEl.addClass("link-calendar-view");
     this.registerDomEvent(document, "fullscreenchange", () => this.render());
     this.registerDomEvent(this.contentEl, "keydown", (event) => {
       if (event.key === "Escape" && !this.sideClosed) {

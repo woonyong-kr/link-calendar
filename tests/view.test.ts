@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { CalendarEvent, CalendarSettings, CalendarSnapshot } from "../src/model";
-import { ContextCalendarView, type CalendarActions } from "../src/view";
+import { LinkCalendarView, type CalendarActions } from "../src/view";
 
 function settings(): CalendarSettings {
   return {
@@ -67,8 +67,8 @@ function actions(): CalendarActions {
 async function openView(
   currentSnapshot: CalendarSnapshot,
   currentActions = actions(),
-): Promise<{ actions: CalendarActions; view: ContextCalendarView }> {
-  const view = new ContextCalendarView(
+): Promise<{ actions: CalendarActions; view: LinkCalendarView }> {
+  const view = new LinkCalendarView(
     {} as never,
     settings,
     () => currentSnapshot,
