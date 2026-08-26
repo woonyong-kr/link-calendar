@@ -109,6 +109,7 @@
 }
 
 .link-calendar button.link-calendar__agenda-link {
+  display: block;
   width: 100%;
   min-width: 0;
   min-height: var(--cc-control-height);
@@ -121,6 +122,7 @@
   box-shadow: none;
   font-size: var(--cc-font-sm);
   font-weight: var(--cc-weight-semibold);
+  justify-content: flex-start;
   line-height: var(--cc-line-height);
   text-align: left;
   text-overflow: ellipsis;
