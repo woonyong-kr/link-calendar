@@ -117,8 +117,8 @@ describe("Link Calendar view", () => {
     expect(view.contentEl.querySelector(".link-calendar__agenda-title")?.textContent).toContain(
       "Practical certification exam",
     );
-    expect(view.contentEl.querySelector(".link-calendar__agenda-time")?.textContent).toMatch(
-      /^\d{2}:\d{2} [AP]M–\d{2}:\d{2} [AP]M$/,
+    expect(view.contentEl.querySelector(".link-calendar__agenda-time")?.textContent).toBe(
+      "16:00–17:30",
     );
     expect(view.contentEl.querySelector(".link-calendar__preview")).toBeNull();
     expect(view.contentEl.querySelector(".link-calendar__properties")).toBeNull();

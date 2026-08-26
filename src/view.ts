@@ -711,6 +711,7 @@ function formatEventTime(locale: CalendarSettings["locale"], value: string): str
   if (Number.isNaN(parsed.valueOf())) return value;
   return new Intl.DateTimeFormat(resolvedLocale(locale), {
     hour: "2-digit",
+    hourCycle: "h23",
     minute: "2-digit",
   }).format(parsed);
 }
