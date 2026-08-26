@@ -554,13 +554,13 @@ export class LinkCalendarView extends ItemView {
       identity.createDiv({ cls: "link-calendar__agenda-title", text: event.title });
       const link = identity.createEl("button", {
         cls: "link-calendar__agenda-link",
-        text: translate(settings.locale, "open"),
         title: `${translate(settings.locale, "open")}: ${event.title}`,
         attr: {
-          "aria-label": event.category ? `${event.title}, ${event.category}` : event.title,
+          "aria-label": `${translate(settings.locale, "open")}: ${event.title}`,
           type: "button",
         },
       });
+      setIcon(link, "file-up-right");
       link.onclick = () => void this.actions.open(event.filePath);
     }
   }

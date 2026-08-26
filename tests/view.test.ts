@@ -123,7 +123,10 @@ describe("Link Calendar view", () => {
     expect(view.contentEl.querySelector(".link-calendar__preview")).toBeNull();
     expect(view.contentEl.querySelector(".link-calendar__properties")).toBeNull();
 
-    view.contentEl.querySelector<HTMLButtonElement>(".link-calendar__agenda-link")?.click();
+    const openNote = view.contentEl.querySelector<HTMLButtonElement>(".link-calendar__agenda-link");
+    expect(openNote?.getAttribute("aria-label")).toContain("Open note");
+    expect(openNote?.dataset.icon).toBe("file-up-right");
+    openNote?.click();
     expect(vi.mocked(currentActions.open)).toHaveBeenCalledWith("Calendar/Exam.md");
   });
 

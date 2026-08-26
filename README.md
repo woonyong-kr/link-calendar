@@ -21,6 +21,8 @@ Obsidian's native Graph answers “what links to what.” Link Calendar answers 
 
 Link Calendar does not store relationships, copy note bodies, render backlinks, or maintain a second layout. The daily agenda is derived from the current Vault and can always be rebuilt.
 
+It is intentionally for Markdown-first users who already record dates in notes and want a calendar as a navigation surface. It is not intended to replace a shared calendar, meeting scheduler, or notification service.
+
 ## Setup
 
 1. Install `main.js`, `manifest.json`, and `styles.css` in `.obsidian/plugins/link-calendar/`.
@@ -46,7 +48,7 @@ The default mappings are `date`, `end`, `startTime`, `endTime`, `allDay`, `title
 ## Navigation
 
 - Select a day or event dot to open the daily agenda.
-- Select **Open note** below an agenda title to open the canonical Markdown note.
+- Select the `file-up-right` icon beside an agenda title to open the canonical Markdown note.
 - Press `Cmd/Ctrl + Enter` on an event dot to open its note directly.
 - Run **Reveal active note in calendar** to locate the current dated note.
 - Use arrow keys on the month grid to move the selected day; `Enter` or `Space` opens its agenda.

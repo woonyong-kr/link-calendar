@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.2
+
+- Replace the agenda's repeated `Open note` text with one Lucide `file-up-right` action, tooltip, and accessible name.
+
 ## 3.1.1
 
 - Preserve the wall-clock time written in Markdown across operating-system time zones.

@@ -589,25 +589,28 @@
 
 .link-calendar button.link-calendar__agenda-link {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--cc-calendar-agenda-link-height);
   min-height: var(--cc-calendar-agenda-link-height);
   margin: var(--cc-space-1) 0 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
+  border-radius: var(--cc-radius-sm);
   color: var(--cc-accent);
   background: transparent;
   box-shadow: none;
-  font-size: var(--cc-font-sm);
-  font-weight: var(--cc-weight-medium);
-  text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--cc-accent) 52%, transparent);
-  text-underline-offset: var(--cc-calendar-underline-offset);
 }
 
 .link-calendar button.link-calendar__agenda-link:hover {
   color: var(--cc-accent-hover);
-  background: transparent;
-  text-decoration-color: currentColor;
+  background: var(--cc-control-hover);
+}
+
+.link-calendar button.link-calendar__agenda-link svg {
+  width: var(--cc-icon-size);
+  height: var(--cc-icon-size);
+  stroke-width: 1.8;
 }
 
 .link-calendar__diagnostics {

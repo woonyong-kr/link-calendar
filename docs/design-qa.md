@@ -16,7 +16,7 @@
 | Typography and density | passed | Dates, times, titles, and direct note links are the only event text. |
 | Shape and separation | passed | Calendar weeks and agenda entries use hairlines; event cards, chips, badges, shadows, and selected-event panels are absent. |
 | Colour and state | passed | One host accent identifies event dots, today, and the selected column; category colours do not compete with navigation. |
-| Canonical navigation | passed | Each agenda row exposes `문서 열기`; runtime activation opened the original Markdown note. |
+| Canonical navigation | passed | Each agenda row exposes one `file-up-right` icon with a tooltip and accessible name; runtime activation opened the original Markdown note. |
 | Responsive layout | passed | The agenda remains adjacent at wide widths and becomes a bounded overlay only when the host pane cannot preserve both surfaces. |
 | Light and dark themes | passed | Both captures retain divider visibility, readable muted text, and the same hierarchy without plugin-owned card colours. |
 
@@ -35,4 +35,4 @@
 2. Replaced event titles in cells with up to three dots and an overflow count.
 3. Replaced agenda cards with `time → title → canonical note link` rows and moved all times to compact 24-hour ranges.
 
-final result: passed
+final result: pending runtime verification for 3.1.2
