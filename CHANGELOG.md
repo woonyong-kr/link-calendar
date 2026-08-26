@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.0
+
+- Replace month event cards with compact dots and a counted overflow indicator.
+- Replace the selected-event panel with a time-ordered agenda of canonical Markdown links.
+- Use 24-hour time ranges and hairline separators across wide and narrow layouts.
+- Refresh dark and light public-safe visual evidence and the Obsidian runtime design QA.
+
 ## 3.0.1
 
 - Refined month-card and agenda hierarchy with quieter category accents and left-aligned canonical-note links.

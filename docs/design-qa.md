@@ -1,16 +1,24 @@
 # Link Calendar design QA
 
-## Checked surfaces
+## Evidence
 
-- Light theme at 1920×1080: `docs/media/link-calendar-overview.png`
-- Dark theme agenda context: `docs/media/link-calendar-agenda.png`
-- Obsidian 1.13.7 dark runtime at 1920×1200 with 2026-08-29 selected
-- Large month grid with a persistent selected-date agenda
-- Long event title wrapping
-- Time range plus category hierarchy
-- Selected day, selected event, and direct-note action
-- Keyboard focus, `Escape` restoration, and month-grid ARIA semantics through DOM tests
-- Narrow-container drawer, reduced-motion, high-contrast, and forced-colors CSS rules
+- Dark public-safe fixture at 1240×620: `docs/media/link-calendar-overview.png`
+- Light public-safe fixture at 1240×620: `docs/media/link-calendar-agenda.png`
+- Obsidian 1.13.7 dark runtime at 1115×768 with 2026-08-29 selected
+- Local-only 2480×565 side-by-side comparison with the supplied 1487×1059 product reference
+- Keyboard focus, `Escape` restoration, month-grid ARIA semantics, narrow drawer, reduced motion, high contrast, and forced colours through DOM and CSS tests
+
+## Fidelity review
+
+| Surface | Result | Evidence |
+|---|---|---|
+| Information hierarchy | passed | Month grid stays dominant; the selected date opens one adjacent time-ordered agenda. |
+| Typography and density | passed | Dates, times, titles, and direct note links are the only event text. |
+| Shape and separation | passed | Calendar weeks and agenda entries use hairlines; event cards, chips, badges, shadows, and selected-event panels are absent. |
+| Colour and state | passed | One host accent identifies event dots, today, and the selected column; category colours do not compete with navigation. |
+| Canonical navigation | passed | Each agenda row exposes `문서 열기`; runtime activation opened the original Markdown note. |
+| Responsive layout | passed | The agenda remains adjacent at wide widths and becomes a bounded overlay only when the host pane cannot preserve both surfaces. |
+| Light and dark themes | passed | Both captures retain divider visibility, readable muted text, and the same hierarchy without plugin-owned card colours. |
 
 ## Removed UI
 
@@ -21,8 +29,10 @@
 - Connected-note badges
 - Duplicated event detail card
 
-## Result
+## Iterations
 
-The earlier compressed captures were rejected: their small viewport and JPEG enlargement made labels unreadable and did not prove the selected-date hierarchy. The replacement release images use a public-safe populated fixture at native desktop resolution. The private-vault runtime was checked separately and is not published in this repository.
+1. Rejected coloured month cards and the duplicated selected-event detail panel.
+2. Replaced event titles in cells with up to three dots and an overflow count.
+3. Replaced agenda cards with `time → title → canonical note link` rows and moved all times to compact 24-hour ranges.
 
-Passed. The visible hierarchy is month → selected date → time and canonical note link. Event rows stay left-aligned, selected state uses a restrained category accent, and no parallel knowledge or layout surface remains.
+final result: passed
