@@ -88,11 +88,7 @@
 .link-calendar__agenda-item.is-active {
   border-color: color-mix(in srgb, var(--cc-card-hue) 42%, var(--cc-separator));
   border-left-color: var(--cc-card-hue);
-  background: color-mix(
-    in srgb,
-    var(--cc-card-surface) var(--cc-calendar-category-hover),
-    var(--cc-text-primary)
-  );
+  background: color-mix(in srgb, var(--cc-card-hue) 15%, var(--cc-surface-panel));
 }
 
 .link-calendar__agenda-identity {

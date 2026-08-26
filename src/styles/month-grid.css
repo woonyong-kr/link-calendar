@@ -154,11 +154,7 @@
 .link-calendar button.link-calendar__card.is-active {
   border-color: color-mix(in srgb, var(--cc-card-hue) 46%, var(--cc-separator));
   border-left-color: var(--cc-card-hue);
-  background: color-mix(
-    in srgb,
-    var(--cc-card-surface) var(--cc-calendar-category-hover),
-    var(--cc-text-primary)
-  );
+  background: color-mix(in srgb, var(--cc-card-hue) 15%, var(--cc-surface-raised));
 }
 
 .link-calendar button.link-calendar__card:focus-visible {
