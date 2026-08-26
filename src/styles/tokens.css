@@ -61,7 +61,7 @@
 
   /* Calendar-only geometry and density. */
   --cc-calendar-header-height: calc(var(--cc-control-height) + var(--cc-space-4));
-  --cc-calendar-side-width: calc(var(--cc-space-8) * 12);
+  --cc-calendar-side-width: clamp(320px, 38%, 460px);
   --cc-calendar-side-padding: var(--cc-space-5);
   --cc-calendar-property-label-width: calc(var(--cc-space-8) * 3);
   --cc-calendar-month-min-height: calc(var(--cc-space-8) * 14);
@@ -69,12 +69,17 @@
   --cc-calendar-day-min-height: calc(var(--cc-space-8) * 2 + var(--cc-space-2));
   --cc-calendar-day-min-height-compact: calc(var(--cc-space-8) + var(--cc-space-6));
   --cc-calendar-day-number-size: calc(var(--cc-space-4) + var(--cc-space-2));
-  --cc-calendar-card-height: calc(var(--cc-space-6) + var(--cc-space-2));
-  --cc-calendar-card-height-compact: calc(var(--cc-space-5) + var(--cc-space-2));
-  --cc-calendar-card-gap: var(--cc-space-1);
-  --cc-calendar-card-padding-block: var(--cc-space-1);
-  --cc-calendar-card-padding-inline: var(--cc-space-2);
   --cc-calendar-grid-line: var(--border-width);
+  --cc-calendar-agenda-time-min: 108px;
+  --cc-calendar-agenda-link-height: 28px;
+  --cc-calendar-optical-shift: 2px;
+  --cc-calendar-underline-offset: 3px;
+  --cc-calendar-selected-offset: -1px;
+  --cc-calendar-selected-line: 2px;
+  --cc-calendar-marker-hit-size: 14px;
+  --cc-calendar-marker-size: 6px;
+  --cc-calendar-marker-more-size: 18px;
+  --cc-calendar-marker-font-size: 10px;
   --cc-calendar-category-tint: 9%;
   --cc-calendar-category-tint-muted: 6%;
 

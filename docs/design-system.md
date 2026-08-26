@@ -22,9 +22,9 @@ The agenda must not become a note preview, property inspector, backlink browser,
 ## Visual rules
 
 - Use Obsidian semantic variables for canvas, panel, text, borders, accent, focus, type, radius, motion, and contrast.
-- Use category color as a restrained locator, never as the only carrier of meaning.
-- Keep event cards compact enough to scan a month; reveal overflow with a counted control.
-- Give agenda links stronger hierarchy than category labels and icon buttons.
+- Use one host accent for event dots; category never changes the month hierarchy.
+- Keep month cells free of event cards; reveal up to three event dots and a counted overflow control.
+- Present the agenda as a typographic timeline: time, title, then a direct canonical link.
 - Use icons for icon-only actions, with accessible names and tooltips.
 - Keep touch/click targets at the shared control height.
 - On narrower containers, float the agenda as a bounded drawer; on mobile widths, anchor it to the bottom.
@@ -33,9 +33,9 @@ The agenda must not become a note preview, property inspector, backlink browser,
 ## Interaction rules
 
 - Selecting a day opens its agenda even when it is empty.
-- Selecting an event opens the agenda and highlights the corresponding row.
-- Selecting an agenda title or arrow opens the Markdown note.
-- `Cmd/Ctrl + Enter` opens a focused event note directly.
+- Selecting an event dot opens the agenda for that date.
+- Selecting the direct note link opens the Markdown note.
+- `Cmd/Ctrl + Enter` opens a focused event dot's note directly.
 - Arrow keys move the selected day. `Enter` and `Space` open its agenda.
 - `Escape` closes the agenda and restores focus.
 

@@ -13,8 +13,6 @@ import {
   type CalendarSettings,
   type CalendarSnapshot,
   addMonths,
-  categoryToneMap,
-  categoryToken,
   eachDate,
   fileTitle,
   localDateKey,
@@ -26,17 +24,14 @@ import {
   gridMovement,
   resolveEventPath,
 } from "./policy";
-import {
-  type CalendarSurfaceState,
-  calendarSurfaceState,
-  responsiveEventLimit,
-} from "./presentation";
+import { type CalendarSurfaceState, calendarSurfaceState } from "./presentation";
 
 export const VIEW_TYPE = "link-calendar-view";
 
 const PANEL_ID = "link-calendar-agenda";
 const PANEL_TITLE_ID = "link-calendar-agenda-title";
 const SEARCH_DELAY_MS = 80;
+const MAX_VISIBLE_MARKERS = 3;
 const PRODUCT_NAME = ["Link", "Calendar"].join(" ");
 
 export interface CalendarActions {
@@ -52,12 +47,9 @@ export class LinkCalendarView extends ItemView {
   private query = "";
   private selectedDate = localDateKey(new Date());
   private selectedEventId = "";
-  private sideClosed = true;
+  private sideClosed = false;
   private profileId = "";
   private snapshot: CalendarSnapshot = { diagnostics: [], events: [], revision: 0 };
-  private categoryTones: ReadonlyMap<string, string> = new Map();
-  private densityObserver: ResizeObserver | null = null;
-  private densityFrame: number | null = null;
   private searchTimer: number | null = null;
 
   constructor(
@@ -83,7 +75,6 @@ export class LinkCalendarView extends ItemView {
 
   setSnapshot(snapshot: CalendarSnapshot): void {
     this.snapshot = snapshot;
-    this.categoryTones = categoryToneMap(snapshot.events.map((event) => event.category));
     if (this.selectedEventId && !snapshot.events.some((event) => event.id === this.selectedEventId)) {
       this.clearSelection();
     }
@@ -113,13 +104,11 @@ export class LinkCalendarView extends ItemView {
   }
 
   override async onClose(): Promise<void> {
-    this.disconnectDensityObserver();
     if (this.searchTimer !== null) window.clearTimeout(this.searchTimer);
     if (document.fullscreenElement === this.contentEl) await document.exitFullscreen();
   }
 
   private render(): void {
-    this.disconnectDensityObserver();
     const settings = this.getSettings();
     const root = this.contentEl;
     root.empty();
@@ -362,20 +351,26 @@ export class LinkCalendarView extends ItemView {
         if (calendarEvent?.editable) void this.actions.move(calendarEvent, date);
       });
       const events = eventsByDate.get(date) ?? [];
-      const cards = cell.createDiv({
-        cls: "link-calendar__cards",
+      const markers = cell.createDiv({
+        cls: "link-calendar__markers",
         attr: { "data-event-count": String(events.length) },
       });
-      for (const event of events) this.renderCard(cards, event, settings, date);
-      if (events.length > 0) {
-        const more = cards.createEl("button", {
-          cls: "link-calendar__more",
-          attr: { hidden: "", type: "button" },
+      for (const event of events.slice(0, MAX_VISIBLE_MARKERS)) {
+        this.renderMarker(markers, event, settings, date);
+      }
+      const hiddenCount = Math.max(0, events.length - MAX_VISIBLE_MARKERS);
+      if (hiddenCount > 0) {
+        const more = markers.createEl("button", {
+          cls: "link-calendar__marker-more",
+          text: `+${String(hiddenCount)}`,
+          attr: {
+            "aria-label": formatMessage(settings.locale, "moreEvents", { count: String(hiddenCount) }),
+            type: "button",
+          },
         });
         more.onclick = () => this.selectDate(date);
       }
     });
-    this.installDensityObserver(grid, settings);
     return monthPanel;
   }
 
@@ -402,15 +397,15 @@ export class LinkCalendarView extends ItemView {
     }
   }
 
-  private renderCard(
+  private renderMarker(
     parent: HTMLElement,
     event: CalendarEvent,
     settings: CalendarSettings,
     visibleDate: string,
   ): void {
     const accessibleName = [event.title, event.category].filter(Boolean).join(", ");
-    const card = parent.createEl("button", {
-      cls: `link-calendar__card ${categoryToken(event.category, this.categoryTones)}`,
+    const marker = parent.createEl("button", {
+      cls: "link-calendar__marker",
       title: event.title,
       attr: {
         "aria-controls": PANEL_ID,
@@ -422,20 +417,20 @@ export class LinkCalendarView extends ItemView {
         "data-event-id": event.id,
       },
     });
-    card.createSpan({ cls: "link-calendar__card-title", text: event.title });
-    if (event.id === this.selectedEventId) card.addClass("is-active");
-    card.onclick = (click) => {
+    marker.createSpan({ cls: "link-calendar__marker-dot", attr: { "aria-hidden": "true" } });
+    if (event.id === this.selectedEventId) marker.addClass("is-active");
+    marker.onclick = (click) => {
       click.stopPropagation();
       this.selectEvent(event, visibleDate);
     };
-    card.onkeydown = (keyboardEvent) => {
+    marker.onkeydown = (keyboardEvent) => {
       if (keyboardEvent.key === "Enter" && (keyboardEvent.metaKey || keyboardEvent.ctrlKey)) {
         keyboardEvent.preventDefault();
         keyboardEvent.stopPropagation();
         void this.actions.open(event.filePath);
       }
     };
-    card.oncontextmenu = (mouseEvent) => {
+    marker.oncontextmenu = (mouseEvent) => {
       const menu = new Menu();
       menu.addItem((item) => item
         .setTitle(translate(settings.locale, "open"))
@@ -449,7 +444,7 @@ export class LinkCalendarView extends ItemView {
       }
       menu.showAtMouseEvent(mouseEvent);
     };
-    card.addEventListener("dragstart", (dragEvent) => {
+    marker.addEventListener("dragstart", (dragEvent) => {
       if (!event.editable) {
         dragEvent.preventDefault();
         return;
@@ -549,18 +544,17 @@ export class LinkCalendarView extends ItemView {
     });
     for (const event of events) {
       const item = agenda.createDiv({
-        cls: `link-calendar__agenda-item ${categoryToken(event.category, this.categoryTones)}${event.id === this.selectedEventId ? " is-active" : ""}`,
+        cls: `link-calendar__agenda-item${event.id === this.selectedEventId ? " is-active" : ""}`,
+      });
+      item.createEl("time", {
+        cls: "link-calendar__agenda-time",
+        text: formatEventTimeRange(settings.locale, event),
       });
       const identity = item.createDiv({ cls: "link-calendar__agenda-identity" });
-      const metadata = [formatEventTimeRange(settings.locale, event), event.category]
-        .filter(Boolean)
-        .join(" · ");
-      if (metadata) {
-        identity.createSpan({ cls: "link-calendar__agenda-category", text: metadata });
-      }
+      identity.createDiv({ cls: "link-calendar__agenda-title", text: event.title });
       const link = identity.createEl("button", {
         cls: "link-calendar__agenda-link",
-        text: event.title,
+        text: translate(settings.locale, "open"),
         title: `${translate(settings.locale, "open")}: ${event.title}`,
         attr: {
           "aria-label": event.category ? `${event.title}, ${event.category}` : event.title,
@@ -568,11 +562,6 @@ export class LinkCalendarView extends ItemView {
         },
       });
       link.onclick = () => void this.actions.open(event.filePath);
-      const open = iconButton("arrow-up-right", translate(settings.locale, "open"), () => {
-        void this.actions.open(event.filePath);
-      });
-      open.addClass("link-calendar__agenda-open");
-      item.append(open);
     }
   }
 
@@ -675,59 +664,6 @@ export class LinkCalendarView extends ItemView {
     )?.focus();
   }
 
-  private installDensityObserver(grid: HTMLElement, settings: CalendarSettings): void {
-    const apply = (): void => this.applyResponsiveDensity(grid, settings);
-    if (typeof ResizeObserver !== "undefined") {
-      this.densityObserver = new ResizeObserver(() => this.scheduleDensity(apply));
-      this.densityObserver.observe(grid);
-    }
-    this.scheduleDensity(apply);
-  }
-
-  private scheduleDensity(apply: () => void): void {
-    if (this.densityFrame !== null) window.cancelAnimationFrame(this.densityFrame);
-    this.densityFrame = window.requestAnimationFrame(() => {
-      this.densityFrame = null;
-      apply();
-    });
-  }
-
-  private applyResponsiveDensity(grid: HTMLElement, settings: CalendarSettings): void {
-    for (const container of grid.findAll(".link-calendar__cards")) {
-      const cards = container.findAll(":scope > .link-calendar__card");
-      const more = container.querySelector<HTMLButtonElement>(":scope > .link-calendar__more");
-      if (!cards.length || !more) continue;
-      for (const card of cards) card.hidden = false;
-      more.hidden = false;
-      const style = window.getComputedStyle(container);
-      const gap = numericStyle(style.rowGap || style.gap);
-      const cardHeight = cards[0]?.getBoundingClientRect().height ?? 0;
-      const overflowHeight = more.getBoundingClientRect().height;
-      const limit = responsiveEventLimit({
-        availableHeight: container.clientHeight,
-        cardHeight,
-        eventCount: cards.length,
-        gap,
-        overflowHeight,
-      });
-      cards.forEach((card, index) => { card.hidden = index >= limit; });
-      const hiddenCount = Math.max(0, cards.length - limit);
-      more.hidden = hiddenCount === 0;
-      if (hiddenCount > 0) {
-        more.setText(`+${String(hiddenCount)}`);
-        more.ariaLabel = formatMessage(settings.locale, "moreEvents", { count: String(hiddenCount) });
-      }
-    }
-  }
-
-  private disconnectDensityObserver(): void {
-    this.densityObserver?.disconnect();
-    this.densityObserver = null;
-    if (this.densityFrame !== null) {
-      window.cancelAnimationFrame(this.densityFrame);
-      this.densityFrame = null;
-    }
-  }
 }
 
 function diagnosticMessage(code: CalendarSnapshot["diagnostics"][number]["code"]):
@@ -777,9 +713,4 @@ function formatEventTime(locale: CalendarSettings["locale"], value: string): str
     hour: "2-digit",
     minute: "2-digit",
   }).format(parsed);
-}
-
-function numericStyle(value: string): number {
-  const parsed = Number.parseFloat(value);
-  return Number.isFinite(parsed) ? parsed : 0;
 }

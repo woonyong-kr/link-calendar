@@ -14,7 +14,7 @@ Obsidian's native Graph answers “what links to what.” Link Calendar answers 
 
 - Existing Markdown stays canonical.
 - Configured folders provide explicit privacy and performance boundaries.
-- A month grid makes dated notes visible at a glance.
+- A month grid uses quiet dots to show dated notes at a glance.
 - The selected date shows only direct note links, not a duplicated metadata inspector.
 - Search and source filters narrow the current month without modifying notes.
 - Optional creation and drag-to-move update the canonical note only for sources explicitly marked writable.
@@ -45,12 +45,12 @@ The default mappings are `date`, `end`, `startTime`, `endTime`, `allDay`, `title
 
 ## Navigation
 
-- Select a day or event card to open the daily agenda.
-- Select the linked title or arrow icon to open the canonical Markdown note.
-- Press `Cmd/Ctrl + Enter` on an event card to open its note directly.
+- Select a day or event dot to open the daily agenda.
+- Select **Open note** below an agenda title to open the canonical Markdown note.
+- Press `Cmd/Ctrl + Enter` on an event dot to open its note directly.
 - Run **Reveal active note in calendar** to locate the current dated note.
 - Use arrow keys on the month grid to move the selected day; `Enter` or `Space` opens its agenda.
-- Press `Escape` to close the agenda and return focus to the selected event or day.
+- Press `Escape` to close the agenda and return focus to the selected event dot or day.
 
 ## Writable sources
 

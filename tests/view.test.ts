@@ -108,17 +108,17 @@ describe("Link Calendar view", () => {
   it("shows only direct canonical note links after an event is selected", async () => {
     const currentActions = actions();
     const { view } = await openView(snapshot(), currentActions);
-    expect(view.contentEl.querySelector(".link-calendar__side")).toBeNull();
+    expect(view.contentEl.querySelector(".link-calendar__side")).not.toBeNull();
 
     view.contentEl.querySelector<HTMLButtonElement>("[data-event-id]")?.click();
     await settle();
 
     expect(view.contentEl.querySelector(".link-calendar__side")).not.toBeNull();
-    expect(view.contentEl.querySelector(".link-calendar__agenda-link")?.textContent).toContain(
+    expect(view.contentEl.querySelector(".link-calendar__agenda-title")?.textContent).toContain(
       "Practical certification exam",
     );
-    expect(view.contentEl.querySelector(".link-calendar__agenda-category")?.textContent).toMatch(
-      /^\d{2}:\d{2} [AP]M–\d{2}:\d{2} [AP]M · Learning$/,
+    expect(view.contentEl.querySelector(".link-calendar__agenda-time")?.textContent).toMatch(
+      /^\d{2}:\d{2} [AP]M–\d{2}:\d{2} [AP]M$/,
     );
     expect(view.contentEl.querySelector(".link-calendar__preview")).toBeNull();
     expect(view.contentEl.querySelector(".link-calendar__properties")).toBeNull();
@@ -165,18 +165,18 @@ describe("Link Calendar view", () => {
     expect(view.contentEl.querySelectorAll("[data-event-id]")).toHaveLength(1);
   });
 
-  it("opens the Markdown page with the keyboard and restores card focus after Escape", async () => {
+  it("opens the Markdown page with the keyboard and restores marker focus after Escape", async () => {
     const currentActions = actions();
     const { view } = await openView(snapshot(), currentActions);
-    const card = view.contentEl.querySelector<HTMLButtonElement>("[data-event-id]");
-    card?.dispatchEvent(new KeyboardEvent("keydown", {
+    const marker = view.contentEl.querySelector<HTMLButtonElement>("[data-event-id]");
+    marker?.dispatchEvent(new KeyboardEvent("keydown", {
       bubbles: true,
       key: "Enter",
       metaKey: true,
     }));
     expect(vi.mocked(currentActions.open)).toHaveBeenCalledWith("Calendar/Exam.md");
 
-    card?.click();
+    marker?.click();
     await settle();
     view.contentEl.querySelector<HTMLElement>(".link-calendar__side")?.dispatchEvent(
       new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }),

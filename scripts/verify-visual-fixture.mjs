@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 const fixture = await readFile("tests/fixtures/link-calendar-dark.html", "utf8");
 const required = [
   "link-calendar__grid",
-  "link-calendar__card",
+  "link-calendar__marker",
   "link-calendar__side",
   "link-calendar__agenda",
   "link-calendar__agenda-link",

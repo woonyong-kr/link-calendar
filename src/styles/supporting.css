@@ -181,13 +181,6 @@
     padding: var(--cc-space-1);
   }
 
-  .link-calendar button.link-calendar__card {
-    height: var(--cc-calendar-card-height-compact);
-    min-height: var(--cc-calendar-card-height-compact);
-    max-height: var(--cc-calendar-card-height-compact);
-    font-size: var(--cc-font-xs);
-  }
-
   .link-calendar__scope {
     padding-inline: var(--cc-space-2);
   }
@@ -219,15 +212,10 @@
   }
 
   .link-calendar__day-number {
-    width: var(--cc-calendar-card-height-compact);
-    height: var(--cc-calendar-card-height-compact);
+    width: var(--cc-calendar-day-number-size);
+    height: var(--cc-calendar-day-number-size);
     font-size: var(--cc-font-xs);
-    line-height: var(--cc-calendar-card-height-compact);
-  }
-
-  .link-calendar button.link-calendar__card {
-    padding: var(--cc-calendar-card-padding-block);
-    line-height: 1;
+    line-height: var(--cc-calendar-day-number-size);
   }
 
   .link-calendar__side {
@@ -250,7 +238,7 @@
 }
 
 @media (forced-colors: active) {
-  .link-calendar button.link-calendar__card,
+  .link-calendar button.link-calendar__marker,
   .link-calendar__agenda-item {
     border: var(--cc-calendar-grid-line) solid var(--cc-separator);
     forced-color-adjust: none;
