@@ -548,7 +548,7 @@ export class LinkCalendarView extends ItemView {
       });
       item.createEl("time", {
         cls: "link-calendar__agenda-time",
-        text: formatEventTimeRange(settings.locale, event),
+        text: formatEventTimeRange(event),
       });
       const identity = item.createDiv({ cls: "link-calendar__agenda-identity" });
       identity.createDiv({ cls: "link-calendar__agenda-title", text: event.title });
@@ -697,21 +697,15 @@ function formatEventDate(locale: CalendarSettings["locale"], date: string): stri
   }).format(parseDateKey(date));
 }
 
-function formatEventTimeRange(locale: CalendarSettings["locale"], event: CalendarEvent): string {
+function formatEventTimeRange(event: CalendarEvent): string {
   if (event.allDay || !event.startTime) return "";
-  const start = formatEventTime(locale, event.startTime);
-  const end = formatEventTime(locale, event.endTime);
+  const start = formatEventTime(event.startTime);
+  const end = formatEventTime(event.endTime);
   return end && end !== start ? `${start}–${end}` : start;
 }
 
-function formatEventTime(locale: CalendarSettings["locale"], value: string): string {
-  const parsed = /^\d{2}:\d{2}/u.test(value)
-    ? new Date(`2000-01-01T${value.slice(0, 5)}:00`)
-    : new Date(value);
-  if (Number.isNaN(parsed.valueOf())) return value;
-  return new Intl.DateTimeFormat(resolvedLocale(locale), {
-    hour: "2-digit",
-    hourCycle: "h23",
-    minute: "2-digit",
-  }).format(parsed);
+function formatEventTime(value: string): string {
+  const wallClock = /(?:^|T)(\d{2}):(\d{2})/u.exec(value);
+  if (!wallClock?.[1] || !wallClock[2]) return value;
+  return `${wallClock[1]}:${wallClock[2]}`;
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.1
+
+- Preserve the wall-clock time written in Markdown across operating-system time zones.
+
 ## 3.1.0
 
 - Replace month event cards with compact dots and a counted overflow indicator.
