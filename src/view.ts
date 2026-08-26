@@ -560,7 +560,7 @@ export class LinkCalendarView extends ItemView {
           type: "button",
         },
       });
-      setIcon(link, "file-up-right");
+      setIcon(link, "arrow-up-right");
       link.onclick = () => void this.actions.open(event.filePath);
     }
   }

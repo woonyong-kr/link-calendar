@@ -125,7 +125,7 @@ describe("Link Calendar view", () => {
 
     const openNote = view.contentEl.querySelector<HTMLButtonElement>(".link-calendar__agenda-link");
     expect(openNote?.getAttribute("aria-label")).toContain("Open note");
-    expect(openNote?.dataset.icon).toBe("file-up-right");
+    expect(openNote?.dataset.icon).toBe("arrow-up-right");
     openNote?.click();
     expect(vi.mocked(currentActions.open)).toHaveBeenCalledWith("Calendar/Exam.md");
   });
