@@ -2,8 +2,9 @@
 
 ## Checked surfaces
 
-- Light theme: `docs/media/link-calendar-overview.png`
-- Dark theme: `docs/media/link-calendar-agenda.png`
+- Light theme at 1920×1080: `docs/media/link-calendar-overview.png`
+- Dark theme agenda context: `docs/media/link-calendar-agenda.png`
+- Obsidian 1.13.7 dark runtime at 1920×1200 with 2026-08-29 selected
 - Large month grid with a persistent selected-date agenda
 - Long event title wrapping
 - Time range plus category hierarchy
@@ -22,4 +23,6 @@
 
 ## Result
 
-Passed. The visible hierarchy is month → selected date → time and canonical note link. No parallel knowledge or layout surface remains.
+The earlier compressed captures were rejected: their small viewport and JPEG enlargement made labels unreadable and did not prove the selected-date hierarchy. The replacement release images use a public-safe populated fixture at native desktop resolution. The private-vault runtime was checked separately and is not published in this repository.
+
+Passed. The visible hierarchy is month → selected date → time and canonical note link. Event rows stay left-aligned, selected state uses a restrained category accent, and no parallel knowledge or layout surface remains.
