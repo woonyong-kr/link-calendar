@@ -35,4 +35,4 @@
 2. Replaced event titles in cells with up to three dots and an overflow count.
 3. Replaced agenda cards with `time → title → canonical note link` rows and moved all times to compact 24-hour ranges.
 
-final result: pending runtime verification for 3.1.2
+final result: passed
