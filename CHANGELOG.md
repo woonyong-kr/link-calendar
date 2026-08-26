@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.1
+
+- Refined month-card and agenda hierarchy with quieter category accents and left-aligned canonical-note links.
+- Improved selected-event contrast without introducing a second detail or knowledge surface.
+- Replaced compressed release screenshots with populated public-safe 1920×1080 evidence.
+
 ## 3.0.0
 
 - Rename the product and plugin ID to Link Calendar.
