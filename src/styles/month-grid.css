@@ -121,13 +121,14 @@
   margin: 0;
   padding: var(--cc-calendar-card-padding-block) var(--cc-calendar-card-padding-inline);
   overflow: hidden;
-  border: 0;
+  border: var(--cc-calendar-grid-line) solid color-mix(in srgb, var(--cc-card-hue) 18%, var(--cc-separator));
+  border-left: calc(var(--cc-calendar-grid-line) * 3) solid color-mix(in srgb, var(--cc-card-hue) 72%, var(--cc-text-primary));
   border-radius: var(--cc-radius-xs);
   color: var(--cc-text-primary);
   background: var(--cc-card-surface);
   box-shadow: none;
   font-size: var(--cc-font-xs);
-  font-weight: var(--cc-weight-semibold);
+  font-weight: var(--cc-weight-medium);
   line-height: var(--cc-line-height);
   text-align: left;
   cursor: pointer;
@@ -151,6 +152,8 @@
 
 .link-calendar button.link-calendar__card:hover,
 .link-calendar button.link-calendar__card.is-active {
+  border-color: color-mix(in srgb, var(--cc-card-hue) 46%, var(--cc-separator));
+  border-left-color: var(--cc-card-hue);
   background: color-mix(
     in srgb,
     var(--cc-card-surface) var(--cc-calendar-category-hover),

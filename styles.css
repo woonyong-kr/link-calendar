@@ -75,9 +75,9 @@
   --cc-calendar-card-padding-block: var(--cc-space-1);
   --cc-calendar-card-padding-inline: var(--cc-space-2);
   --cc-calendar-grid-line: var(--border-width);
-  --cc-calendar-category-tint: 14%;
-  --cc-calendar-category-tint-muted: 9%;
-  --cc-calendar-category-hover: 70%;
+  --cc-calendar-category-tint: 9%;
+  --cc-calendar-category-tint-muted: 6%;
+  --cc-calendar-category-hover: 86%;
 
   /* Category hues stay theme-owned and are mixed into the active surface. */
   --cc-category-blue: var(--color-blue);
@@ -448,13 +448,14 @@
   margin: 0;
   padding: var(--cc-calendar-card-padding-block) var(--cc-calendar-card-padding-inline);
   overflow: hidden;
-  border: 0;
+  border: var(--cc-calendar-grid-line) solid color-mix(in srgb, var(--cc-card-hue) 18%, var(--cc-separator));
+  border-left: calc(var(--cc-calendar-grid-line) * 3) solid color-mix(in srgb, var(--cc-card-hue) 72%, var(--cc-text-primary));
   border-radius: var(--cc-radius-xs);
   color: var(--cc-text-primary);
   background: var(--cc-card-surface);
   box-shadow: none;
   font-size: var(--cc-font-xs);
-  font-weight: var(--cc-weight-semibold);
+  font-weight: var(--cc-weight-medium);
   line-height: var(--cc-line-height);
   text-align: left;
   cursor: pointer;
@@ -478,6 +479,8 @@
 
 .link-calendar button.link-calendar__card:hover,
 .link-calendar button.link-calendar__card.is-active {
+  border-color: color-mix(in srgb, var(--cc-card-hue) 46%, var(--cc-separator));
+  border-left-color: var(--cc-card-hue);
   background: color-mix(
     in srgb,
     var(--cc-card-surface) var(--cc-calendar-category-hover),
@@ -568,8 +571,8 @@
 .link-calendar__agenda {
   display: flex;
   flex-direction: column;
-  gap: var(--cc-space-2);
-  padding: var(--cc-space-4) var(--cc-calendar-side-padding);
+  gap: var(--cc-space-3);
+  padding: var(--cc-space-5) var(--cc-calendar-side-padding);
 }
 
 .link-calendar__agenda-label {
@@ -598,16 +601,18 @@
   align-items: center;
   gap: var(--cc-space-2);
   min-width: 0;
-  padding: var(--cc-space-2) var(--cc-space-2) var(--cc-space-2) var(--cc-space-3);
-  border: var(--cc-calendar-grid-line) solid transparent;
+  padding: var(--cc-space-3) var(--cc-space-2) var(--cc-space-3) var(--cc-space-3);
+  border: var(--cc-calendar-grid-line) solid var(--cc-separator);
+  border-left: calc(var(--cc-calendar-grid-line) * 3) solid color-mix(in srgb, var(--cc-card-hue) 72%, var(--cc-text-primary));
   border-radius: var(--cc-radius-sm);
-  background: var(--cc-card-surface);
+  background: color-mix(in srgb, var(--cc-card-surface) 52%, var(--cc-surface-panel));
   transition: background-color var(--cc-motion-fast), border-color var(--cc-motion-fast);
 }
 
 .link-calendar__agenda-item:hover,
 .link-calendar__agenda-item.is-active {
   border-color: color-mix(in srgb, var(--cc-card-hue) 42%, var(--cc-separator));
+  border-left-color: var(--cc-card-hue);
   background: color-mix(
     in srgb,
     var(--cc-card-surface) var(--cc-calendar-category-hover),
@@ -627,7 +632,7 @@
   overflow: hidden;
   color: var(--cc-text-tertiary);
   font-size: var(--cc-font-xs);
-  font-weight: var(--cc-weight-medium);
+  font-weight: var(--cc-weight-semibold);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -663,7 +668,13 @@
   margin: 0;
   padding: 0;
   border-radius: var(--cc-radius-sm);
+  color: var(--cc-text-secondary);
   background: transparent;
+}
+
+.link-calendar button.link-calendar__agenda-open:hover {
+  color: var(--cc-accent);
+  background: var(--cc-surface-hover);
 }
 
 .link-calendar__diagnostics {

@@ -46,8 +46,8 @@
 .link-calendar__agenda {
   display: flex;
   flex-direction: column;
-  gap: var(--cc-space-2);
-  padding: var(--cc-space-4) var(--cc-calendar-side-padding);
+  gap: var(--cc-space-3);
+  padding: var(--cc-space-5) var(--cc-calendar-side-padding);
 }
 
 .link-calendar__agenda-label {
@@ -76,16 +76,18 @@
   align-items: center;
   gap: var(--cc-space-2);
   min-width: 0;
-  padding: var(--cc-space-2) var(--cc-space-2) var(--cc-space-2) var(--cc-space-3);
-  border: var(--cc-calendar-grid-line) solid transparent;
+  padding: var(--cc-space-3) var(--cc-space-2) var(--cc-space-3) var(--cc-space-3);
+  border: var(--cc-calendar-grid-line) solid var(--cc-separator);
+  border-left: calc(var(--cc-calendar-grid-line) * 3) solid color-mix(in srgb, var(--cc-card-hue) 72%, var(--cc-text-primary));
   border-radius: var(--cc-radius-sm);
-  background: var(--cc-card-surface);
+  background: color-mix(in srgb, var(--cc-card-surface) 52%, var(--cc-surface-panel));
   transition: background-color var(--cc-motion-fast), border-color var(--cc-motion-fast);
 }
 
 .link-calendar__agenda-item:hover,
 .link-calendar__agenda-item.is-active {
   border-color: color-mix(in srgb, var(--cc-card-hue) 42%, var(--cc-separator));
+  border-left-color: var(--cc-card-hue);
   background: color-mix(
     in srgb,
     var(--cc-card-surface) var(--cc-calendar-category-hover),
@@ -105,7 +107,7 @@
   overflow: hidden;
   color: var(--cc-text-tertiary);
   font-size: var(--cc-font-xs);
-  font-weight: var(--cc-weight-medium);
+  font-weight: var(--cc-weight-semibold);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -141,7 +143,13 @@
   margin: 0;
   padding: 0;
   border-radius: var(--cc-radius-sm);
+  color: var(--cc-text-secondary);
   background: transparent;
+}
+
+.link-calendar button.link-calendar__agenda-open:hover {
+  color: var(--cc-accent);
+  background: var(--cc-surface-hover);
 }
 
 .link-calendar__diagnostics {

@@ -75,9 +75,9 @@
   --cc-calendar-card-padding-block: var(--cc-space-1);
   --cc-calendar-card-padding-inline: var(--cc-space-2);
   --cc-calendar-grid-line: var(--border-width);
-  --cc-calendar-category-tint: 14%;
-  --cc-calendar-category-tint-muted: 9%;
-  --cc-calendar-category-hover: 70%;
+  --cc-calendar-category-tint: 9%;
+  --cc-calendar-category-tint-muted: 6%;
+  --cc-calendar-category-hover: 86%;
 
   /* Category hues stay theme-owned and are mixed into the active surface. */
   --cc-category-blue: var(--color-blue);
