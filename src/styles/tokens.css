@@ -71,7 +71,6 @@
   --cc-calendar-day-number-size: calc(var(--cc-space-4) + var(--cc-space-2));
   --cc-calendar-grid-line: var(--border-width);
   --cc-calendar-agenda-time-min: 108px;
-  --cc-calendar-agenda-link-height: 28px;
   --cc-calendar-optical-shift: 2px;
   --cc-calendar-underline-offset: 3px;
   --cc-calendar-selected-offset: -1px;

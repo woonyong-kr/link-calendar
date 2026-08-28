@@ -48,7 +48,7 @@ The default mappings are `date`, `end`, `startTime`, `endTime`, `allDay`, `title
 ## Navigation
 
 - Select a day or event dot to open the daily agenda.
-- Select the `arrow-up-right` icon beside an agenda title to open the canonical Markdown note.
+- Select an underlined agenda title to open the canonical Markdown note directly.
 - Press `Cmd/Ctrl + Enter` on an event dot to open its note directly.
 - Run **Reveal active note in calendar** to locate the current dated note.
 - Use arrow keys on the month grid to move the selected day; `Enter` or `Space` opens its agenda.

@@ -16,7 +16,7 @@
 | Typography and density | passed | Dates, times, titles, and direct note links are the only event text. |
 | Shape and separation | passed | Calendar weeks and agenda entries use hairlines; event cards, chips, badges, shadows, and selected-event panels are absent. |
 | Colour and state | passed | One host accent identifies event dots, today, and the selected column; category colours do not compete with navigation. |
-| Canonical navigation | passed | Each agenda row exposes one `arrow-up-right` icon with a tooltip and accessible name; runtime activation opened the original Markdown note. |
+| Canonical navigation | passed | Each agenda title is the familiar underlined internal link itself; activation opens the original Markdown note without a separate icon action. |
 | Responsive layout | passed | The agenda remains adjacent at wide widths and becomes a bounded overlay only when the host pane cannot preserve both surfaces. |
 | Light and dark themes | passed | Both captures retain divider visibility, readable muted text, and the same hierarchy without plugin-owned card colours. |
 
@@ -33,6 +33,7 @@
 
 1. Rejected coloured month cards and the duplicated selected-event detail panel.
 2. Replaced event titles in cells with up to three dots and an overflow count.
-3. Replaced agenda cards with `time → title → canonical note link` rows and moved all times to compact 24-hour ranges.
+3. Replaced agenda cards with `time → canonical note link` rows and moved all times to compact 24-hour ranges.
+4. Removed the ambiguous arrow icon and made the visible agenda title the direct internal link.
 
 final result: passed

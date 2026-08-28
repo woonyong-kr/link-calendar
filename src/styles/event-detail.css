@@ -90,41 +90,30 @@
   min-width: 0;
 }
 
-.link-calendar__agenda-title {
-  width: 100%;
+.link-calendar a.link-calendar__agenda-link {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
   overflow: hidden;
-  color: var(--cc-text-primary);
+  color: var(--cc-accent);
   font-size: var(--cc-font-md);
   font-weight: var(--cc-weight-semibold);
   line-height: var(--cc-line-height);
+  text-decoration-line: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: var(--cc-calendar-underline-offset);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.link-calendar button.link-calendar__agenda-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--cc-calendar-agenda-link-height);
-  min-height: var(--cc-calendar-agenda-link-height);
-  margin: var(--cc-space-1) 0 0;
-  padding: 0;
-  border: 0;
-  border-radius: var(--cc-radius-sm);
-  color: var(--cc-accent);
-  background: transparent;
-  box-shadow: none;
-}
-
-.link-calendar button.link-calendar__agenda-link:hover {
+.link-calendar a.link-calendar__agenda-link:hover {
   color: var(--cc-accent-hover);
-  background: var(--cc-control-hover);
 }
 
-.link-calendar button.link-calendar__agenda-link svg {
-  width: var(--cc-icon-size);
-  height: var(--cc-icon-size);
-  stroke-width: 1.8;
+.link-calendar a.link-calendar__agenda-link:focus-visible {
+  border-radius: var(--cc-radius-xs);
+  outline: var(--cc-focus-width) solid var(--cc-focus);
+  outline-offset: var(--cc-space-1);
 }
 
 .link-calendar__diagnostics {

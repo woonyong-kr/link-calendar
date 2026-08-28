@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.3
+
+- Replace the agenda's ambiguous arrow action with a familiar underlined title link that opens the canonical Markdown note directly.
+
 ## 3.1.2
 
 - Replace the agenda's repeated `Open note` text with one Lucide `file-up-right` action, tooltip, and accessible name.

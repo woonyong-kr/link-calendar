@@ -114,7 +114,7 @@ describe("Link Calendar view", () => {
     await settle();
 
     expect(view.contentEl.querySelector(".link-calendar__side")).not.toBeNull();
-    expect(view.contentEl.querySelector(".link-calendar__agenda-title")?.textContent).toContain(
+    expect(view.contentEl.querySelector(".link-calendar__agenda-link")?.textContent).toContain(
       "Practical certification exam",
     );
     expect(view.contentEl.querySelector(".link-calendar__agenda-time")?.textContent).toBe(
@@ -123,9 +123,11 @@ describe("Link Calendar view", () => {
     expect(view.contentEl.querySelector(".link-calendar__preview")).toBeNull();
     expect(view.contentEl.querySelector(".link-calendar__properties")).toBeNull();
 
-    const openNote = view.contentEl.querySelector<HTMLButtonElement>(".link-calendar__agenda-link");
+    const openNote = view.contentEl.querySelector<HTMLAnchorElement>(".link-calendar__agenda-link");
     expect(openNote?.getAttribute("aria-label")).toContain("Open note");
-    expect(openNote?.dataset.icon).toBe("arrow-up-right");
+    expect(openNote?.classList.contains("internal-link")).toBe(true);
+    expect(openNote?.getAttribute("href")).toBe("Calendar/Exam.md");
+    expect(openNote?.dataset.href).toBe("Calendar/Exam.md");
     openNote?.click();
     expect(vi.mocked(currentActions.open)).toHaveBeenCalledWith("Calendar/Exam.md");
   });

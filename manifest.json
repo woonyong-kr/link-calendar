@@ -1,7 +1,7 @@
 {
   "id": "link-calendar",
   "name": "Link Calendar",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "minAppVersion": "1.13.0",
   "description": "Navigate dated Markdown by month and open canonical notes from a compact daily agenda.",
   "author": "Woonyong Choi",

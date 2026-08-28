@@ -73,6 +73,9 @@ if (styles.includes("!important")) errors.push("styles.css must not use !importa
 for (const removedSelector of ["link-calendar__preview", "link-calendar__properties", "link-calendar__relation"]) {
   if (styles.includes(removedSelector)) errors.push(`styles contain removed UI: ${removedSelector}`);
 }
+if (source.some((content) => content.includes('setIcon(link, "arrow-up-right")'))) {
+  errors.push("agenda links must use the visible note title, not an arrow icon");
+}
 
 if (errors.length) throw new Error(errors.join("\n"));
 console.log(JSON.stringify({ status: "ok", id: manifest.id, version: manifest.version }));

@@ -551,17 +551,20 @@ export class LinkCalendarView extends ItemView {
         text: formatEventTimeRange(event),
       });
       const identity = item.createDiv({ cls: "link-calendar__agenda-identity" });
-      identity.createDiv({ cls: "link-calendar__agenda-title", text: event.title });
-      const link = identity.createEl("button", {
-        cls: "link-calendar__agenda-link",
+      const link = identity.createEl("a", {
+        cls: "link-calendar__agenda-link internal-link",
+        text: event.title,
         title: `${translate(settings.locale, "open")}: ${event.title}`,
         attr: {
           "aria-label": `${translate(settings.locale, "open")}: ${event.title}`,
-          type: "button",
+          "data-href": event.filePath,
+          href: event.filePath,
         },
       });
-      setIcon(link, "arrow-up-right");
-      link.onclick = () => void this.actions.open(event.filePath);
+      link.onclick = (mouseEvent) => {
+        mouseEvent.preventDefault();
+        void this.actions.open(event.filePath);
+      };
     }
   }
 
