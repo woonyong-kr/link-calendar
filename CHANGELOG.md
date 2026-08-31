@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.6
+
+- Add a public-safe animated walkthrough from month overview to the canonical-note agenda.
+- Verify every README visual by format, dimensions, version, and SHA-256 before release.
+- Replace mislabeled JPEG captures with actual PNG files.
+
 ## 3.1.5
 
 - Make the folder-picker callback explicitly return `void` for Community Directory source checks.

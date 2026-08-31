@@ -1,0 +1,26 @@
+{
+  "version": "3.1.6",
+  "capturedWith": "Obsidian 1.13.7",
+  "capturedAt": "2026-08-31",
+  "publicSafeSample": true,
+  "assets": [
+    {
+      "path": "docs/media/link-calendar-demo.gif",
+      "width": 1000,
+      "height": 500,
+      "sha256": "fb05f86a5feb22ff5f208594b9a1528f607768c7dd7df6a9f6750c813ab97cd2"
+    },
+    {
+      "path": "docs/media/link-calendar-overview.png",
+      "width": 1240,
+      "height": 620,
+      "sha256": "61509641f0004d8ca555e4a5abc0312096d0474dbbd4b1184d83674a72d2899c"
+    },
+    {
+      "path": "docs/media/link-calendar-agenda.png",
+      "width": 1240,
+      "height": 620,
+      "sha256": "158032293b8190fb1d354efb10820bd1145fc2efa4290cf30034f3b0be278528"
+    }
+  ]
+}

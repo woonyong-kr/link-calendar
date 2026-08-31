@@ -4,6 +4,8 @@ Link Calendar Navigator turns date properties already written in Markdown into a
 
 **Month → date → canonical note.**
 
+![Link Calendar Navigator animated month-to-agenda walkthrough](docs/media/link-calendar-demo.gif)
+
 ![Link Calendar Navigator month view](docs/media/link-calendar-overview.png)
 
 ![Link Calendar Navigator daily agenda](docs/media/link-calendar-agenda.png)

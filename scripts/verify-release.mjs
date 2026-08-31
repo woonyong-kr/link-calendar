@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -14,6 +15,23 @@ const publicDocs = await Promise.all(
   ["README.md", "CHANGELOG.md", "CONTRIBUTING.md"].map((file) => readFile(file, "utf8")),
 );
 const styles = await readFile("styles.css", "utf8");
+const media = JSON.parse(await readFile("docs/release-media.json", "utf8"));
+const requiredMedia = [
+  "docs/media/link-calendar-demo.gif",
+  "docs/media/link-calendar-overview.png",
+  "docs/media/link-calendar-agenda.png",
+];
+
+const imageDimensions = (bytes, path) => {
+  if (bytes.subarray(0, 8).toString("hex") === "89504e470d0a1a0a") {
+    return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
+  }
+  if (["GIF87a", "GIF89a"].includes(bytes.subarray(0, 6).toString("ascii"))) {
+    return { width: bytes.readUInt16LE(6), height: bytes.readUInt16LE(8) };
+  }
+  errors.push(`${path} must contain real PNG or GIF bytes`);
+  return { width: 0, height: 0 };
+};
 
 const { stdout: trackedBundle } = await run("git", ["ls-files", "main.js"]);
 if (trackedBundle.trim()) errors.push("main.js must be a release asset, not a tracked source file");
@@ -29,6 +47,8 @@ if (!packageJson.repository?.url?.endsWith("woonyong-kr/link-calendar.git")) {
 if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) errors.push("manifest version must use exact x.y.z format");
 if (manifest.version !== packageJson.version) errors.push("manifest/package versions differ");
 if (versions[manifest.version] !== manifest.minAppVersion) errors.push("versions.json does not match manifest");
+if (media.version !== manifest.version) errors.push("release media version does not match manifest");
+if (media.publicSafeSample !== true) errors.push("release media must use public-safe sample content");
 if (manifest.minAppVersion !== "1.13.0") errors.push("declarative settings require minAppVersion 1.13.0");
 if (manifest.description.length > 250 || !manifest.description.endsWith(".")) {
   errors.push("manifest description must be at most 250 characters and end with a period");
@@ -77,6 +97,24 @@ for (const removedSelector of ["link-calendar__preview", "link-calendar__propert
 }
 if (source.some((content) => content.includes('setIcon(link, "arrow-up-right")'))) {
   errors.push("agenda links must use the visible note title, not an arrow icon");
+}
+const mediaRecords = new Map(media.assets.map((asset) => [asset.path, asset]));
+if (mediaRecords.size !== requiredMedia.length) errors.push("release media record is incomplete");
+for (const path of requiredMedia) {
+  const record = mediaRecords.get(path);
+  if (!record) {
+    errors.push(`release media record is missing ${path}`);
+    continue;
+  }
+  if (!publicDocs[0].includes(`](${path})`)) errors.push(`README does not embed ${path}`);
+  const bytes = await readFile(path);
+  const dimensions = imageDimensions(bytes, path);
+  if (dimensions.width < 1000 || dimensions.height < 500) errors.push(`${path} is too small`);
+  if (record.width !== dimensions.width || record.height !== dimensions.height) {
+    errors.push(`${path} dimensions are stale`);
+  }
+  const sha256 = createHash("sha256").update(bytes).digest("hex");
+  if (record.sha256 !== sha256) errors.push(`${path} SHA-256 is stale`);
 }
 
 if (errors.length) throw new Error(errors.join("\n"));
