@@ -1,7 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CalendarEvent, CalendarSettings, CalendarSnapshot } from "../src/model";
 import { LinkCalendarView, type CalendarActions } from "../src/view";
+
+const FIXED_NOW = new Date(2026, 7, 25, 12);
 
 function settings(): CalendarSettings {
   return {
@@ -85,6 +87,15 @@ async function settle(): Promise<void> {
 }
 
 describe("Link Calendar Navigator view", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(FIXED_NOW);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("renders loading, empty, and diagnostic error states", async () => {
     const loading = await openView(snapshot({ events: [], revision: 0 }));
     expect(loading.view.contentEl.querySelector(".is-loading")?.textContent).toContain(
