@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.5
+
+- Make the folder-picker callback explicitly return `void` for Community Directory source checks.
+- Preserve the familiar link affordance with a compatible bottom border instead of partially supported text-decoration properties.
+
 ## 3.1.4
 
 - Use the unique public name Link Calendar Navigator for the new `link-calendar` Community Directory entry while preserving the plugin ID and behavior.

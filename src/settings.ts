@@ -148,7 +148,9 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
               render: (setting) => {
                 let setFolderValue = (_value: string): void => undefined;
                 setting.addText((control) => {
-                  setFolderValue = (value) => control.setValue(value);
+                  setFolderValue = (value) => {
+                    control.setValue(value);
+                  };
                   control
                     .setPlaceholder(translate(locale, "calendarNotes"))
                     .setValue(draft.folder)

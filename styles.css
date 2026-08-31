@@ -584,9 +584,7 @@
   font-size: var(--cc-font-md);
   font-weight: var(--cc-weight-semibold);
   line-height: var(--cc-line-height);
-  text-decoration-line: underline;
-  text-decoration-thickness: from-font;
-  text-underline-offset: var(--cc-calendar-underline-offset);
+  border-bottom: var(--cc-calendar-grid-line) solid currentColor;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
