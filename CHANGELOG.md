@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.3.0
+
+- Add learning log, project deadline, meeting, and daily-note source presets while keeping every new source read-only.
+- Detect candidate date properties inside the chosen folder and preview the exact number of notes the selected property will recognize before setup.
+- Add an explicit **Show today** command and focus the current date after using the visible **Today** action.
+- Publish a private-data-free demo Vault, copyable frontmatter, issue templates, Roadmap, and Discussions path for a five-minute first success.
+
 ## 3.2.0
 
 - Make every newly configured source read-only until write access is explicitly enabled.

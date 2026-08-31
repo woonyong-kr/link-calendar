@@ -1,7 +1,7 @@
 export type LocaleId = "auto" | "en" | "ko";
 type WeekStart = "auto" | "sunday" | "monday";
 
-interface PropertyMap {
+export interface PropertyMap {
   allDay: string;
   category: string;
   end: string;

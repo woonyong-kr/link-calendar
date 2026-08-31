@@ -81,6 +81,15 @@ export class LinkCalendarView extends ItemView {
     this.render();
   }
 
+  showToday(focus = false): void {
+    const today = new Date();
+    this.month = new Date(today.getFullYear(), today.getMonth(), 1);
+    this.selectedDate = localDateKey(today);
+    this.selectedEventId = "";
+    this.render();
+    if (focus) window.requestAnimationFrame(() => this.focusSelectedDay());
+  }
+
   revealPath(path: string): boolean {
     const event = resolveEventPath(this.snapshot.events, path);
     if (!event) return false;
@@ -167,10 +176,7 @@ export class LinkCalendarView extends ItemView {
       text: translate(locale, "today"),
       attr: { type: "button" },
     }).addEventListener("click", () => {
-      const today = new Date();
-      this.month = new Date(today.getFullYear(), today.getMonth(), 1);
-      this.selectedDate = localDateKey(today);
-      this.render();
+      this.showToday(true);
     });
     header.createEl("h1", {
       cls: "link-calendar__title",

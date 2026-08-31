@@ -8,6 +8,8 @@ Link Calendar Navigator reads the date properties already in your Markdown and t
 
 ![Link Calendar Navigator walkthrough from a populated month to a selected day and its original Markdown links](docs/media/link-calendar-demo.gif)
 
+Want to try it without touching your notes? Download the [public demo Vault](https://github.com/woonyong-kr/obsidian-navigator-demo-vault/releases/latest) and follow its five-minute path.
+
 ## Is this for you?
 
 Use Link Calendar Navigator when:
@@ -53,6 +55,8 @@ It is intentionally for Markdown-first users who already record dates in notes a
 1. Install and enable **Link Calendar Navigator** from Community plugins.
 2. Run **Open Link Calendar Navigator** or select the calendar ribbon icon.
 3. Choose a folder containing Markdown notes with a date property.
+4. Pick the closest preset: **Learning log**, **Project deadlines**, **Meetings**, or **Daily notes**.
+5. Confirm the detected date property and the exact number of notes that will appear, then add the source. New sources remain read-only until you explicitly enable writes.
 
 Only a date is required:
 
@@ -69,6 +73,8 @@ category: Learning
 
 The default mappings are `date`, `end`, `startTime`, `endTime`, `allDay`, `title`, and `category`. Each source can use different property names. An optional tag can narrow a configured folder but never expands the indexed scope.
 
+The demo Vault includes [copyable examples for all four presets](https://github.com/woonyong-kr/obsidian-navigator-demo-vault#copyable-frontmatter).
+
 ## Navigation
 
 - Select a day or event dot to open the daily agenda.
@@ -77,6 +83,7 @@ The default mappings are `date`, `end`, `startTime`, `endTime`, `allDay`, `title
 - Run **Reveal active note in calendar** to locate the current dated note.
 - Use arrow keys on the month grid to move the selected day; `Enter` or `Space` opens its agenda.
 - Press `Escape` to close the agenda and return focus to the selected event dot or day.
+- Select **Today** or run **Show today in Link Calendar Navigator** to return to the current month and focus the current date.
 
 ## Writable sources
 
@@ -111,6 +118,8 @@ npm run verify
 The verification gate runs TypeScript, Obsidian lint, unused-code checks, unit and DOM tests, visual-fixture checks, a production build, and release validation.
 
 The checked light/dark surfaces and removed UI are recorded in [design QA](docs/design-qa.md).
+
+See the public [Roadmap](ROADMAP.md), report a [bug or use case](https://github.com/woonyong-kr/link-calendar/issues/new/choose), or discuss a workflow in [Discussions](https://github.com/woonyong-kr/link-calendar/discussions).
 
 ## 한국어 요약
 

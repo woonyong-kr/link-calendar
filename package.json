@@ -1,6 +1,6 @@
 {
   "name": "link-calendar",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Turn existing date properties into a month view and open the original Markdown in one click.",
   "main": "main.js",
   "scripts": {

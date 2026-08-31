@@ -155,6 +155,21 @@ describe("Link Calendar Navigator view", () => {
     expect(document.activeElement).toBe(next);
   });
 
+  it("returns to today from both the visible action and the public command target", async () => {
+    const { view } = await openView(snapshot());
+    const today = view.contentEl.querySelector<HTMLElement>('[role="gridcell"][aria-current="date"]');
+    expect(today).not.toBeNull();
+
+    view.contentEl.querySelector<HTMLButtonElement>(".link-calendar__today")?.click();
+    await settle();
+    expect(view.contentEl.querySelector('[role="gridcell"][aria-selected="true"]')?.getAttribute("aria-current"))
+      .toBe("date");
+
+    view.showToday(true);
+    await settle();
+    expect(document.activeElement?.getAttribute("aria-current")).toBe("date");
+  });
+
   it("distinguishes a filtered-empty month and restores it without changing notes", async () => {
     const { view } = await openView(snapshot());
     const search = view.contentEl.querySelector<HTMLInputElement>(".link-calendar__search input");

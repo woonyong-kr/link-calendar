@@ -25,12 +25,17 @@ import {
   type CalendarSettings,
   type SourceProfile,
   DEFAULT_SETTINGS,
-  createProfile,
   dateKey,
   isRecord,
   normalizeSettings,
   serializeSettings,
 } from "./model";
+import {
+  type SourcePresetId,
+  SOURCE_PRESETS,
+  createPresetProfile,
+  detectedStartProperty,
+} from "./onboarding";
 import {
   type EventDraft,
   canCreateWithProfile,
@@ -82,6 +87,11 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
       id: "open-month",
       name: translate(this.settings.locale, "openCalendar"),
       callback: () => void this.openCalendar(),
+    });
+    this.addCommand({
+      id: "show-today",
+      name: translate(this.settings.locale, "showToday"),
+      callback: () => void this.openCalendar("", true),
     });
     this.addCommand({
       id: "create-event-note",
@@ -215,7 +225,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
     settings.openTabById(this.manifest.id);
   }
 
-  private async openCalendar(revealPath = ""): Promise<void> {
+  private async openCalendar(revealPath = "", showToday = false): Promise<void> {
     let leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE)[0];
     if (!leaf) {
       leaf = this.app.workspace.getLeaf("tab");
@@ -226,7 +236,8 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
     const view = leaf.view;
     if (view instanceof LinkCalendarView) {
       view.setSnapshot(this.index.snapshot());
-      if (revealPath) view.revealPath(revealPath);
+      if (showToday) view.showToday(true);
+      else if (revealPath) view.revealPath(revealPath);
     }
   }
 
@@ -257,8 +268,12 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
       this.settings.locale,
       folder,
       detection,
-      async (startProperty) => {
-        const profile = createProfile(folder.path);
+      async (presetId, startProperty) => {
+        const profile = createPresetProfile(
+          folder.path,
+          presetId,
+          detection.dateProperties.map((item) => item.name),
+        );
         profile.properties.start = startProperty;
         this.settings.profiles.push(profile);
         await this.saveSettings(true);
@@ -491,6 +506,7 @@ class FolderSuggestModal extends FuzzySuggestModal<TFolder> {
 }
 
 class SourcePreviewModal extends Modal {
+  private presetId: SourcePresetId = "learning-log";
   private startProperty: string;
 
   constructor(
@@ -498,7 +514,7 @@ class SourcePreviewModal extends Modal {
     private readonly locale: CalendarSettings["locale"],
     private readonly folder: TFolder,
     private readonly detection: SourceDetection,
-    private readonly submit: (startProperty: string) => Promise<void>,
+    private readonly submit: (presetId: SourcePresetId, startProperty: string) => Promise<void>,
   ) {
     super(app);
     this.startProperty = detection.suggestedStart || "date";
@@ -506,16 +522,38 @@ class SourcePreviewModal extends Modal {
 
   override onOpen(): void {
     this.titleEl.setText(translate(this.locale, "sourcePreview"));
+    this.renderContent();
+  }
+
+  private renderContent(): void {
+    this.contentEl.empty();
     this.contentEl.createEl("p", {
       cls: "link-calendar-source-preview__folder",
       text: this.folder.path,
     });
-    this.contentEl.createEl("p", {
+    const summary = this.contentEl.createEl("p", {
       text: formatMessage(this.locale, "sourcePreviewSummary", {
-        dated: String(this.detection.datedNoteCount),
+        dated: String(this.detectedCount()),
+        property: this.startProperty,
         total: String(this.detection.noteCount),
       }),
     });
+    new Setting(this.contentEl)
+      .setName(translate(this.locale, "sourcePreset"))
+      .setDesc(translate(this.locale, "sourcePresetDesc"))
+      .addDropdown((control) => {
+        control.addOptions(Object.fromEntries(SOURCE_PRESETS.map((preset) => [
+          preset.id,
+          translate(this.locale, presetMessage(preset.id)),
+        ]))).setValue(this.presetId).onChange((value) => {
+          this.presetId = value as SourcePresetId;
+          this.startProperty = detectedStartProperty(
+            this.presetId,
+            this.detection.dateProperties.map((item) => item.name),
+          );
+          this.renderContent();
+        });
+      });
     new Setting(this.contentEl)
       .setName(translate(this.locale, "startDate"))
       .setDesc(translate(this.locale, "detectedDateProperty"))
@@ -528,9 +566,14 @@ class SourcePreviewModal extends Modal {
           : { date: "date (0)" };
         control.addOptions(options).setValue(this.startProperty).onChange((value) => {
           this.startProperty = value;
+          summary.setText(formatMessage(this.locale, "sourcePreviewSummary", {
+            dated: String(this.detectedCount()),
+            property: this.startProperty,
+            total: String(this.detection.noteCount),
+          }));
         });
       });
-    if (!this.detection.datedNoteCount) {
+    if (!this.detectedCount()) {
       this.contentEl.createEl("p", {
         cls: "link-calendar-source-preview__warning",
         text: translate(this.locale, "noDatedNotes"),
@@ -538,11 +581,26 @@ class SourcePreviewModal extends Modal {
     }
     new Setting(this.contentEl).addButton((button) => {
       button.setButtonText(translate(this.locale, "addSource")).setCta().onClick(async () => {
-        await this.submit(this.startProperty);
+        await this.submit(this.presetId, this.startProperty);
         this.close();
       });
     });
   }
+
+  private detectedCount(): number {
+    return this.detection.dateProperties.find((item) => item.name === this.startProperty)?.count ?? 0;
+  }
+}
+
+function presetMessage(presetId: SourcePresetId):
+  | "presetDailyNote"
+  | "presetLearningLog"
+  | "presetMeeting"
+  | "presetProjectDeadline" {
+  if (presetId === "daily-note") return "presetDailyNote";
+  if (presetId === "meeting") return "presetMeeting";
+  if (presetId === "project-deadline") return "presetProjectDeadline";
+  return "presetLearningLog";
 }
 
 class CalendarEmbedChild extends MarkdownRenderChild {

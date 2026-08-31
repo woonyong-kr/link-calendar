@@ -1,0 +1,26 @@
+name: Use case
+description: Propose a focused dated-Markdown navigation workflow.
+title: "[Use case]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Current workflow
+      description: What dated Markdown do you keep, and where does navigation break down?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Smallest useful outcome
+      description: Describe the navigation result without turning the plugin into a shared calendar.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundary
+    attributes:
+      label: Product boundary
+      options:
+        - label: The original Markdown remains canonical and the use case needs no remote service or telemetry.
+          required: true
