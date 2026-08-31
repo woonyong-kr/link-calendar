@@ -61,6 +61,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
   private refreshQueued = false;
   private refreshTimer: number | null = null;
   private lastMove: MoveUndoReceipt | null = null;
+  private settingsTab!: LinkCalendarSettingTab;
 
   override async onload(): Promise<void> {
     this.settings = normalizeSettings(await this.loadData());
@@ -111,12 +112,14 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
         return true;
       },
     });
-    this.addSettingTab(new LinkCalendarSettingTab(this.app, this));
+    this.settingsTab = new LinkCalendarSettingTab(this.app, this);
+    this.addSettingTab(this.settingsTab);
     this.registerMarkdownCodeBlockProcessor(CODE_BLOCK, (source, element, context) => {
       context.addChild(new CalendarEmbedChild(element, this, source));
     });
     this.app.workspace.onLayoutReady(() => {
       this.index.rebuild();
+      this.settingsTab.update();
       this.publishSnapshot();
       this.registerIndexEvents();
     });
