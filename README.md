@@ -1,18 +1,41 @@
 # Link Calendar Navigator
 
-Link Calendar Navigator turns date properties already written in Markdown into a month view and a compact daily agenda. Select a date, then open the canonical note directly.
+**Find every dated note without moving it into another calendar.**
 
-**Month → date → canonical note.**
+Link Calendar Navigator reads the date properties already in your Markdown and turns them into a month view. Pick a day, review its notes, and open the original file in one click.
 
-![Link Calendar Navigator animated month-to-agenda walkthrough](docs/media/link-calendar-demo.gif)
+**Month → date → original Markdown.**
+
+![Link Calendar Navigator walkthrough from a populated month to a selected day and its original Markdown links](docs/media/link-calendar-demo.gif)
+
+## Is this for you?
+
+Use Link Calendar Navigator when:
+
+- your project notes, meetings, learning logs, or journals already contain date properties;
+- you want a compact month overview without creating a second calendar database;
+- selecting an event should open the real Markdown note, not a copied detail card;
+- different folders use different property names or write permissions.
+
+It is intentionally a Markdown navigator. It is not a shared calendar, meeting scheduler, reminder service, or replacement for an external calendar.
+
+## The three-step workflow
+
+1. **Scan a month.** Quiet dots show which dates have notes.
+2. **Choose a day.** A compact agenda lists only the notes on that date.
+3. **Open the source.** The visible title link opens the original Markdown immediately.
+
+Nothing is imported into a plugin-owned database. Removing the plugin leaves every note and date property intact.
+
+## What it looks like
 
 ![Link Calendar Navigator month view](docs/media/link-calendar-overview.png)
 
 ![Link Calendar Navigator daily agenda](docs/media/link-calendar-agenda.png)
 
-## Why use it
+## Why use it instead of a general calendar?
 
-Obsidian's native Graph answers “what links to what.” Link Calendar Navigator answers “what happened when” without creating a second calendar database.
+General calendar plugins are designed to manage schedules. Link Calendar Navigator is designed to find existing Markdown by time.
 
 - Existing Markdown stays canonical.
 - Configured folders provide explicit privacy and performance boundaries.
@@ -21,16 +44,15 @@ Obsidian's native Graph answers “what links to what.” Link Calendar Navigato
 - Search and source filters narrow the current month without modifying notes.
 - Optional creation and drag-to-move update the canonical note only for sources explicitly marked writable.
 
-Link Calendar Navigator does not store relationships, copy note bodies, render backlinks, or maintain a second layout. The daily agenda is derived from the current Vault and can always be rebuilt.
+Link Calendar Navigator does not store relationships, copy note bodies, render backlinks, or maintain a second layout. The month and agenda are derived from the current Vault and can always be rebuilt.
 
 It is intentionally for Markdown-first users who already record dates in notes and want a calendar as a navigation surface. It is not intended to replace a shared calendar, meeting scheduler, or notification service.
 
 ## Setup
 
-1. Install `main.js`, `manifest.json`, and `styles.css` in `.obsidian/plugins/link-calendar/`.
-2. Enable **Link Calendar Navigator**.
-3. Run **Open Link Calendar Navigator** or select the calendar ribbon icon.
-4. Choose a folder containing Markdown notes with a date property.
+1. Install and enable **Link Calendar Navigator** from Community plugins.
+2. Run **Open Link Calendar Navigator** or select the calendar ribbon icon.
+3. Choose a folder containing Markdown notes with a date property.
 
 Only a date is required:
 

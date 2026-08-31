@@ -1,9 +1,9 @@
 {
   "id": "link-calendar",
   "name": "Link Calendar Navigator",
-  "version": "3.1.6",
+  "version": "3.1.7",
   "minAppVersion": "1.13.0",
-  "description": "Navigate dated Markdown by month and open canonical notes from a compact daily agenda.",
+  "description": "Turn existing date properties into a month view and open the original Markdown in one click.",
   "author": "Woonyong Choi",
   "authorUrl": "https://github.com/woonyong-kr",
   "isDesktopOnly": false

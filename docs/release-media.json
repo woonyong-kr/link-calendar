@@ -1,5 +1,5 @@
 {
-  "version": "3.1.6",
+  "version": "3.1.7",
   "capturedWith": "Obsidian 1.13.7",
   "capturedAt": "2026-08-31",
   "publicSafeSample": true,
@@ -8,7 +8,7 @@
       "path": "docs/media/link-calendar-demo.gif",
       "width": 1000,
       "height": 500,
-      "sha256": "fb05f86a5feb22ff5f208594b9a1528f607768c7dd7df6a9f6750c813ab97cd2"
+      "sha256": "6e8617f675614abd34bcf470600c3435d66c8141cbde8cbe2f938fa2ca24abcb"
     },
     {
       "path": "docs/media/link-calendar-overview.png",

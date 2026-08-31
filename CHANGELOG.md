@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.7
+
+- Reframe the public page around finding existing dated Markdown without creating a second calendar database.
+- Replace PKM-specific terminology with a three-step month-to-original-note explanation.
+- Recut the public walkthrough to move from the full month to the selected date and finally the original note links.
+
 ## 3.1.6
 
 - Add a public-safe animated walkthrough from month overview to the canonical-note agenda.
