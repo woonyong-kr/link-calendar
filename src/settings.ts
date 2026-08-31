@@ -110,6 +110,12 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
     const locale = this.host.settings.locale;
     const draft = structuredClone(profile);
     const health = this.host.sourceHealth(profile);
+    const healthSummary = formatMessage(locale, "sourceHealth", {
+      invalid: String(health.invalid),
+      missing: String(health.missing),
+      total: String(health.total),
+      valid: String(health.valid),
+    });
     const fields = [
       ["start", translate(locale, "startDate")],
       ["end", translate(locale, "endDate")],
@@ -122,17 +128,16 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
     return {
       type: "page",
       name: profile.name || translate(locale, "calendarSource"),
-      desc: profile.enabled
-        ? formatMessage(locale, "sourceHealth", {
-            invalid: String(health.invalid),
-            missing: String(health.missing),
-            total: String(health.total),
-            valid: String(health.valid),
-          })
-        : translate(locale, "disabled"),
-      displayValue: profile.folder || translate(locale, "folderRequired"),
+      desc: profile.enabled ? healthSummary : translate(locale, "disabled"),
+      displayValue: profile.enabled
+        ? `${profile.folder || translate(locale, "folderRequired")} · ${healthSummary}`
+        : profile.folder || translate(locale, "folderRequired"),
       status: validateProfile(profile) || health.invalid || health.missing ? "warning" : null,
       items: [
+        {
+          name: translate(locale, "sourceHealthLabel"),
+          desc: healthSummary,
+        },
         {
           type: "group",
           items: [
