@@ -5,6 +5,7 @@ import {
   MAX_EVENT_SPAN_DAYS,
   categoryToken,
   categoryToneMap,
+  createProfile,
   dateKey,
   eachDate,
   isSafeVaultPath,
@@ -41,6 +42,19 @@ describe("calendar dates", () => {
 });
 
 describe("settings boundary", () => {
+  it("creates and normalizes new sources as read-only unless write access is explicit", () => {
+    expect(createProfile("Calendar").editable).toBe(false);
+    expect(normalizeSettings({
+      sourceProfiles: [{
+        enabled: true,
+        id: "implicit",
+        name: "Implicit",
+        properties: { start: "date" },
+        source: { path: "Calendar", type: "folder" },
+      }],
+    }).profiles[0]?.editable).toBe(false);
+  });
+
   it("rejects path traversal and absolute source paths", () => {
     expect(isSafeVaultPath("calendar/events")).toBe(true);
     expect(isSafeVaultPath("../events")).toBe(false);

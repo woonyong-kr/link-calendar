@@ -27,6 +27,13 @@ export interface SourceDetection {
   suggestedStart: string;
 }
 
+export interface SourceHealth {
+  invalid: number;
+  missing: number;
+  total: number;
+  valid: number;
+}
+
 export class CalendarIndex {
   private readonly notes = new Map<string, IndexedNote>();
   private profiles: SourceProfile[];
@@ -252,6 +259,29 @@ export function detectSourceFolder(
     noteCount: files.size,
     suggestedStart,
   };
+}
+
+export function inspectSourceHealth(
+  vault: Vault,
+  metadataCache: MetadataCache,
+  profile: SourceProfile,
+): SourceHealth {
+  const folder = profile.folder ? vault.getFolderByPath(profile.folder) : null;
+  if (!folder) return { invalid: 0, missing: 0, total: 0, valid: 0 };
+  const files = new Map<string, TFile>();
+  collectMarkdownFiles(folder, profile.recursive, files);
+  const health: SourceHealth = { invalid: 0, missing: 0, total: 0, valid: 0 };
+  for (const file of files.values()) {
+    const cache = metadataCache.getFileCache(file);
+    if (!matchesProfile(file, cache, profile)) continue;
+    health.total += 1;
+    const frontmatter = isRecord(cache?.frontmatter) ? cache.frontmatter : {};
+    const rawStart = readField(frontmatter, profile.properties.start);
+    if (rawStart === undefined) health.missing += 1;
+    else if (dateKey(rawStart)) health.valid += 1;
+    else health.invalid += 1;
+  }
+  return health;
 }
 
 function datePropertyPriority(name: string): number {

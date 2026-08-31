@@ -77,7 +77,7 @@ export const DEFAULT_SETTINGS: CalendarSettings = {
 export function createProfile(folder = ""): SourceProfile {
   const normalized = normalizeVaultPath(folder);
   return {
-    editable: true,
+    editable: false,
     enabled: true,
     folder: normalized,
     id: crypto.randomUUID(),
@@ -141,7 +141,7 @@ function normalizeProfile(value: unknown): SourceProfile | null {
   if (!folder && !tag) return null;
   const source = isRecord(value.properties) ? value.properties : {};
   return {
-    editable: value.editable !== false,
+    editable: value.editable === true,
     enabled: Boolean(folder) && value.enabled !== false,
     folder,
     id: stringValue(value.id) || crypto.randomUUID(),
@@ -167,6 +167,25 @@ export function normalizeVaultPath(value: string): string {
 export function isSafeVaultPath(value: string): boolean {
   const normalized = normalizeVaultPath(value);
   return Boolean(normalized) && !value.startsWith("/") && !normalized.split("/").includes("..");
+}
+
+const RESERVED_PROPERTY_NAMES = new Set(["__proto__", "constructor", "prototype"]);
+const MAX_PROPERTY_NAME_LENGTH = 128;
+
+export function isSafePropertyName(value: string, required = false): boolean {
+  const normalized = value.trim();
+  if (!normalized) return !required;
+  return normalized.length <= MAX_PROPERTY_NAME_LENGTH
+    && !hasControlCharacter(normalized)
+    && !RESERVED_PROPERTY_NAMES.has(normalized.toLocaleLowerCase());
+}
+
+function hasControlCharacter(value: string): boolean {
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    if (code <= 31 || code === 127) return true;
+  }
+  return false;
 }
 
 export function dateKey(value: unknown): string | null {

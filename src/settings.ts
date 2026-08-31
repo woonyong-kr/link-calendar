@@ -8,7 +8,8 @@ import {
   type TFolder,
 } from "obsidian";
 
-import { type MessageKey, translate } from "./i18n";
+import { type SourceHealth } from "./index";
+import { type MessageKey, formatMessage, translate } from "./i18n";
 import { type CalendarSettings, type SourceProfile, createProfile } from "./model";
 import { type ProfileValidation, validateProfile } from "./policy";
 
@@ -17,6 +18,7 @@ export interface SettingsHost {
   settings: CalendarSettings;
   saveSettings(rebuildIndex?: boolean): Promise<void>;
   chooseFolder(onChoose: (folder: TFolder) => void): void;
+  sourceHealth(profile: SourceProfile): SourceHealth;
 }
 
 export class LinkCalendarSettingTab extends PluginSettingTab {
@@ -107,6 +109,7 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
   private profilePage(profile: SourceProfile): SettingDefinitionPage {
     const locale = this.host.settings.locale;
     const draft = structuredClone(profile);
+    const health = this.host.sourceHealth(profile);
     const fields = [
       ["start", translate(locale, "startDate")],
       ["end", translate(locale, "endDate")],
@@ -119,9 +122,16 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
     return {
       type: "page",
       name: profile.name || translate(locale, "calendarSource"),
-      desc: translate(locale, profile.enabled ? "included" : "disabled"),
+      desc: profile.enabled
+        ? formatMessage(locale, "sourceHealth", {
+            invalid: String(health.invalid),
+            missing: String(health.missing),
+            total: String(health.total),
+            valid: String(health.valid),
+          })
+        : translate(locale, "disabled"),
       displayValue: profile.folder || translate(locale, "folderRequired"),
-      status: validateProfile(profile) ? "warning" : null,
+      status: validateProfile(profile) || health.invalid || health.missing ? "warning" : null,
       items: [
         {
           type: "group",
@@ -236,6 +246,7 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
 }
 
 function validationMessage(value: ProfileValidation): MessageKey {
+  if (value === "invalid-property") return "invalidProperty";
   if (value === "missing-start") return "missingStart";
   if (value === "unsafe-folder") return "invalidFolder";
   return "missingSource";

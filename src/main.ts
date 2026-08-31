@@ -15,7 +15,9 @@ import {
 import {
   CalendarIndex,
   type SourceDetection,
+  type SourceHealth,
   detectSourceFolder,
+  inspectSourceHealth,
   selectProfileFromFrontmatter,
 } from "./index";
 import { formatMessage, translate } from "./i18n";
@@ -35,6 +37,8 @@ import {
   canCreateWithProfile,
   embedSource,
   eventFrontmatter,
+  frontmatterMatchesChanges,
+  frontmatterMatchesEventDates,
   planMoveFrontmatter,
   resolveEventPath,
   writableProfiles,
@@ -44,12 +48,20 @@ import { LinkCalendarView, VIEW_TYPE, type CalendarActions } from "./view";
 
 const CODE_BLOCK = "link-calendar";
 
+interface MoveUndoReceipt {
+  expected: Record<string, unknown>;
+  filePath: string;
+  profileId: string;
+  restore: Record<string, unknown>;
+}
+
 export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
   override settings: CalendarSettings = structuredClone(DEFAULT_SETTINGS);
   private index!: CalendarIndex;
   private readonly listeners = new Set<() => void>();
   private refreshQueued = false;
   private refreshTimer: number | null = null;
+  private lastMove: MoveUndoReceipt | null = null;
 
   override async onload(): Promise<void> {
     this.settings = normalizeSettings(await this.loadData());
@@ -88,6 +100,15 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
         const path = this.app.workspace.getActiveFile()?.path;
         if (!path || !resolveEventPath(this.index.snapshot().events, path)) return false;
         if (!checking) void this.openCalendar(path);
+        return true;
+      },
+    });
+    this.addCommand({
+      id: "undo-last-date-move",
+      name: translate(this.settings.locale, "undoLastMove"),
+      checkCallback: (checking) => {
+        if (!this.lastMove) return false;
+        if (!checking) void this.undoMove(this.lastMove);
         return true;
       },
     });
@@ -215,6 +236,10 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
     ).open();
   }
 
+  sourceHealth(profile: SourceProfile): SourceHealth {
+    return inspectSourceHealth(this.app.vault, this.app.metadataCache, profile);
+  }
+
   private detectSource(folder: string, recursive: boolean): SourceDetection {
     return detectSourceFolder(this.app.vault, this.app.metadataCache, folder, recursive);
   }
@@ -301,6 +326,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
     const file = this.app.vault.getAbstractFileByPath(event.filePath);
     if (!profile || !(file instanceof TFile)) return;
     let updated: Record<string, unknown> | undefined;
+    let undoReceipt: MoveUndoReceipt | undefined;
     try {
       await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
         const target = frontmatter as Record<string, unknown>;
@@ -310,20 +336,80 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
           current,
           this.settings.profiles,
         );
+        if (!frontmatterMatchesEventDates(event, profile, current)) {
+          throw new EventMutationConflict();
+        }
         const changes = planMoveFrontmatter(event, profile, selected, current, targetDate);
         if (!changes) {
           throw new EventMutationRejected();
         }
+        undoReceipt = {
+          expected: structuredClone(changes),
+          filePath: file.path,
+          profileId: profile.id,
+          restore: Object.fromEntries(Object.keys(changes).map((key) => [key, current[key]])),
+        };
         Object.assign(target, changes);
         updated = structuredClone(target);
       });
       this.index.update(file, updated);
       this.publishSnapshot();
+      if (undoReceipt) {
+        this.lastMove = undoReceipt;
+        this.showUndoNotice(undoReceipt);
+      }
     } catch (error) {
       new Notice(translate(
         this.settings.locale,
-        error instanceof EventMutationRejected ? "readOnly" : "moveFailed",
+        error instanceof EventMutationConflict
+          ? "moveConflict"
+          : error instanceof EventMutationRejected ? "readOnly" : "moveFailed",
       ));
+    }
+  }
+
+  private showUndoNotice(receipt: MoveUndoReceipt): void {
+    const fragment = createFragment();
+    fragment.append(document.createTextNode(`${translate(this.settings.locale, "moveComplete")} `));
+    const button = createEl("button");
+    button.type = "button";
+    button.textContent = translate(this.settings.locale, "undo");
+    fragment.append(button);
+    const notice = new Notice(fragment, 8_000);
+    button.addEventListener("click", () => {
+      notice.hide();
+      void this.undoMove(receipt);
+    });
+  }
+
+  private async undoMove(receipt: MoveUndoReceipt): Promise<void> {
+    if (this.lastMove !== receipt) return;
+    const profile = this.settings.profiles.find((candidate) => candidate.id === receipt.profileId);
+    const file = this.app.vault.getAbstractFileByPath(receipt.filePath);
+    if (!profile || !(file instanceof TFile) || writableProfiles([profile]).length !== 1) {
+      this.lastMove = null;
+      new Notice(translate(this.settings.locale, "undoConflict"));
+      return;
+    }
+    let updated: Record<string, unknown> | undefined;
+    try {
+      await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+        const target = frontmatter as Record<string, unknown>;
+        const current = structuredClone(target);
+        const selected = selectProfileFromFrontmatter(file, current, this.settings.profiles);
+        if (selected?.id !== profile.id || !frontmatterMatchesChanges(current, receipt.expected)) {
+          throw new EventMutationConflict();
+        }
+        Object.assign(target, receipt.restore);
+        updated = structuredClone(target);
+      });
+      this.lastMove = null;
+      this.index.update(file, updated);
+      this.publishSnapshot();
+      new Notice(translate(this.settings.locale, "undoComplete"));
+    } catch {
+      this.lastMove = null;
+      new Notice(translate(this.settings.locale, "undoConflict"));
     }
   }
 
@@ -370,6 +456,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
 }
 
 class EventMutationRejected extends Error {}
+class EventMutationConflict extends Error {}
 
 class FolderSuggestModal extends FuzzySuggestModal<TFolder> {
   constructor(

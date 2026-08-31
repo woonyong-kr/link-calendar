@@ -4,6 +4,7 @@ import {
   calendarDayDifference,
   dateKey,
   findFieldKey,
+  isSafePropertyName,
   isSafeVaultPath,
   normalizeVaultPath,
   readField,
@@ -20,12 +21,23 @@ export interface EventFilters {
   query: string;
 }
 
-export type ProfileValidation = "missing-source" | "missing-start" | "unsafe-folder";
+export type ProfileValidation = "invalid-property" | "missing-source" | "missing-start" | "unsafe-folder";
 
 export function validateProfile(profile: SourceProfile): ProfileValidation | null {
   if (!profile.folder) return "missing-source";
   if (!isSafeVaultPath(profile.folder)) return "unsafe-folder";
   if (!profile.properties.start.trim()) return "missing-start";
+  if (!isSafePropertyName(profile.properties.start, true)
+    || [
+      profile.properties.allDay,
+      profile.properties.category,
+      profile.properties.end,
+      profile.properties.endTime,
+      profile.properties.startTime,
+      profile.properties.title,
+    ].some((value) => !isSafePropertyName(value))) {
+    return "invalid-property";
+  }
   return null;
 }
 
@@ -70,6 +82,7 @@ export function planMoveFrontmatter(
   if (!profile || !dateKey(targetDate) || !canMoveEvent(event, profile, selectedProfile?.id === profile.id)) {
     return null;
   }
+  if (!frontmatterMatchesEventDates(event, profile, frontmatter)) return null;
   const startKey = findFieldKey(frontmatter, profile.properties.start);
   const currentStart = dateKey(readField(frontmatter, profile.properties.start));
   if (!startKey || !currentStart) return null;
@@ -83,6 +96,31 @@ export function planMoveFrontmatter(
   if (!currentEnd || currentEnd < currentStart) return null;
   changes[endKey] = addDays(targetDate, calendarDayDifference(currentStart, currentEnd));
   return changes;
+}
+
+export function frontmatterMatchesEventDates(
+  event: CalendarEvent,
+  profile: SourceProfile,
+  frontmatter: Record<string, unknown>,
+): boolean {
+  const currentStart = dateKey(readField(frontmatter, profile.properties.start));
+  if (currentStart !== event.startDate) return false;
+  const endField = profile.properties.end.trim();
+  const endKey = endField ? findFieldKey(frontmatter, endField) : null;
+  if (!endKey) return event.endDate === event.startDate;
+  return dateKey(frontmatter[endKey]) === event.endDate;
+}
+
+export function frontmatterMatchesChanges(
+  frontmatter: Record<string, unknown>,
+  expected: Record<string, unknown>,
+): boolean {
+  return Object.entries(expected).every(([name, value]) => {
+    const key = findFieldKey(frontmatter, name);
+    if (!key) return false;
+    const expectedDate = dateKey(value);
+    return expectedDate ? dateKey(frontmatter[key]) === expectedDate : Object.is(frontmatter[key], value);
+  });
 }
 
 export function eventFrontmatter(profile: SourceProfile, draft: EventDraft): Record<string, unknown> {

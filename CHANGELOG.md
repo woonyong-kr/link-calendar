@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.2.0
+
+- Make every newly configured source read-only until write access is explicitly enabled.
+- Reject stale drag updates and provide a one-time, conflict-checked Undo for successful date moves.
+- Reject reserved, controlled, or oversized frontmatter property names before any mutation.
+- Show valid, missing, invalid, and total date counts for each configured source.
+- Pin GitHub Actions, add least-privilege dependency review, and enable Dependabot for npm and workflow updates.
+
 ## 3.1.7
 
 - Reframe the public page around finding existing dated Markdown without creating a second calendar database.

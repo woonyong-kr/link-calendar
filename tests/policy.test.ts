@@ -8,6 +8,8 @@ import {
   embedSource,
   eventFrontmatter,
   filterCalendarEvents,
+  frontmatterMatchesChanges,
+  frontmatterMatchesEventDates,
   gridMovement,
   matchesEventQuery,
   planMoveFrontmatter,
@@ -36,6 +38,8 @@ describe("mutation policy", () => {
   it("requires an enabled writable folder and a non-empty start property", () => {
     const profile = createProfile("Calendar");
     profile.id = "calendar";
+    expect(profile.editable).toBe(false);
+    profile.editable = true;
     expect(validateProfile(profile)).toBeNull();
     expect(writableProfiles([profile])).toEqual([profile]);
     profile.enabled = false;
@@ -53,9 +57,20 @@ describe("mutation policy", () => {
     expect(writableProfiles([profile])).toEqual([]);
   });
 
+  it("rejects reserved, controlled, and oversized frontmatter property names", () => {
+    const profile = createProfile("Calendar");
+    profile.properties.title = "__proto__";
+    expect(validateProfile(profile)).toBe("invalid-property");
+    profile.properties.title = `title${String.fromCharCode(10)}unsafe`;
+    expect(validateProfile(profile)).toBe("invalid-property");
+    profile.properties.title = "x".repeat(129);
+    expect(validateProfile(profile)).toBe("invalid-property");
+  });
+
   it("rechecks current source capability before moving", () => {
     const profile = createProfile("Calendar");
     profile.id = "calendar";
+    profile.editable = true;
     expect(canMoveEvent(event(), profile, true)).toBe(true);
     profile.editable = false;
     expect(canMoveEvent(event(), profile, true)).toBe(false);
@@ -66,6 +81,7 @@ describe("mutation policy", () => {
   it("preserves an explicit zero-day end while moving", () => {
     const profile = createProfile("Calendar");
     profile.id = "calendar";
+    profile.editable = true;
     expect(planMoveFrontmatter(
       event(),
       profile,
@@ -85,6 +101,7 @@ describe("mutation policy", () => {
   it("does not add an end field that was not present", () => {
     const profile = createProfile("Calendar");
     profile.id = "calendar";
+    profile.editable = true;
     expect(planMoveFrontmatter(
       event(),
       profile,
@@ -97,6 +114,7 @@ describe("mutation policy", () => {
   it("fails closed when current ownership or dates no longer match", () => {
     const profile = createProfile("Calendar");
     profile.id = "calendar";
+    profile.editable = true;
     const readOnly = createProfile("Calendar");
     readOnly.id = "generated";
     readOnly.editable = false;
@@ -116,9 +134,36 @@ describe("mutation policy", () => {
     )).toBeNull();
   });
 
+  it("rejects a stale calendar snapshot before changing the current note", () => {
+    const profile = createProfile("Calendar");
+    profile.id = "calendar";
+    profile.editable = true;
+    expect(frontmatterMatchesEventDates(event(), profile, { date: "2026-08-18" })).toBe(true);
+    expect(frontmatterMatchesEventDates(event(), profile, { date: "2026-08-19" })).toBe(false);
+    expect(planMoveFrontmatter(
+      event(),
+      profile,
+      profile,
+      { date: "2026-08-19" },
+      "2026-08-20",
+    )).toBeNull();
+  });
+
+  it("requires exact post-move values before undo can restore them", () => {
+    expect(frontmatterMatchesChanges(
+      { Date: "2026-08-20", End: "2026-08-21" },
+      { date: "2026-08-20", end: "2026-08-21" },
+    )).toBe(true);
+    expect(frontmatterMatchesChanges(
+      { date: "2026-08-22" },
+      { date: "2026-08-20" },
+    )).toBe(false);
+  });
+
   it("allows creation only when the effective source remains writable", () => {
     const writable = createProfile("Calendar");
     writable.id = "writable";
+    writable.editable = true;
     const readOnly = createProfile("Calendar");
     readOnly.id = "read-only";
     readOnly.editable = false;

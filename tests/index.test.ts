@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   CalendarIndex,
   detectSourceFolder,
+  inspectSourceHealth,
   matchesProfile,
   readField,
   selectProfile,
@@ -58,6 +59,7 @@ function fixture() {
   };
   const profile = createProfile("Calendar");
   profile.id = "calendar";
+  profile.editable = true;
   profile.properties = {
     allDay: "All Day",
     category: "Category",
@@ -219,6 +221,12 @@ describe("source detection", () => {
     expect(detection.suggestedStart).toBe("Date");
   });
 
+  it("reports valid, missing, and invalid configured dates per source", () => {
+    const { metadataCache, profile, vault } = fixture();
+    const health = inspectSourceHealth(vault as never, metadataCache as never, profile);
+    expect(health).toEqual({ invalid: 1, missing: 0, total: 2, valid: 1 });
+  });
+
   it("does not scan unrelated folders while detecting a source", () => {
     const { metadataCache, vault } = fixture();
 
@@ -260,6 +268,7 @@ describe("profile matching", () => {
     generated.editable = false;
     const conflicting = createProfile("Generated/Calendar");
     conflicting.id = "writable-conflict";
+    conflicting.editable = true;
 
     expect(selectProfile(
       { path: "Generated/Calendar/A.md" },
@@ -271,6 +280,7 @@ describe("profile matching", () => {
   it("rechecks generated frontmatter against overlapping sources before creation", () => {
     const writable = createProfile("Calendar");
     writable.id = "writable";
+    writable.editable = true;
     const readOnly = createProfile("Calendar");
     readOnly.id = "read-only";
     readOnly.editable = false;

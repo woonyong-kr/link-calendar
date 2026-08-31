@@ -80,10 +80,12 @@ The default mappings are `date`, `end`, `startTime`, `endTime`, `allDay`, `title
 
 ## Writable sources
 
-Sources are read-only by default when configured that way. For a source explicitly marked writable, Link Calendar Navigator can:
+Every new source is read-only by default. Its settings page reports valid, missing, invalid, and total configured dates before you decide whether to enable writes. For a source explicitly marked writable, Link Calendar Navigator can:
 
 - create a Markdown event note through Obsidian's `Vault` API;
 - move an event by updating its mapped start and end properties.
+
+Date moves use optimistic conflict checks: if the source Markdown changed after the calendar loaded, the plugin stops instead of overwriting the newer value. A successful move offers one conflict-checked Undo.
 
 It does not edit Apple Calendar, contact an external service, or write outside the Vault.
 
