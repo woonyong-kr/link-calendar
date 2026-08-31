@@ -136,7 +136,11 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
       items: [
         {
           name: translate(locale, "sourceHealthLabel"),
-          desc: healthSummary,
+          render: (setting) => {
+            setting
+              .setName(translate(locale, "sourceHealthLabel"))
+              .setDesc(healthSummary);
+          },
         },
         {
           type: "group",
