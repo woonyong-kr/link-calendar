@@ -118,6 +118,12 @@ describe("CalendarIndex", () => {
     expect(snapshot.diagnostics).toEqual([
       { code: "invalid-date", filePath: "Calendar/Bad.md", profileId: "calendar" },
     ]);
+    expect(index.sourceHealth("calendar")).toEqual({
+      invalid: 1,
+      missing: 0,
+      total: 2,
+      valid: 1,
+    });
   });
 
   it("updates and removes one file without rescanning source folders", () => {

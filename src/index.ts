@@ -85,6 +85,19 @@ export class CalendarIndex {
     return { diagnostics, events, revision: this.revision };
   }
 
+  sourceHealth(profileId: string): SourceHealth {
+    const health: SourceHealth = { invalid: 0, missing: 0, total: 0, valid: 0 };
+    for (const note of this.notes.values()) {
+      const noteProfileId = note.event?.profileId ?? note.diagnostic?.profileId;
+      if (noteProfileId !== profileId) continue;
+      health.total += 1;
+      if (note.event) health.valid += 1;
+      else if (note.diagnostic?.code === "missing-date") health.missing += 1;
+      else health.invalid += 1;
+    }
+    return health;
+  }
+
   private indexFile(file: TFile, frontmatterOverride?: Record<string, unknown>): void {
     const cache = this.metadataCache.getFileCache(file);
     const effectiveCache = frontmatterOverride

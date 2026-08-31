@@ -17,7 +17,6 @@ import {
   type SourceDetection,
   type SourceHealth,
   detectSourceFolder,
-  inspectSourceHealth,
   selectProfileFromFrontmatter,
 } from "./index";
 import { formatMessage, translate } from "./i18n";
@@ -237,7 +236,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
   }
 
   sourceHealth(profile: SourceProfile): SourceHealth {
-    return inspectSourceHealth(this.app.vault, this.app.metadataCache, profile);
+    return this.index.sourceHealth(profile.id);
   }
 
   private detectSource(folder: string, recursive: boolean): SourceDetection {
