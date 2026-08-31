@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.4
+
+- Use the unique public name Link Calendar Navigator for the new `link-calendar` Community Directory entry while preserving the plugin ID and behavior.
+
 ## 3.1.3
 
 - Replace the agenda's ambiguous arrow action with a familiar underlined title link that opens the canonical Markdown note directly.

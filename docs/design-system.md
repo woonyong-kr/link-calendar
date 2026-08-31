@@ -1,13 +1,13 @@
-# Link Calendar design contract
+# Link Calendar Navigator design contract
 
 ## Product boundary
 
-Link Calendar is a derived navigation surface over canonical Markdown.
+Link Calendar Navigator is a derived navigation surface over canonical Markdown.
 
 - It reads date, title, category, and source properties from configured folders.
 - It does not copy note bodies or create relationship, layout, or event databases.
 - Every agenda result exposes a direct action to the canonical note.
-- Link Calendar owns presentation state only: visible month, selected date, search query, source filter, and open/closed agenda.
+- Link Calendar Navigator owns presentation state only: visible month, selected date, search query, source filter, and open/closed agenda.
 
 ## Information hierarchy
 

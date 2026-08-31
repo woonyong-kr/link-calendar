@@ -1,4 +1,4 @@
-# Link Calendar design QA
+# Link Calendar Navigator design QA
 
 ## Evidence
 

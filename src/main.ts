@@ -342,7 +342,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
     const config = parseBlock(source);
     element.empty();
     const root = element.createDiv({ cls: "link-calendar-embed" });
-    root.createEl("strong", { text: config.title || "Link Calendar" });
+    root.createEl("strong", { text: config.title || "Link Calendar Navigator" });
     if (config.invalid) {
       root.createDiv({
         cls: "link-calendar-embed__error",

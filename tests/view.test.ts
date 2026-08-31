@@ -84,7 +84,7 @@ async function settle(): Promise<void> {
   await new Promise((resolve) => window.setTimeout(resolve));
 }
 
-describe("Link Calendar view", () => {
+describe("Link Calendar Navigator view", () => {
   it("renders loading, empty, and diagnostic error states", async () => {
     const loading = await openView(snapshot({ events: [], revision: 0 }));
     expect(loading.view.contentEl.querySelector(".is-loading")?.textContent).toContain(

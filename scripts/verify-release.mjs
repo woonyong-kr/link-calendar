@@ -19,7 +19,9 @@ const { stdout: trackedBundle } = await run("git", ["ls-files", "main.js"]);
 if (trackedBundle.trim()) errors.push("main.js must be a release asset, not a tracked source file");
 
 if (manifest.id !== "link-calendar") errors.push("manifest id must be link-calendar");
-if (manifest.name !== "Link Calendar") errors.push("manifest name must be Link Calendar");
+if (manifest.name !== "Link Calendar Navigator") {
+  errors.push("manifest name must be Link Calendar Navigator");
+}
 if (packageJson.name !== "link-calendar") errors.push("package name must be link-calendar");
 if (!packageJson.repository?.url?.endsWith("woonyong-kr/link-calendar.git")) {
   errors.push("package repository must be woonyong-kr/link-calendar");
