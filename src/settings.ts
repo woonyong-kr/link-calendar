@@ -135,12 +135,17 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
       status: validateProfile(profile) || health.invalid || health.missing ? "warning" : null,
       items: [
         {
-          name: translate(locale, "sourceHealthLabel"),
-          render: (setting) => {
-            setting
-              .setName(translate(locale, "sourceHealthLabel"))
-              .setDesc(healthSummary);
-          },
+          type: "group",
+          items: [
+            {
+              name: translate(locale, "sourceHealthLabel"),
+              render: (setting) => {
+                setting
+                  .setName(translate(locale, "sourceHealthLabel"))
+                  .setDesc(healthSummary);
+              },
+            },
+          ],
         },
         {
           type: "group",
