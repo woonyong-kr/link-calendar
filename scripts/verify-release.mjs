@@ -17,7 +17,6 @@ const publicDocs = await Promise.all(
 const styles = await readFile("styles.css", "utf8");
 const media = JSON.parse(await readFile("docs/release-media.json", "utf8"));
 const requiredMedia = [
-  "docs/media/link-calendar-demo.gif",
   "docs/media/link-calendar-overview.png",
   "docs/media/link-calendar-agenda.png",
 ];
@@ -26,10 +25,7 @@ const imageDimensions = (bytes, path) => {
   if (bytes.subarray(0, 8).toString("hex") === "89504e470d0a1a0a") {
     return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
   }
-  if (["GIF87a", "GIF89a"].includes(bytes.subarray(0, 6).toString("ascii"))) {
-    return { width: bytes.readUInt16LE(6), height: bytes.readUInt16LE(8) };
-  }
-  errors.push(`${path} must contain real PNG or GIF bytes`);
+  errors.push(`${path} must contain real PNG bytes`);
   return { width: 0, height: 0 };
 };
 
@@ -114,7 +110,8 @@ for (const path of requiredMedia) {
   if (!publicDocs[0].includes(`](${path})`)) errors.push(`README does not embed ${path}`);
   const bytes = await readFile(path);
   const dimensions = imageDimensions(bytes, path);
-  if (dimensions.width < 1000 || dimensions.height < 500) errors.push(`${path} is too small`);
+  if (dimensions.width < 1600 || dimensions.height < 900) errors.push(`${path} is too small`);
+  if (dimensions.width * 9 !== dimensions.height * 16) errors.push(`${path} must use a 16:9 frame`);
   if (record.width !== dimensions.width || record.height !== dimensions.height) {
     errors.push(`${path} dimensions are stale`);
   }

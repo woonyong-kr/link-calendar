@@ -11,7 +11,7 @@ Link Calendar Navigator finds explicit dates, periods, history entries, and dead
 
 **Markdown → automatic timeline → original note.**
 
-![Link Calendar Navigator walkthrough from a populated month to a selected day and its original Markdown links](docs/media/link-calendar-demo.gif)
+![Link Calendar Navigator showing compact one-line timeline entries in a sharp 16:9 release fixture](docs/media/link-calendar-overview.png)
 
 <p align="center">
   <a href="obsidian://show-plugin?id=link-calendar">Add to Obsidian</a>
@@ -92,8 +92,6 @@ Aliases and relative wikilinks resolve through Obsidian's metadata cache. Hidden
 1. **Scan a month.** Compact one-line titles identify events, periods, history, and deadlines.
 2. **Choose a day.** The agenda lists every item overlapping that date.
 3. **Open the evidence.** Select the title for the canonical note, or a provenance link for a mentioning note.
-
-![Link Calendar Navigator month view](docs/media/link-calendar-overview.png)
 
 ![Link Calendar Navigator daily agenda](docs/media/link-calendar-agenda.png)
 

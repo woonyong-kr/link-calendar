@@ -2,6 +2,7 @@
 
 ## 3.4.1
 
+- Replace the low-resolution walkthrough on the Community page with two public-safe 1600×900 PNG fixtures; a new interaction GIF is intentionally deferred.
 - Replace compact dots with up to three single-line event titles and a readable overflow row in each day cell.
 - Keep long titles on one line with an ellipsis while preserving full tooltips, accessible names, click, keyboard, context-menu, and drag behavior.
 - Simplify the automatic index to explicit Markdown body timeline entries; maintenance frontmatter and arbitrary prose dates no longer create calendar items.
