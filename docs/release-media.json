@@ -5,6 +5,12 @@
   "publicSafeSample": true,
   "assets": [
     {
+      "path": "docs/media/link-calendar-demo.gif",
+      "width": 1600,
+      "height": 900,
+      "sha256": "4728638cc16ffd188caa48992a14bab4c5fa2273623ca5cd785e567b383d36fc"
+    },
+    {
       "path": "docs/media/link-calendar-overview.png",
       "width": 1600,
       "height": 900,

@@ -17,6 +17,7 @@ const publicDocs = await Promise.all(
 const styles = await readFile("styles.css", "utf8");
 const media = JSON.parse(await readFile("docs/release-media.json", "utf8"));
 const requiredMedia = [
+  "docs/media/link-calendar-demo.gif",
   "docs/media/link-calendar-overview.png",
   "docs/media/link-calendar-agenda.png",
 ];
@@ -25,7 +26,11 @@ const imageDimensions = (bytes, path) => {
   if (bytes.subarray(0, 8).toString("hex") === "89504e470d0a1a0a") {
     return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
   }
-  errors.push(`${path} must contain real PNG bytes`);
+  const gifHeader = bytes.subarray(0, 6).toString("ascii");
+  if (gifHeader === "GIF87a" || gifHeader === "GIF89a") {
+    return { width: bytes.readUInt16LE(6), height: bytes.readUInt16LE(8) };
+  }
+  errors.push(`${path} must contain real PNG or GIF bytes`);
   return { width: 0, height: 0 };
 };
 

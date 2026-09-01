@@ -11,6 +11,8 @@ Link Calendar Navigator finds explicit dates, periods, history entries, and dead
 
 **Markdown → automatic timeline → original note.**
 
+![Link Calendar Navigator moving from Markdown dates to a readable month and daily agenda](docs/media/link-calendar-demo.gif)
+
 ![Link Calendar Navigator showing compact one-line timeline entries in a sharp 16:9 release fixture](docs/media/link-calendar-overview.png)
 
 <p align="center">
