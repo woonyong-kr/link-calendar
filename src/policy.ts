@@ -154,6 +154,7 @@ export function matchesEventQuery(event: CalendarEvent, query: string): boolean 
     event.title,
     event.category,
     event.filePath,
+    ...event.sources.flatMap((source) => [source.filePath, source.excerpt]),
   ].some((value) => value.toLocaleLowerCase().includes(normalized));
 }
 

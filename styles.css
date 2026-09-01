@@ -453,10 +453,34 @@
   transition: transform var(--cc-motion-fast), background-color var(--cc-motion-fast);
 }
 
+.link-calendar button.link-calendar__marker.is-kind-period .link-calendar__marker-dot {
+  width: calc(var(--cc-calendar-marker-size) * 1.65);
+  border-radius: var(--cc-radius-pill);
+}
+
+.link-calendar button.link-calendar__marker.is-kind-history .link-calendar__marker-dot {
+  border: var(--cc-calendar-grid-line) solid var(--cc-accent);
+  background: transparent;
+}
+
+.link-calendar button.link-calendar__marker.is-kind-deadline .link-calendar__marker-dot {
+  border-radius: var(--cc-radius-xs);
+  transform: rotate(45deg) scale(0.82);
+}
+
+.link-calendar button.link-calendar__marker.is-kind-document .link-calendar__marker-dot {
+  opacity: 0.48;
+}
+
 .link-calendar button.link-calendar__marker:hover .link-calendar__marker-dot,
 .link-calendar button.link-calendar__marker.is-active .link-calendar__marker-dot {
   background: var(--cc-accent);
   transform: scale(1.5);
+}
+
+.link-calendar button.link-calendar__marker.is-kind-deadline:hover .link-calendar__marker-dot,
+.link-calendar button.link-calendar__marker.is-kind-deadline.is-active .link-calendar__marker-dot {
+  transform: rotate(45deg) scale(1.18);
 }
 
 .link-calendar button.link-calendar__marker:focus-visible {
@@ -573,6 +597,49 @@
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
+}
+
+.link-calendar__agenda-kind {
+  margin-bottom: var(--cc-space-1);
+  color: var(--cc-text-tertiary);
+  font-size: var(--cc-font-xs);
+  font-weight: var(--cc-weight-semibold);
+  letter-spacing: var(--cc-letter-wide);
+  text-transform: uppercase;
+}
+
+.link-calendar__agenda-sources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cc-space-1);
+  margin-top: var(--cc-space-2);
+  color: var(--cc-text-tertiary);
+  font-size: var(--cc-font-xs);
+}
+
+.link-calendar__agenda-source-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--cc-space-1) var(--cc-space-2);
+}
+
+.link-calendar__agenda-source-label {
+  color: var(--cc-text-tertiary);
+  font-weight: var(--cc-weight-semibold);
+}
+
+.link-calendar__agenda-sources button {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--cc-text-secondary);
+  background: transparent;
+  box-shadow: none;
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: var(--cc-space-1);
 }
 
 .link-calendar a.link-calendar__agenda-link {

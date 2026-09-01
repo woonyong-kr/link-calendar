@@ -23,10 +23,19 @@ export interface SourceProfile {
 }
 
 export interface CalendarSettings {
+  autoIndexDates: boolean;
   locale: LocaleId;
   profiles: SourceProfile[];
   showAgenda: boolean;
   weekStart: WeekStart;
+}
+
+export type TemporalKind = "event" | "period" | "history" | "deadline" | "document";
+
+export interface TemporalSource {
+  excerpt: string;
+  filePath: string;
+  line: number;
 }
 
 export interface CalendarEvent {
@@ -37,7 +46,11 @@ export interface CalendarEvent {
   endTime: string;
   filePath: string;
   id: string;
+  kind: TemporalKind;
+  ongoing?: boolean;
+  origin: "profile" | "frontmatter" | "body";
   profileId: string;
+  sources: TemporalSource[];
   startDate: string;
   startTime: string;
   title: string;
@@ -68,6 +81,7 @@ const DEFAULT_PROPERTIES: PropertyMap = {
 };
 
 export const DEFAULT_SETTINGS: CalendarSettings = {
+  autoIndexDates: true,
   locale: "auto",
   profiles: [],
   showAgenda: true,
@@ -102,6 +116,7 @@ export function normalizeSettings(value: unknown): CalendarSettings {
     return count === 1 ? profile : { ...profile, id: `${profile.id}-${String(count)}` };
   });
   return {
+    autoIndexDates: value.autoIndexDates !== false,
     locale: value.locale === "en" || value.locale === "ko" ? value.locale : "auto",
     profiles,
     showAgenda: value.showAgenda !== false && value.showContext !== false,
@@ -113,7 +128,8 @@ export function normalizeSettings(value: unknown): CalendarSettings {
 
 export function serializeSettings(settings: CalendarSettings): Record<string, unknown> {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
+    autoIndexDates: settings.autoIndexDates,
     locale: settings.locale,
     showAgenda: settings.showAgenda,
     sourceProfiles: settings.profiles.map((profile) => ({

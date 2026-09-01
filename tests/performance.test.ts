@@ -40,4 +40,44 @@ describe("large Vault indexing", () => {
     expect(buildElapsed).toBeLessThan(2_000);
     expect(updateElapsed).toBeLessThan(150);
   });
+
+  it("builds the automatic frontmatter and body timeline incrementally", async () => {
+    const files = Array.from({ length: 5_000 }, (_, index) => {
+      const file = new TFile();
+      file.basename = `Project ${String(index)}`;
+      file.extension = "md";
+      file.path = `Wiki/Project-${String(index)}.md`;
+      return file;
+    });
+    const filesByPath = new Map(files.map((file) => [file.path, file]));
+    const vault = {
+      cachedRead: async (file: TFile) =>
+        `- 2026-08-01 → 2026-08-31 · [[${file.path.replace(/\.md$/u, "")}]]`,
+      getFolderByPath: () => null,
+      getMarkdownFiles: () => files,
+    };
+    const metadataCache = {
+      getFileCache: (file: TFile) => ({
+        frontmatter: {
+          ended_on: "2026-08-31",
+          started_on: "2026-08-01",
+          title: file.basename,
+        },
+        links: [],
+      }),
+      getFirstLinkpathDest: (link: string) => {
+        const path = link.endsWith(".md") ? link : `${link}.md`;
+        return filesByPath.get(path) ?? null;
+      },
+    };
+    const index = new CalendarIndex(vault as never, metadataCache as never, [], true);
+
+    const buildStarted = performance.now();
+    index.rebuild();
+    await index.rebuildBodies();
+    const buildElapsed = performance.now() - buildStarted;
+
+    expect(index.snapshot().events.filter((event) => event.kind === "period")).toHaveLength(5_000);
+    expect(buildElapsed).toBeLessThan(3_000);
+  });
 });

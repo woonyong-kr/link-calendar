@@ -5,6 +5,7 @@ import {
   type CalendarSnapshot,
   type Diagnostic,
   type SourceProfile,
+  type TemporalSource,
   MAX_EVENT_SPAN_DAYS,
   calendarSpanLength,
   dateKey,
@@ -12,6 +13,11 @@ import {
   readField,
   values,
 } from "./model";
+import {
+  type TemporalCandidate,
+  extractFrontmatterTemporal,
+  extractMarkdownTemporal,
+} from "./temporal";
 
 export { readField } from "./model";
 
@@ -36,6 +42,10 @@ export interface SourceHealth {
 
 export class CalendarIndex {
   private readonly notes = new Map<string, IndexedNote>();
+  private readonly automaticFrontmatter = new Map<string, CalendarEvent[]>();
+  private readonly automaticBody = new Map<string, CalendarEvent[]>();
+  private readonly bodyVersions = new Map<string, number>();
+  private autoIndexDates: boolean;
   private profiles: SourceProfile[];
   private revision = 0;
 
@@ -43,28 +53,64 @@ export class CalendarIndex {
     private readonly vault: Vault,
     private readonly metadataCache: MetadataCache,
     profiles: SourceProfile[],
+    autoIndexDates = true,
   ) {
     this.profiles = profiles;
+    this.autoIndexDates = autoIndexDates;
   }
 
   rebuild(): void {
     this.notes.clear();
+    this.automaticFrontmatter.clear();
+    this.automaticBody.clear();
     for (const file of sourceFiles(this.vault, this.profiles)) this.indexFile(file);
+    if (this.autoIndexDates) {
+      for (const file of automaticSourceFiles(this.vault)) this.indexAutomaticFrontmatter(file);
+    }
+    this.revision += 1;
+  }
+
+  async rebuildBodies(): Promise<void> {
+    if (!this.autoIndexDates || typeof this.vault.cachedRead !== "function") return;
+    const files = automaticSourceFiles(this.vault);
+    for (let index = 0; index < files.length; index += 32) {
+      await Promise.all(files.slice(index, index + 32).map((file) => this.indexBody(file)));
+      await yieldToRenderer();
+    }
     this.revision += 1;
   }
 
   update(file: TFile, frontmatterOverride?: Record<string, unknown>): void {
     this.notes.delete(file.path);
+    this.automaticFrontmatter.delete(file.path);
     this.indexFile(file, frontmatterOverride);
+    if (this.autoIndexDates && isAutomaticSourcePath(file.path)) {
+      this.indexAutomaticFrontmatter(file, frontmatterOverride);
+    }
+    this.revision += 1;
+  }
+
+  async updateBody(file: TFile): Promise<void> {
+    if (!this.autoIndexDates || !isAutomaticSourcePath(file.path)) {
+      this.automaticBody.delete(file.path);
+      return;
+    }
+    await this.indexBody(file);
     this.revision += 1;
   }
 
   remove(path: string): void {
-    if (this.notes.delete(path)) this.revision += 1;
+    this.bodyVersions.set(path, (this.bodyVersions.get(path) ?? 0) + 1);
+    const profileRemoved = this.notes.delete(path);
+    const frontmatterRemoved = this.automaticFrontmatter.delete(path);
+    const bodyRemoved = this.automaticBody.delete(path);
+    const removed = profileRemoved || frontmatterRemoved || bodyRemoved;
+    if (removed) this.revision += 1;
   }
 
-  setProfiles(profiles: SourceProfile[]): void {
+  setConfiguration(profiles: SourceProfile[], autoIndexDates: boolean): void {
     this.profiles = profiles;
+    this.autoIndexDates = autoIndexDates;
     this.rebuild();
   }
 
@@ -75,14 +121,17 @@ export class CalendarIndex {
       if (note.diagnostic) diagnostics.push(note.diagnostic);
       if (note.event) events.push(note.event);
     }
-    events.sort((left, right) =>
+    for (const automatic of this.automaticFrontmatter.values()) events.push(...automatic);
+    for (const automatic of this.automaticBody.values()) events.push(...automatic);
+    const merged = mergeTemporalEvents(events);
+    merged.sort((left, right) =>
       left.startDate.localeCompare(right.startDate)
       || left.startTime.localeCompare(right.startTime)
       || left.title.localeCompare(right.title)
       || left.filePath.localeCompare(right.filePath),
     );
     diagnostics.sort((left, right) => left.filePath.localeCompare(right.filePath));
-    return { diagnostics, events, revision: this.revision };
+    return { diagnostics, events: merged, revision: this.revision };
   }
 
   sourceHealth(profileId: string): SourceHealth {
@@ -149,12 +198,84 @@ export class CalendarIndex {
         endTime: allDay ? "" : stringField(frontmatter, profile.properties.endTime),
         filePath: file.path,
         id: `${profile.id}:${file.path}`,
+        kind: end > start ? "period" : "event",
+        origin: "profile",
         profileId: profile.id,
+        sources: [{ excerpt: "Frontmatter", filePath: file.path, line: 0 }],
         startDate: start,
         startTime: allDay ? "" : stringField(frontmatter, profile.properties.startTime),
         title,
       },
     });
+  }
+
+  private indexAutomaticFrontmatter(
+    file: TFile,
+    frontmatterOverride?: Record<string, unknown>,
+  ): void {
+    const cache = this.metadataCache.getFileCache(file);
+    const frontmatter = frontmatterOverride
+      ?? (isRecord(cache?.frontmatter) ? cache.frontmatter : {});
+    const candidates = extractFrontmatterTemporal(file.path, file.basename, frontmatter);
+    if (candidates.length) {
+      this.automaticFrontmatter.set(
+        file.path,
+        candidates.map((candidate) => this.toTemporalEvent(file, candidate)),
+      );
+    }
+  }
+
+  private async indexBody(file: TFile): Promise<void> {
+    const version = (this.bodyVersions.get(file.path) ?? 0) + 1;
+    this.bodyVersions.set(file.path, version);
+    let markdown: string;
+    try {
+      markdown = await this.vault.cachedRead(file);
+    } catch {
+      return;
+    }
+    if (this.bodyVersions.get(file.path) !== version) return;
+    const candidates = extractMarkdownTemporal(file.path, file.basename, markdown);
+    if (candidates.length) {
+      this.automaticBody.set(
+        file.path,
+        candidates.map((candidate) => this.toTemporalEvent(file, candidate)),
+      );
+    } else {
+      this.automaticBody.delete(file.path);
+    }
+  }
+
+  private toTemporalEvent(file: TFile, candidate: TemporalCandidate): CalendarEvent {
+    const destination = candidate.linkPath
+      ? this.metadataCache.getFirstLinkpathDest(candidate.linkPath, file.path)
+      : null;
+    const filePath = destination?.path ?? file.path;
+    const destinationFrontmatter = destination
+      ? this.metadataCache.getFileCache(destination)?.frontmatter
+      : null;
+    const canonicalTitle = isRecord(destinationFrontmatter)
+      ? stringField(destinationFrontmatter, "title")
+      : "";
+    const kind = candidate.kind;
+    const identity = [filePath, candidate.startDate, candidate.endDate, kind].join(":");
+    return {
+      allDay: !candidate.startTime,
+      category: candidate.category,
+      editable: false,
+      endDate: candidate.endDate,
+      endTime: candidate.endTime,
+      filePath,
+      id: `temporal:${identity}`,
+      kind,
+      ongoing: candidate.ongoing,
+      origin: candidate.origin,
+      profileId: "automatic-temporal-index",
+      sources: [candidate.source],
+      startDate: candidate.startDate,
+      startTime: candidate.startTime,
+      title: canonicalTitle || candidate.title,
+    };
   }
 }
 
@@ -237,6 +358,75 @@ function sourceFiles(vault: Vault, profiles: SourceProfile[]): TFile[] {
     collectMarkdownFiles(folder, profile.recursive, files);
   }
   return [...files.values()].sort((left, right) => left.path.localeCompare(right.path));
+}
+
+function automaticSourceFiles(vault: Vault): TFile[] {
+  if (typeof vault.getMarkdownFiles !== "function") return [];
+  return vault.getMarkdownFiles()
+    .filter((file) => isAutomaticSourcePath(file.path))
+    .sort((left, right) => left.path.localeCompare(right.path));
+}
+
+function isAutomaticSourcePath(path: string): boolean {
+  return !path.split("/").some((part) =>
+    part.startsWith(".") || isReferenceArchiveSegment(part));
+}
+
+function isReferenceArchiveSegment(part: string): boolean {
+  const archiveSegments = new Set([
+    "_sources",
+    "archive",
+    "archives",
+    "backup",
+    "backups",
+    "legacy-backup",
+    "retired",
+  ]);
+  return archiveSegments.has(part.toLocaleLowerCase());
+}
+
+function mergeTemporalEvents(events: CalendarEvent[]): CalendarEvent[] {
+  const merged = new Map<string, CalendarEvent>();
+  for (const event of events) {
+    const key = [event.filePath, event.startDate, event.endDate, event.kind].join("\u0000");
+    const previous = merged.get(key);
+    if (!previous) {
+      merged.set(key, { ...event, sources: distinctSources(event.sources) });
+      continue;
+    }
+    const preferred = originPriority(event.origin) > originPriority(previous.origin)
+      ? event
+      : previous;
+    const fallback = preferred === event ? previous : event;
+    merged.set(key, {
+      ...preferred,
+      category: preferred.category || fallback.category,
+      ongoing: preferred.ongoing || fallback.ongoing,
+      sources: distinctSources([...previous.sources, ...event.sources]),
+    });
+  }
+  return [...merged.values()];
+}
+
+function distinctSources(sources: TemporalSource[]): TemporalSource[] {
+  const result = new Map<string, TemporalSource>();
+  for (const source of sources) {
+    const key = [source.filePath, source.line, source.excerpt].join("\u0000");
+    if (!result.has(key)) result.set(key, source);
+  }
+  return [...result.values()].sort((left, right) =>
+    left.filePath.localeCompare(right.filePath) || left.line - right.line,
+  );
+}
+
+function originPriority(origin: CalendarEvent["origin"]): number {
+  if (origin === "profile") return 3;
+  if (origin === "frontmatter") return 2;
+  return 1;
+}
+
+async function yieldToRenderer(): Promise<void> {
+  await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
 }
 
 export function detectSourceFolder(

@@ -63,6 +63,11 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
             desc: translate(locale, "agendaPanelDesc"),
             control: { type: "toggle", key: "showAgenda" },
           },
+          {
+            name: translate(locale, "automaticDateIndex"),
+            desc: translate(locale, "automaticDateIndexDesc"),
+            control: { type: "toggle", key: "autoIndexDates" },
+          },
         ],
       },
       {
@@ -89,6 +94,7 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
     if (key === "locale") return this.host.settings.locale;
     if (key === "weekStart") return this.host.settings.weekStart;
     if (key === "showAgenda") return this.host.settings.showAgenda;
+    if (key === "autoIndexDates") return this.host.settings.autoIndexDates;
     return undefined;
   }
 
@@ -99,6 +105,11 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
       this.host.settings.weekStart = value;
     } else if (key === "showAgenda" && typeof value === "boolean") {
       this.host.settings.showAgenda = value;
+    } else if (key === "autoIndexDates" && typeof value === "boolean") {
+      this.host.settings.autoIndexDates = value;
+      await this.host.saveSettings(true);
+      this.update();
+      return;
     } else {
       return;
     }

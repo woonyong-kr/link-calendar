@@ -117,7 +117,8 @@ describe("settings boundary", () => {
       profiles: [profile],
     });
     expect(serialized).toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: 2,
+      autoIndexDates: true,
       sourceProfiles: [{
         id: "generated",
         source: { path: "Generated/Events", recursive: false, type: "folder" },

@@ -90,6 +90,49 @@
   min-width: 0;
 }
 
+.link-calendar__agenda-kind {
+  margin-bottom: var(--cc-space-1);
+  color: var(--cc-text-tertiary);
+  font-size: var(--cc-font-xs);
+  font-weight: var(--cc-weight-semibold);
+  letter-spacing: var(--cc-letter-wide);
+  text-transform: uppercase;
+}
+
+.link-calendar__agenda-sources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cc-space-1);
+  margin-top: var(--cc-space-2);
+  color: var(--cc-text-tertiary);
+  font-size: var(--cc-font-xs);
+}
+
+.link-calendar__agenda-source-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--cc-space-1) var(--cc-space-2);
+}
+
+.link-calendar__agenda-source-label {
+  color: var(--cc-text-tertiary);
+  font-weight: var(--cc-weight-semibold);
+}
+
+.link-calendar__agenda-sources button {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--cc-text-secondary);
+  background: transparent;
+  box-shadow: none;
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: var(--cc-space-1);
+}
+
 .link-calendar a.link-calendar__agenda-link {
   display: block;
   width: fit-content;

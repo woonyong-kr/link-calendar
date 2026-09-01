@@ -4,15 +4,16 @@ Link Calendar Navigator remains a focused navigator over dated Markdown. The ori
 
 ## Current
 
-- Four source presets with folder-scoped date-property detection and recognition preview.
-- Explicit Today navigation, keyboard month navigation, direct canonical-note links, and read-only-by-default sources.
-- Conflict-checked writes and one-step Undo only for sources a user explicitly marks writable.
+- Zero-setup, Vault-wide indexing of deterministic event, period, history, deadline, and document-date forms.
+- Canonical-target temporal deduplication with source-note provenance.
+- Synced month and selected-day navigation, direct note links, keyboard access, and responsive panes.
+- Optional folder profiles with recognition preview, read-only defaults, conflict-checked writes, and one-step Undo.
 
 ## Next candidates
 
 - Improve diagnostics for mixed date formats without guessing or rewriting values.
 - Test more third-party theme and accessibility combinations.
-- Reduce setup friction using only locally observed folder metadata.
+- Extend deterministic date-form diagnostics without adding heuristic guessing.
 
 ## Out of scope
 

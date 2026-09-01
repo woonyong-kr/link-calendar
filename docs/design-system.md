@@ -4,8 +4,11 @@
 
 Link Calendar Navigator is a derived navigation surface over canonical Markdown.
 
-- It reads date, title, category, and source properties from configured folders.
-- It does not copy note bodies or create relationship, layout, or event databases.
+- It derives a read-only timeline from deterministic frontmatter and Markdown body date forms across active Vault notes.
+- It reads bodies only for local date extraction; it does not copy bodies or create relationship, layout, or event databases.
+- Hidden, archive, backup, retired, and source-reference paths do not participate in the automatic index.
+- Optional source profiles add custom property mappings and explicitly guarded writes without changing the automatic index contract.
+- One timeline identity is canonical target, start date, end date, and temporal kind. Matching sources are merged.
 - Every agenda result exposes a direct action to the canonical note.
 - Link Calendar Navigator owns presentation state only: visible month, selected date, search query, source filter, and open/closed agenda.
 
@@ -14,17 +17,17 @@ Link Calendar Navigator is a derived navigation surface over canonical Markdown.
 1. Month and navigation controls.
 2. Seven-column month grid.
 3. Selected-date agenda.
-4. Direct canonical note links.
-5. Collapsed diagnostics only when invalid source notes exist.
+4. Direct canonical note link and compact provenance links.
+5. Collapsed diagnostics only when invalid configured-source notes exist.
 
-The agenda must not become a note preview, property inspector, backlink browser, people directory, project browser, or second knowledge graph.
+The agenda may show only the canonical note and the unique notes that supplied the same temporal identity. It must not become a note preview, property inspector, general backlink browser, people directory, project browser, or second knowledge graph.
 
 ## Visual rules
 
 - Use Obsidian semantic variables for canvas, panel, text, borders, accent, focus, type, radius, motion, and contrast.
 - Use one host accent for event dots; category never changes the month hierarchy.
 - Keep month cells free of event cards; reveal up to three event dots and a counted overflow control.
-- Present the agenda as a typographic timeline: time, title, then a direct canonical link.
+- Present the agenda as a typographic timeline: time, temporal kind, canonical title, then compact provenance.
 - Use icons for icon-only actions, with accessible names and tooltips.
 - Keep touch/click targets at the shared control height.
 - On narrower containers, float the agenda as a bounded drawer; on mobile widths, anchor it to the bottom.
@@ -35,6 +38,7 @@ The agenda must not become a note preview, property inspector, backlink browser,
 - Selecting a day opens its agenda even when it is empty.
 - Selecting an event dot opens the agenda for that date.
 - Selecting the direct note link opens the Markdown note.
+- Selecting a provenance source opens that mentioning Markdown note.
 - `Cmd/Ctrl + Enter` opens a focused event dot's note directly.
 - Arrow keys move the selected day. `Enter` and `Space` open its agenda.
 - `Escape` closes the agenda and restores focus.

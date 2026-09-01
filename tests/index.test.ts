@@ -207,6 +207,64 @@ describe("CalendarIndex", () => {
     expect(index.snapshot().events.map((item) => item.filePath)).not.toContain("Calendar/Invalid-end.md");
     expect(index.snapshot().events.map((item) => item.filePath)).not.toContain("Calendar/Too-long.md");
   });
+
+  it("automatically merges canonical frontmatter with repeated body timeline links", async () => {
+    const target = testFile("Career/Application.md");
+    const person = testFile("People/Minjeong.md");
+    const project = testFile("Projects/Kubernetes.md");
+    const archived = testFile("_sources/Legacy.md");
+    const files = [target, person, project, archived];
+    const caches = new Map<string, { frontmatter: Record<string, unknown>; links: { link: string }[] }>([
+      [target.path, {
+        frontmatter: {
+          ended_on: "2026-08-27",
+          started_on: "2026-08-02",
+          title: "KRAFTON AI Engineer intern application",
+        },
+        links: [],
+      }],
+      [person.path, { frontmatter: {}, links: [{ link: "Career/Application" }] }],
+      [project.path, { frontmatter: {}, links: [{ link: "Career/Application" }] }],
+      [archived.path, { frontmatter: {}, links: [{ link: "Career/Application" }] }],
+    ]);
+    const bodies = new Map<string, string>([
+      [target.path, "---\nstarted_on: 2026-08-02\nended_on: 2026-08-27\n---\n# Application"],
+      [person.path, "- [[Career/Application|KRAFTON application]] · 2026-08-02 → 2026-08-27"],
+      [project.path, "- [[Career/Application]] · 2026-08-02 → 2026-08-27"],
+      [archived.path, "- [[Career/Application]] · 2026-08-02 → 2026-08-27"],
+    ]);
+    const vault = {
+      cachedRead: async (file: TFile) => bodies.get(file.path) ?? "",
+      getFolderByPath: () => null,
+      getMarkdownFiles: () => files,
+    };
+    const metadataCache = {
+      getFileCache: (file: TFile) => caches.get(file.path) ?? null,
+      getFirstLinkpathDest: (link: string) => {
+        const normalized = link.endsWith(".md") ? link : `${link}.md`;
+        return files.find((file) => file.path === normalized) ?? null;
+      },
+    };
+    const index = new CalendarIndex(vault as never, metadataCache as never, [], true);
+
+    index.rebuild();
+    await index.rebuildBodies();
+
+    const periods = index.snapshot().events.filter((event) => event.kind === "period");
+    expect(periods).toHaveLength(1);
+    expect(periods[0]).toMatchObject({
+      filePath: "Career/Application.md",
+      origin: "frontmatter",
+      startDate: "2026-08-02",
+      endDate: "2026-08-27",
+      title: "KRAFTON AI Engineer intern application",
+    });
+    expect(periods[0]?.sources.map((source) => source.filePath)).toEqual([
+      "Career/Application.md",
+      "People/Minjeong.md",
+      "Projects/Kubernetes.md",
+    ]);
+  });
 });
 
 describe("source detection", () => {

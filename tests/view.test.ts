@@ -7,6 +7,7 @@ const FIXED_NOW = new Date(2026, 7, 25, 12);
 
 function settings(): CalendarSettings {
   return {
+    autoIndexDates: true,
     locale: "en",
     profiles: [{
       editable: false,
@@ -40,7 +41,10 @@ function calendarEvent(): CalendarEvent {
     endTime: "2026-08-25T17:30:00+09:00",
     filePath: "Calendar/Exam.md",
     id: "calendar:Calendar/Exam.md",
+    kind: "event",
+    origin: "profile",
     profileId: "calendar",
+    sources: [{ excerpt: "Frontmatter", filePath: "Calendar/Exam.md", line: 0 }],
     startDate: "2026-08-25",
     startTime: "2026-08-25T16:00:00+09:00",
     title: "Practical certification exam with a long title",
@@ -179,6 +183,69 @@ describe("Link Calendar Navigator view", () => {
     view.showToday(true);
     await settle();
     expect(document.activeElement?.getAttribute("aria-current")).toBe("date");
+  });
+
+  it("moves the selected agenda date with the displayed month", async () => {
+    const { view } = await openView(snapshot());
+    view.contentEl.querySelector<HTMLButtonElement>('[title="Next month"]')?.click();
+    await settle();
+
+    expect(view.contentEl.querySelector('[role="grid"]')?.getAttribute("aria-label")).toBe(
+      "September 2026",
+    );
+    expect(view.contentEl.querySelector('[role="gridcell"][aria-selected="true"]')?.getAttribute("aria-label"))
+      .toMatch(/^2026-09-25(?:,|$)/);
+    expect(view.contentEl.querySelector(".link-calendar__side-date")?.textContent).toContain(
+      "September 25, 2026",
+    );
+  });
+
+  it("hides document-management dates until the automatic index toggle is enabled", async () => {
+    const documentDate = {
+      ...calendarEvent(),
+      id: "temporal:document",
+      kind: "document" as const,
+      origin: "frontmatter" as const,
+      profileId: "automatic-temporal-index",
+      title: "Document update",
+    };
+    const { view } = await openView(snapshot({ events: [calendarEvent(), documentDate] }));
+
+    expect(view.contentEl.querySelectorAll("[data-event-id]")).toHaveLength(1);
+    const documentToggle = Array.from(
+      view.contentEl.querySelectorAll<HTMLButtonElement>(".link-calendar__scope button"),
+    )
+      .find((button) => button.textContent === "Document dates");
+    documentToggle?.click();
+    await settle();
+
+    expect(view.contentEl.querySelectorAll("[data-event-id]")).toHaveLength(2);
+  });
+
+  it("separates the canonical note from unique mentioning notes", async () => {
+    const period = {
+      ...calendarEvent(),
+      editable: false,
+      filePath: "Career/Application.md",
+      id: "period",
+      kind: "period" as const,
+      origin: "frontmatter" as const,
+      sources: [
+        { excerpt: "Frontmatter", filePath: "Career/Application.md", line: 0 },
+        { excerpt: "History", filePath: "People/Minjeong.md", line: 12 },
+        { excerpt: "Repeated", filePath: "People/Minjeong.md", line: 22 },
+        { excerpt: "Project", filePath: "Projects/Kubernetes.md", line: 4 },
+      ],
+      title: "KRAFTON application",
+    };
+    const { view } = await openView(snapshot({ events: [period] }));
+
+    view.revealPath(period.filePath);
+
+    expect(view.contentEl.textContent).toContain("Canonical note");
+    expect(view.contentEl.textContent).toContain("Mentioned in 2 notes");
+    expect(view.contentEl.querySelectorAll(".link-calendar__agenda-source-row button"))
+      .toHaveLength(3);
   });
 
   it("distinguishes a filtered-empty month and restores it without changing notes", async () => {

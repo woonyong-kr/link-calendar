@@ -62,7 +62,12 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
 
   override async onload(): Promise<void> {
     this.settings = normalizeSettings(await this.loadData());
-    this.index = new CalendarIndex(this.app.vault, this.app.metadataCache, this.settings.profiles);
+    this.index = new CalendarIndex(
+      this.app.vault,
+      this.app.metadataCache,
+      this.settings.profiles,
+      this.settings.autoIndexDates,
+    );
     this.registerView(VIEW_TYPE, (leaf) =>
       new LinkCalendarView(
         leaf,
@@ -124,6 +129,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
       this.settingsTab.update();
       this.publishSnapshot();
       this.registerIndexEvents();
+      void this.index.rebuildBodies().then(() => this.publishSnapshot());
     });
   }
 
@@ -133,7 +139,10 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
 
   async saveSettings(rebuildIndex = false): Promise<void> {
     await this.saveData(serializeSettings(this.settings));
-    if (rebuildIndex) this.index.setProfiles(this.settings.profiles);
+    if (rebuildIndex) {
+      this.index.setConfiguration(this.settings.profiles, this.settings.autoIndexDates);
+      void this.index.rebuildBodies().then(() => this.publishSnapshot());
+    }
     this.publishSnapshot();
   }
 
@@ -147,6 +156,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
       this.app.metadataCache.on("changed", (file) => {
         this.index.update(file);
         this.queuePublish();
+        void this.index.updateBody(file).then(() => this.queuePublish());
       }),
     );
     this.registerEvent(
@@ -154,6 +164,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
         if (file instanceof TFile && file.extension === "md") {
           this.index.update(file);
           this.queuePublish();
+          void this.index.updateBody(file).then(() => this.queuePublish());
         }
       }),
     );
@@ -171,6 +182,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
           this.index.remove(oldPath);
           this.index.update(file);
           this.queuePublish();
+          void this.index.updateBody(file).then(() => this.queuePublish());
         }
       }),
     );

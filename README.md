@@ -1,15 +1,15 @@
 # Link Calendar Navigator
 
-**Find every dated note without moving it into another calendar.**
+**See your whole Vault on a timeline—without moving Markdown into another calendar.**
 
 [![Obsidian Community Plugin](https://img.shields.io/badge/Obsidian-Community_plugin-7C3AED?logo=obsidian)](obsidian://show-plugin?id=link-calendar)
 [![CI](https://github.com/woonyong-kr/link-calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/woonyong-kr/link-calendar/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/woonyong-kr/link-calendar?sort=semver)](https://github.com/woonyong-kr/link-calendar/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Link Calendar Navigator reads date properties already stored in your Markdown and turns them into a month view. Pick a day, review its notes, and open the original file in one click.
+Link Calendar Navigator automatically finds meaningful dates, periods, history entries, and deadlines already written in active Markdown notes. Select a day to open the canonical note or inspect every note that mentioned the same timeline item.
 
-**Month → date → original Markdown.**
+**Markdown → automatic timeline → original note.**
 
 ![Link Calendar Navigator walkthrough from a populated month to a selected day and its original Markdown links](docs/media/link-calendar-demo.gif)
 
@@ -21,92 +21,116 @@ Link Calendar Navigator reads date properties already stored in your Markdown an
   <a href="https://community.obsidian.md/plugins/link-calendar">Community page</a>
 </p>
 
-## At a glance
+## Why it feels different
 
-- **Markdown stays canonical:** the month is derived from frontmatter in your existing notes.
-- **Explicit sources:** choose the exact folders and property mappings to index.
-- **Compact navigation:** quiet date markers open a focused daily agenda.
-- **Multiple note systems:** each source can use different property names and an optional tag.
-- **Read-only by default:** creation and drag-to-move are opt-in per source.
-- **Conflict-aware writes:** a changed source note stops a move instead of being silently overwritten.
-- **Local-only:** no account, external calendar, network request, telemetry, or plugin-owned database.
+- **Zero-setup timeline:** open the plugin and dates across the active Vault are indexed automatically.
+- **Markdown stays canonical:** the index is derived in memory; notes are never copied into a plugin database.
+- **One item, all sources:** repeated mentions collapse into one timeline item with canonical and mentioning-note links.
+- **Meaningful by default:** events, periods, history, and deadlines are visible; ordinary document maintenance dates are one opt-in layer.
+- **Read-only automation:** automatic results cannot rewrite source notes.
+- **Optional controlled writing:** folder profiles can explicitly allow note creation and conflict-checked date moves.
+- **Local-only:** no account, network request, external calendar, telemetry, or remote AI.
 
-## Is this for you?
-
-Use Link Calendar Navigator when your project notes, meetings, learning logs, journals, or daily notes already contain dates and you want time-based navigation without copying them into another data model.
-
-It is intentionally not a shared calendar, meeting scheduler, reminder service, task engine, or replacement for Apple Calendar, Google Calendar, or Outlook.
-
-## Quick start
+## Five-second start
 
 1. Install **Link Calendar Navigator** from **Settings → Community plugins**.
 2. Run **Open Link Calendar Navigator** or select the calendar ribbon icon.
-3. Choose a folder containing Markdown notes with a date property.
-4. Pick the closest preset: **Learning log**, **Project deadlines**, **Meetings**, or **Daily notes**.
-5. Confirm the detected property and the exact dated-note count, then add the source.
-6. Select a date marker and click an underlined agenda title to open the original Markdown.
+3. Move between months, select a marker, and open its canonical Markdown.
 
-New sources remain read-only until you explicitly enable writes. To explore first, download the [public demo Vault](https://github.com/woonyong-kr/obsidian-navigator-demo-vault/releases/latest); it includes copyable examples for all four presets.
+That is enough for read-only navigation. Folder setup is optional and is needed only when you want a custom property mapping or explicitly writable calendar notes.
 
-## The three-step workflow
+## One consistent date grammar
 
-1. **Scan a month.** Quiet dots show which dates contain matching notes.
-2. **Choose a day.** A compact agenda lists only notes that overlap that date.
-3. **Open the source.** The agenda title opens the canonical Markdown immediately.
+The automatic index recognizes a small, deterministic set of forms instead of guessing from prose.
+
+### Markdown body
+
+```markdown
+- 2026-08-04 → 2026-08-17 · [[Kubernetes recovery]]
+- 2026-08-24 → ongoing · [[KRAFTON application]]
+- 2026-09-02 scheduled · [[Final interview]]
+- 2026-09-10 deadline · [[Application]]
+- 2026-08-25 · Result confirmed
+```
+
+Korean equivalents `진행 중`, `예정`, and `마감` work too. A single date in ordinary prose is available in the optional **Document dates** layer. Dates in YAML frontmatter, fenced or inline code, blockquotes, URLs, and HTML comments are not reinterpreted as body events.
+
+### Frontmatter
+
+| Intent | Recognized fields |
+| --- | --- |
+| Event | `Date` + optional `End Date`, `scheduled_for`, `scheduled` |
+| Period | `started_on` + `ended_on`, `start_date` + `end_date` |
+| Deadline | `deadline`, `due` |
+| History | `history[].at` or `history[].date` |
+| Document date | `created`, `updated`, `state_updated` |
+
+ISO dates such as `2026-09-02` and ISO date-times are supported. Invalid or reversed ranges are ignored rather than rewritten.
+
+## Deduplication and provenance
+
+The same period can be repeated across a project note, a person note, and a career history:
+
+```markdown
+[[KRAFTON AI Engineer intern application]] · 2026-08-02 → 2026-08-27
+```
+
+Link Calendar Navigator uses one stable identity:
+
+```text
+canonical target + start date + end date + temporal kind
+```
+
+Matching entries become one calendar item. The selected-day panel shows the canonical note separately from the unique notes that mention it:
+
+```text
+KRAFTON AI Engineer intern application
+2026-08-02 → 2026-08-27
+
+Canonical note: KRAFTON AI Engineer intern application
+Mentioned in 4 notes
+```
+
+Aliases and relative wikilinks resolve through Obsidian's metadata cache. Hidden folders and archival/reference folders such as `_sources`, `archive`, `backups`, and `retired` are excluded from automatic indexing so old copies cannot inflate provenance.
+
+## Month and agenda workflow
+
+1. **Scan a month.** Distinct compact markers identify events, periods, history, and deadlines.
+2. **Choose a day.** The agenda lists every item overlapping that date.
+3. **Open the evidence.** Select the title for the canonical note, or a provenance link for a mentioning note.
 
 ![Link Calendar Navigator month view](docs/media/link-calendar-overview.png)
 
 ![Link Calendar Navigator daily agenda](docs/media/link-calendar-agenda.png)
 
-## Configure a source
-
-Only a date is required. The default mapping also understands optional times, end dates, all-day state, title, and category:
-
-```yaml
----
-date: 2026-08-29
-startTime: 2026-08-29T16:00:00+09:00
-endTime: 2026-08-29T17:30:00+09:00
-allDay: false
-title: AICE Associate exam
-category: Learning
----
-```
-
-The default property names are `date`, `end`, `startTime`, `endTime`, `allDay`, `title`, and `category`. Each source profile can map different names. An optional tag narrows a configured folder but never expands the indexed scope.
-
-The guided source preview reports:
-
-- the folder that will be indexed;
-- the total Markdown note count;
-- detected date properties and their match counts;
-- the property selected by the chosen preset.
-
-Invalid, missing, reversed, or excessively long date ranges appear as diagnostics with links to the source notes.
+Month navigation keeps the selected day and agenda synchronized. Multi-day periods remain visible on every overlapping day, while each cell stays bounded to three markers plus an overflow count.
 
 ## Navigation and accessibility
 
-- Select a day or event marker to open the agenda.
-- Select an underlined agenda title to open the canonical note.
-- Press `Cmd/Ctrl + Enter` on an event marker to open its note directly.
+- Select a day or marker to open the agenda.
+- Select an underlined title to open the canonical note.
+- Press `Cmd/Ctrl + Enter` on a marker to open its note directly.
+- Use arrow keys to move the selected day; `Enter` or `Space` opens its agenda.
+- Press `Escape` to close the agenda and restore focus.
 - Run **Reveal active note in calendar** to locate the current dated note.
-- Use arrow keys on the month grid to move the selected day; `Enter` or `Space` opens its agenda.
-- Press `Escape` to close the agenda and restore focus to the selected marker or day.
 - Select **Today** or run **Show today in Link Calendar Navigator** to return to the current date.
-- Use search and source filters to narrow the current month without editing notes.
-- Use focus mode when the month needs the full Obsidian window.
+- Use search, source filters, and focus mode without changing Markdown.
 
-## Read-only and writable sources
+The UI uses Obsidian semantic theme variables, supports narrow side panes and mobile layouts, and respects reduced motion and forced colors.
 
-Every source begins read-only. A read-only source can be indexed, filtered, embedded, and opened, but never changed by the plugin.
+## Optional source profiles
 
-For a source explicitly marked writable, Link Calendar Navigator can:
+Automatic indexing is read-only. Add a source profile only when you need different property names, folder/tag scoping, or controlled writes.
+
+The guided source preview reports the exact folder, Markdown count, detected date properties, and matched-note count before setup. New profiles remain read-only until you explicitly enable **Writable**.
+
+For an enabled writable profile, the plugin can:
 
 - create a Markdown event note through Obsidian's public `Vault` API;
-- move an event by updating only its mapped start and end properties;
+- move only the mapped start and end properties;
 - offer one conflict-checked Undo after a successful move.
 
-Before moving a date, the plugin confirms that the file still belongs to the same writable source and that the relevant frontmatter still matches the indexed event. If the note changed in the meantime, the move stops and reports a conflict.
+Before every move, it confirms that the file still belongs to the same writable profile and that the indexed dates still match. Concurrent changes stop the move instead of being overwritten. Automatic timeline items are never draggable.
 
 ## Embedded agenda
 
@@ -119,40 +143,28 @@ title: Learning calendar
 ```
 ~~~
 
-`source` is an optional Vault folder prefix and `title` is optional display text. Legacy `context-calendar` blocks must be renamed before this release can render them.
-
-## Why not a general calendar?
-
-General calendar plugins manage schedules. Link Calendar Navigator is designed to find existing Markdown by time.
-
-| | Link Calendar Navigator | General calendar |
-| --- | --- | --- |
-| Source of truth | Existing Markdown frontmatter | Calendar-owned events or tasks |
-| Scope | Explicit Vault folders | Calendar collections |
-| Primary action | Open the canonical note | Manage a schedule |
-| Writes | Off by default, per source | Usually central to the workflow |
-| External account | None | Sometimes required |
-| Network access | None | Provider-dependent |
+`source` is an optional Vault folder prefix and `title` is optional display text.
 
 ## Privacy, performance, and limits
 
-- Only configured folders are indexed; the plugin does not send data outside Obsidian.
-- There is no telemetry, external account, or plugin-owned calendar database.
-- The index stores derived in-memory event metadata and rebuilds from the Vault.
-- Event ranges longer than 370 days are rejected as diagnostics.
-- Multi-day events are expanded only within the reviewed date span.
-- Search is debounced and the month surface renders at most three markers per date before showing a count.
+- All extraction and deduplication run locally inside Obsidian.
+- The index stores derived event metadata only in memory and rebuilds from Markdown.
+- No note body, date, or path leaves the app.
+- No plugin-owned event database survives a reload.
+- Automatic body reads are batched so Obsidian can render between batches.
+- The test suite includes a 5,000-note automatic-index fixture.
+- Explicit writable-profile ranges longer than 370 days are rejected as diagnostics.
 
 Removing the plugin leaves every Markdown note and property intact.
 
 ## Troubleshooting
 
-- **The calendar asks for a source:** choose a Vault folder and confirm a detected date property.
-- **A note is missing:** verify that it is inside the configured folder, matches the optional tag, and contains a valid mapped start date.
-- **A date shows a warning:** open Diagnostics to inspect missing, invalid, reversed, or oversized ranges.
-- **Create or drag is unavailable:** the source is read-only or its folder/property mapping is invalid.
-- **A move was rejected:** the note changed since it was indexed, no longer matches the source, or contains a conflicting date value.
-- **Search shows no results:** clear the query and source chips to restore the full month.
+- **A date is missing:** use one of the recognized deterministic forms above; dates in code, quotes, URLs, comments, hidden paths, and archive/reference folders are intentionally ignored.
+- **Too many ordinary dates:** keep **Document dates** off; events, periods, history, and deadlines remain visible.
+- **Repeated entries:** make each mention link to the same canonical note and use the same start, end, and temporal kind.
+- **Create or drag is unavailable:** automatic items are read-only; enable a valid writable folder profile for mutations.
+- **A move was rejected:** the Markdown changed after indexing or no longer matches the configured source.
+- **Search shows no results:** clear the query and source filters to restore the month.
 
 ## Installation and compatibility
 
@@ -171,11 +183,11 @@ npm ci
 npm run verify
 ```
 
-`npm run verify` runs TypeScript, Obsidian lint, unused-code analysis, 56 unit and DOM tests with coverage, visual-fixture checks, a production build, and release-policy validation.
+`npm run verify` runs TypeScript, Obsidian lint, unused-code analysis, unit and DOM tests with coverage, visual-fixture checks, a production build, and release-policy validation.
 
 ## 한국어 요약
 
-Link Calendar Navigator는 Markdown의 날짜 속성을 월간 보기로 모으고, 선택한 날짜에서 정본 문서 링크만 보여주는 Obsidian 플러그인입니다. 새 source는 읽기 전용이며, 사용자가 명시적으로 허용한 source만 원본 Markdown의 날짜를 수정할 수 있습니다. 별도 일정 데이터베이스나 외부 통신은 없습니다.
+Link Calendar Navigator는 활성 Markdown 전체의 일정·기간·이력·마감을 자동으로 월간 시간축에 모읍니다. 같은 정본 링크와 기간이 반복되면 하나로 합치고, 상세 패널에서 정본과 언급 문서를 분리해 보여 줍니다. Markdown이 유일한 정본이며 자동 색인은 읽기 전용·로컬 전용입니다.
 
 ## License
 

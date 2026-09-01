@@ -1,6 +1,7 @@
 import { ItemView, Menu, type WorkspaceLeaf, setIcon } from "obsidian";
 
 import {
+  type MessageKey,
   firstDayOfWeek,
   formatMessage,
   monthTitle,
@@ -12,6 +13,7 @@ import {
   type CalendarEvent,
   type CalendarSettings,
   type CalendarSnapshot,
+  type TemporalKind,
   addMonths,
   eachDate,
   fileTitle,
@@ -48,6 +50,7 @@ export class LinkCalendarView extends ItemView {
   private selectedDate = localDateKey(new Date());
   private selectedEventId = "";
   private sideClosed = false;
+  private includeDocumentDates = false;
   private profileId = "";
   private snapshot: CalendarSnapshot = { diagnostics: [], events: [], revision: 0 };
   private searchTimer: number | null = null;
@@ -126,12 +129,12 @@ export class LinkCalendarView extends ItemView {
 
     const enabledProfiles = settings.profiles.filter((profile) => profile.enabled && profile.folder);
     if (!enabledProfiles.some((profile) => profile.id === this.profileId)) this.profileId = "";
-    if (!enabledProfiles.length) {
+    if (!enabledProfiles.length && !settings.autoIndexDates) {
       this.renderOnboarding(shell, settings);
       return;
     }
 
-    if (enabledProfiles.length > 1 || this.query) {
+    if (settings.autoIndexDates || enabledProfiles.length > 1 || this.query) {
       this.renderScope(shell, settings, enabledProfiles);
     }
 
@@ -163,12 +166,10 @@ export class LinkCalendarView extends ItemView {
     const navigation = header.createDiv({ cls: "link-calendar__navigation" });
     navigation.append(
       iconButton("chevron-left", translate(locale, "previous"), () => {
-        this.month = addMonths(this.month, -1);
-        this.render();
+        this.navigateMonth(-1);
       }),
       iconButton("chevron-right", translate(locale, "next"), () => {
-        this.month = addMonths(this.month, 1);
-        this.render();
+        this.navigateMonth(1);
       }),
     );
     navigation.createEl("button", {
@@ -251,16 +252,18 @@ export class LinkCalendarView extends ItemView {
       cls: "link-calendar__scope",
       attr: { "aria-label": translate(settings.locale, "calendarScope") },
     });
-    scope.createSpan({ cls: "link-calendar__scope-label", text: translate(settings.locale, "sources") });
-    const all = scope.createEl("button", {
-      text: translate(settings.locale, "allSources"),
-      attr: { "aria-pressed": String(!this.profileId), type: "button" },
-    });
-    all.onclick = () => {
-      this.profileId = "";
-      this.normalizeSelection();
-      this.render();
-    };
+    if (profiles.length) {
+      scope.createSpan({ cls: "link-calendar__scope-label", text: translate(settings.locale, "sources") });
+      const all = scope.createEl("button", {
+        text: translate(settings.locale, "allSources"),
+        attr: { "aria-pressed": String(!this.profileId), type: "button" },
+      });
+      all.onclick = () => {
+        this.profileId = "";
+        this.normalizeSelection();
+        this.render();
+      };
+    }
     for (const profile of profiles) {
       const count = this.snapshot.events.filter((event) =>
         event.profileId === profile.id && this.overlapsCurrentMonth(event)).length;
@@ -270,6 +273,18 @@ export class LinkCalendarView extends ItemView {
       });
       button.onclick = () => {
         this.profileId = profile.id;
+        this.normalizeSelection();
+        this.render();
+      };
+    }
+    if (settings.autoIndexDates) {
+      if (profiles.length) scope.createDiv({ cls: "link-calendar__scope-divider" });
+      const documents = scope.createEl("button", {
+        text: translate(settings.locale, "documentDates"),
+        attr: { "aria-pressed": String(this.includeDocumentDates), type: "button" },
+      });
+      documents.onclick = () => {
+        this.includeDocumentDates = !this.includeDocumentDates;
         this.normalizeSelection();
         this.render();
       };
@@ -411,7 +426,7 @@ export class LinkCalendarView extends ItemView {
   ): void {
     const accessibleName = [event.title, event.category].filter(Boolean).join(", ");
     const marker = parent.createEl("button", {
-      cls: "link-calendar__marker",
+      cls: `link-calendar__marker is-kind-${event.kind}`,
       title: event.title,
       attr: {
         "aria-controls": PANEL_ID,
@@ -557,6 +572,10 @@ export class LinkCalendarView extends ItemView {
         text: formatEventTimeRange(event),
       });
       const identity = item.createDiv({ cls: "link-calendar__agenda-identity" });
+      identity.createDiv({
+        cls: `link-calendar__agenda-kind is-kind-${event.kind}`,
+        text: translate(settings.locale, temporalKindMessage(event.kind)),
+      });
       const link = identity.createEl("a", {
         cls: "link-calendar__agenda-link internal-link",
         text: event.title,
@@ -571,6 +590,39 @@ export class LinkCalendarView extends ItemView {
         mouseEvent.preventDefault();
         void this.actions.open(event.filePath);
       };
+      const sourcePaths = [...new Set(event.sources.map((source) => source.filePath))];
+      const mentions = sourcePaths.filter((sourcePath) => sourcePath !== event.filePath);
+      if (event.origin !== "profile" || mentions.length > 0) {
+        const sources = identity.createDiv({ cls: "link-calendar__agenda-sources" });
+        const canonical = sources.createDiv({ cls: "link-calendar__agenda-source-row" });
+        canonical.createSpan({
+          cls: "link-calendar__agenda-source-label",
+          text: translate(settings.locale, "canonicalNote"),
+        });
+        const canonicalButton = canonical.createEl("button", {
+          text: fileTitle(event.filePath),
+          title: event.filePath,
+          attr: { type: "button" },
+        });
+        canonicalButton.onclick = () => void this.actions.open(event.filePath);
+        if (mentions.length > 0) {
+          const mentioned = sources.createDiv({ cls: "link-calendar__agenda-source-row" });
+          mentioned.createSpan({
+            cls: "link-calendar__agenda-source-label",
+            text: formatMessage(settings.locale, "mentionedIn", {
+              count: String(mentions.length),
+            }),
+          });
+          for (const sourcePath of mentions) {
+            const source = mentioned.createEl("button", {
+              text: fileTitle(sourcePath),
+              title: sourcePath,
+              attr: { type: "button" },
+            });
+            source.onclick = () => void this.actions.open(sourcePath);
+          }
+        }
+      }
     }
   }
 
@@ -593,6 +645,7 @@ export class LinkCalendarView extends ItemView {
   private clearFilters(): void {
     this.profileId = "";
     this.query = "";
+    this.includeDocumentDates = false;
     this.normalizeSelection();
     this.render();
   }
@@ -601,7 +654,7 @@ export class LinkCalendarView extends ItemView {
     return filterCalendarEvents(this.snapshot.events, {
       profileId: this.profileId,
       query: this.query,
-    });
+    }).filter((event) => this.includeDocumentDates || event.kind !== "document");
   }
 
   private visibleDiagnostics(): CalendarSnapshot["diagnostics"] {
@@ -617,6 +670,20 @@ export class LinkCalendarView extends ItemView {
 
   private clearSelection(): void {
     this.selectedEventId = "";
+  }
+
+  private navigateMonth(amount: number): void {
+    const target = addMonths(this.month, amount);
+    const selected = parseDateKey(this.selectedDate);
+    const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+    this.month = target;
+    this.selectedDate = localDateKey(new Date(
+      target.getFullYear(),
+      target.getMonth(),
+      Math.min(selected.getDate(), lastDay),
+    ));
+    this.selectedEventId = "";
+    this.render();
   }
 
   private overlapsCurrentMonth(event: CalendarEvent): boolean {
@@ -673,6 +740,14 @@ export class LinkCalendarView extends ItemView {
     )?.focus();
   }
 
+}
+
+function temporalKindMessage(kind: TemporalKind): MessageKey {
+  if (kind === "period") return "temporalPeriod";
+  if (kind === "history") return "temporalHistory";
+  if (kind === "deadline") return "temporalDeadline";
+  if (kind === "document") return "temporalDocument";
+  return "temporalEvent";
 }
 
 function diagnosticMessage(code: CalendarSnapshot["diagnostics"][number]["code"]):

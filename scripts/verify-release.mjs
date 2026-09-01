@@ -70,7 +70,6 @@ for (const forbidden of [
   /require\(["'](?:fs|child_process|http|https)["']\)/,
   /\.style\./,
   /setAttribute\(["']style["']/,
-  /\bgetMarkdownFiles\s*\(/,
   /\bgetFiles\s*\(/,
   /instanceof\s+InputEvent/,
   /as\s+InputEvent/,
@@ -78,6 +77,12 @@ for (const forbidden of [
   if (source.some((content) => forbidden.test(content))) {
     errors.push(`source contains forbidden capability: ${String(forbidden)}`);
   }
+}
+if (!source.some((content) => content.includes("getMarkdownFiles()"))) {
+  errors.push("automatic timeline index must use the Markdown-only Vault boundary");
+}
+if (!source.some((content) => content.includes("extractMarkdownTemporal"))) {
+  errors.push("automatic timeline index must keep body extraction in its adapter");
 }
 if (!source.some((content) => content.includes("getSettingDefinitions()"))) {
   errors.push("settings must use the declarative settings API");

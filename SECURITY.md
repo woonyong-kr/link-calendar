@@ -6,7 +6,7 @@ Security fixes target the latest published release.
 
 ## Data boundary
 
-Link Calendar Navigator runs locally inside Obsidian. It does not use network APIs, telemetry, remote AI, accounts, or a plugin-owned event database. It reads only explicitly configured folders. New sources are read-only by default; writes require an explicit per-source setting and use Obsidian's Vault API.
+Link Calendar Navigator runs locally inside Obsidian. It does not use network APIs, telemetry, remote AI, accounts, or a plugin-owned event database. Its automatic read-only index scans active Markdown while excluding hidden and archive/reference paths. Optional configured sources remain read-only by default; writes require an explicit per-source setting and use Obsidian's Vault API.
 
 ## Reporting
 

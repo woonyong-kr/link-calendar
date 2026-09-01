@@ -123,10 +123,34 @@
   transition: transform var(--cc-motion-fast), background-color var(--cc-motion-fast);
 }
 
+.link-calendar button.link-calendar__marker.is-kind-period .link-calendar__marker-dot {
+  width: calc(var(--cc-calendar-marker-size) * 1.65);
+  border-radius: var(--cc-radius-pill);
+}
+
+.link-calendar button.link-calendar__marker.is-kind-history .link-calendar__marker-dot {
+  border: var(--cc-calendar-grid-line) solid var(--cc-accent);
+  background: transparent;
+}
+
+.link-calendar button.link-calendar__marker.is-kind-deadline .link-calendar__marker-dot {
+  border-radius: var(--cc-radius-xs);
+  transform: rotate(45deg) scale(0.82);
+}
+
+.link-calendar button.link-calendar__marker.is-kind-document .link-calendar__marker-dot {
+  opacity: 0.48;
+}
+
 .link-calendar button.link-calendar__marker:hover .link-calendar__marker-dot,
 .link-calendar button.link-calendar__marker.is-active .link-calendar__marker-dot {
   background: var(--cc-accent);
   transform: scale(1.5);
+}
+
+.link-calendar button.link-calendar__marker.is-kind-deadline:hover .link-calendar__marker-dot,
+.link-calendar button.link-calendar__marker.is-kind-deadline.is-active .link-calendar__marker-dot {
+  transform: rotate(45deg) scale(1.18);
 }
 
 .link-calendar button.link-calendar__marker:focus-visible {
