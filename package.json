@@ -41,14 +41,14 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^22.18.0",
     "@vitest/coverage-v8": "^4.1.11",
-    "esbuild": "^0.25.9",
-    "eslint": "^10.0.1",
-    "eslint-plugin-obsidianmd": "^0.4.1",
-    "happy-dom": "^20.11.6",
-    "knip": "^6.32.2",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.9.1",
+    "eslint-plugin-obsidianmd": "^0.4.2",
+    "happy-dom": "^20.11.15",
+    "knip": "^6.33.0",
     "obsidian": "^1.13.1",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.42.0",
+    "typescript-eslint": "^8.68.0",
     "vitest": "^4.1.11"
   }
 }
