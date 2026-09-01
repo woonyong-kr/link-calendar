@@ -3,9 +3,7 @@ import {
   type TemporalSource,
   dateKey,
   fileTitle,
-  isRecord,
   localDateKey,
-  readField,
 } from "./model";
 
 export interface TemporalCandidate {
@@ -15,30 +13,13 @@ export interface TemporalCandidate {
   kind: TemporalKind;
   linkPath: string;
   ongoing: boolean;
-  origin: "frontmatter" | "body";
+  origin: "body";
   source: TemporalSource;
   startDate: string;
   startTime: string;
   title: string;
 }
 
-interface PropertyRule {
-  end?: string;
-  kind: TemporalKind;
-  start: string;
-}
-
-const PROPERTY_RULES: readonly PropertyRule[] = [
-  { end: "End Date", kind: "event", start: "Date" },
-  { kind: "event", start: "scheduled_for" },
-  { kind: "event", start: "scheduled" },
-  { end: "ended_on", kind: "period", start: "started_on" },
-  { end: "end_date", kind: "period", start: "start_date" },
-  { kind: "deadline", start: "deadline" },
-  { kind: "deadline", start: "due" },
-];
-
-const DOCUMENT_DATE_FIELDS = ["created", "updated", "state_updated"] as const;
 const DATE_PATTERN = "(\\d{4}-\\d{2}-\\d{2})";
 const RANGE_PATTERN = new RegExp(
   `${DATE_PATTERN}\\s*(?:→|->|–|—|~)\\s*(${DATE_PATTERN}|진행\\s*중|present|ongoing)`,
@@ -51,82 +32,6 @@ const SCHEDULE_PATTERN = new RegExp(
 const ANY_DATE_PATTERN = /\b\d{4}-\d{2}-\d{2}\b/gu;
 const WIKI_LINK_PATTERN = /\[\[([^|\]#]+)(?:#[^|\]]*)?(?:\|([^\]]+))?\]\]/u;
 const MARKDOWN_LINK_PATTERN = /\[([^\]]+)\]\(([^)]+\.md)(?:#[^)]*)?\)/iu;
-
-export function extractFrontmatterTemporal(
-  filePath: string,
-  basename: string,
-  frontmatter: Record<string, unknown>,
-  today = localDateKey(new Date()),
-): TemporalCandidate[] {
-  const title = stringField(frontmatter, "title") || basename;
-  const category = stringField(frontmatter, "Category") || stringField(frontmatter, "category");
-  const source = temporalSource(filePath, 0, "Frontmatter");
-  const candidates: TemporalCandidate[] = [];
-  for (const rule of PROPERTY_RULES) {
-    const rawStart = readField(frontmatter, rule.start);
-    const startDate = dateKey(rawStart);
-    if (!startDate) continue;
-    const rawEnd = rule.end ? readField(frontmatter, rule.end) : undefined;
-    const parsedEnd = dateKey(rawEnd);
-    const ongoing = rule.kind === "period" && rawEnd !== undefined && rawEnd !== null && !parsedEnd
-      ? isOngoing(rawEnd)
-      : rule.kind === "period" && (rawEnd === undefined || rawEnd === null);
-    const endDate = parsedEnd ?? (ongoing ? today : startDate);
-    if (endDate < startDate) continue;
-    candidates.push({
-      category,
-      endDate,
-      endTime: timestamp(rawEnd),
-      kind: rule.kind === "event" && endDate > startDate ? "period" : rule.kind,
-      linkPath: "",
-      ongoing,
-      origin: "frontmatter",
-      source,
-      startDate,
-      startTime: timestamp(rawStart),
-      title,
-    });
-  }
-  const history = readField(frontmatter, "history");
-  if (Array.isArray(history)) {
-    for (const entry of history) {
-      if (!isRecord(entry)) continue;
-      const startDate = dateKey(readField(entry, "at")) ?? dateKey(readField(entry, "date"));
-      if (!startDate) continue;
-      candidates.push({
-        category,
-        endDate: startDate,
-        endTime: "",
-        kind: "history",
-        linkPath: "",
-        ongoing: false,
-        origin: "frontmatter",
-        source: temporalSource(filePath, 0, stringField(entry, "event") || "History"),
-        startDate,
-        startTime: timestamp(readField(entry, "at")),
-        title: stringField(entry, "event") || title,
-      });
-    }
-  }
-  for (const field of DOCUMENT_DATE_FIELDS) {
-    const startDate = dateKey(readField(frontmatter, field));
-    if (!startDate) continue;
-    candidates.push({
-      category,
-      endDate: startDate,
-      endTime: "",
-      kind: "document",
-      linkPath: "",
-      ongoing: false,
-      origin: "frontmatter",
-      source: temporalSource(filePath, 0, field),
-      startDate,
-      startTime: timestamp(readField(frontmatter, field)),
-      title,
-    });
-  }
-  return distinctCandidates(candidates);
-}
 
 export function extractMarkdownTemporal(
   filePath: string,
@@ -198,13 +103,13 @@ export function extractMarkdownTemporal(
       }));
       continue;
     }
+    if (!/^\s*[-*+]\s/u.test(line)) continue;
     for (const match of line.matchAll(ANY_DATE_PATTERN)) {
       const startDate = dateKey(match[0]);
       if (!startDate) continue;
-      const kind: TemporalKind = /^\s*[-*+]\s/u.test(line) ? "history" : "document";
       candidates.push(bodyCandidate(filePath, basename, line, index + 1, {
         endDate: startDate,
-        kind,
+        kind: "history",
         ongoing: false,
         startDate,
       }));
@@ -266,18 +171,8 @@ function compactExcerpt(line: string): string {
   return line.trim().replace(/^[-*+]\s+/u, "").slice(0, 240);
 }
 
-function timestamp(value: unknown): string {
-  return typeof value === "string" && /T\d{2}:\d{2}/u.test(value) ? value.trim() : "";
-}
-
 function isOngoing(value: unknown): boolean {
   return typeof value === "string" && /^(진행\s*중|present|ongoing)$/iu.test(value.trim());
-}
-
-function stringField(record: Record<string, unknown>, name: string): string {
-  const value = readField(record, name);
-  if (typeof value === "string") return value.trim();
-  return typeof value === "number" ? String(value) : "";
 }
 
 function distinctCandidates(candidates: TemporalCandidate[]): TemporalCandidate[] {

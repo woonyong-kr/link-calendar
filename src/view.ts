@@ -33,7 +33,7 @@ export const VIEW_TYPE = "link-calendar-view";
 const PANEL_ID = "link-calendar-agenda";
 const PANEL_TITLE_ID = "link-calendar-agenda-title";
 const SEARCH_DELAY_MS = 80;
-const MAX_VISIBLE_MARKERS = 3;
+const MAX_VISIBLE_EVENTS = 3;
 const PRODUCT_NAME = ["Link", "Calendar"].join(" ");
 
 export interface CalendarActions {
@@ -50,7 +50,6 @@ export class LinkCalendarView extends ItemView {
   private selectedDate = localDateKey(new Date());
   private selectedEventId = "";
   private sideClosed = false;
-  private includeDocumentDates = false;
   private profileId = "";
   private snapshot: CalendarSnapshot = { diagnostics: [], events: [], revision: 0 };
   private searchTimer: number | null = null;
@@ -277,18 +276,6 @@ export class LinkCalendarView extends ItemView {
         this.render();
       };
     }
-    if (settings.autoIndexDates) {
-      if (profiles.length) scope.createDiv({ cls: "link-calendar__scope-divider" });
-      const documents = scope.createEl("button", {
-        text: translate(settings.locale, "documentDates"),
-        attr: { "aria-pressed": String(this.includeDocumentDates), type: "button" },
-      });
-      documents.onclick = () => {
-        this.includeDocumentDates = !this.includeDocumentDates;
-        this.normalizeSelection();
-        this.render();
-      };
-    }
     if (this.query) {
       scope.createDiv({ cls: "link-calendar__scope-divider" });
       const label = this.query;
@@ -376,14 +363,14 @@ export class LinkCalendarView extends ItemView {
         cls: "link-calendar__markers",
         attr: { "data-event-count": String(events.length) },
       });
-      for (const event of events.slice(0, MAX_VISIBLE_MARKERS)) {
+      for (const event of events.slice(0, MAX_VISIBLE_EVENTS)) {
         this.renderMarker(markers, event, settings, date);
       }
-      const hiddenCount = Math.max(0, events.length - MAX_VISIBLE_MARKERS);
+      const hiddenCount = Math.max(0, events.length - MAX_VISIBLE_EVENTS);
       if (hiddenCount > 0) {
         const more = markers.createEl("button", {
           cls: "link-calendar__marker-more",
-          text: `+${String(hiddenCount)}`,
+          text: formatMessage(settings.locale, "moreEvents", { count: String(hiddenCount) }),
           attr: {
             "aria-label": formatMessage(settings.locale, "moreEvents", { count: String(hiddenCount) }),
             type: "button",
@@ -438,7 +425,7 @@ export class LinkCalendarView extends ItemView {
         "data-event-id": event.id,
       },
     });
-    marker.createSpan({ cls: "link-calendar__marker-dot", attr: { "aria-hidden": "true" } });
+    marker.createSpan({ cls: "link-calendar__marker-label", text: event.title });
     if (event.id === this.selectedEventId) marker.addClass("is-active");
     marker.onclick = (click) => {
       click.stopPropagation();
@@ -645,7 +632,6 @@ export class LinkCalendarView extends ItemView {
   private clearFilters(): void {
     this.profileId = "";
     this.query = "";
-    this.includeDocumentDates = false;
     this.normalizeSelection();
     this.render();
   }
@@ -654,7 +640,7 @@ export class LinkCalendarView extends ItemView {
     return filterCalendarEvents(this.snapshot.events, {
       profileId: this.profileId,
       query: this.query,
-    }).filter((event) => this.includeDocumentDates || event.kind !== "document");
+    });
   }
 
   private visibleDiagnostics(): CalendarSnapshot["diagnostics"] {
@@ -746,7 +732,6 @@ function temporalKindMessage(kind: TemporalKind): MessageKey {
   if (kind === "period") return "temporalPeriod";
   if (kind === "history") return "temporalHistory";
   if (kind === "deadline") return "temporalDeadline";
-  if (kind === "document") return "temporalDocument";
   return "temporalEvent";
 }
 

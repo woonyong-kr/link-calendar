@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.4.1
+
+- Replace compact dots with up to three single-line event titles and a readable overflow row in each day cell.
+- Keep long titles on one line with an ellipsis while preserving full tooltips, accessible names, click, keyboard, context-menu, and drag behavior.
+- Simplify the automatic index to explicit Markdown body timeline entries; maintenance frontmatter and arbitrary prose dates no longer create calendar items.
+- Keep configured calendar sources as the only path for deliberately mapped frontmatter date properties.
+
 ## 3.4.0
 
 - Add a zero-setup, read-only timeline index for meaningful frontmatter and Markdown body dates across active Vault notes.

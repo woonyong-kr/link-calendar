@@ -16,7 +16,7 @@
 | Information hierarchy | passed | Month grid stays dominant; the selected date opens one adjacent time-ordered agenda. |
 | Typography and density | passed | Dates, times, titles, and direct note links are the only event text. |
 | Shape and separation | passed | Calendar weeks and agenda entries use hairlines; event cards, chips, badges, shadows, and selected-event panels are absent. |
-| Colour and state | passed | One host accent identifies event dots, today, and the selected column; category colours do not compete with navigation. |
+| Colour and state | passed | Quiet kind accents distinguish event-title rows while today and the selected date retain the host accent. |
 | Canonical navigation | passed | Each agenda title is the familiar underlined internal link itself; activation opens the original Markdown note without a separate icon action. |
 | Guided source setup | passed | Folder selection opens a preview before any source is saved, offers four document presets, detects date-property candidates with counts, and defaults every new source to read-only. |
 | Return to today | passed | A visible `Today` action and the command-palette action both return to the current month and focus the current date. |
@@ -35,7 +35,7 @@
 ## Iterations
 
 1. Rejected coloured month cards and the duplicated selected-event detail panel.
-2. Replaced event titles in cells with up to three dots and an overflow count.
+2. Replaced ambiguous dots with up to three one-line titles and a readable overflow row.
 3. Replaced agenda cards with `time → canonical note link` rows and moved all times to compact 24-hour ranges.
 4. Removed the ambiguous arrow icon and made the visible agenda title the direct internal link.
 

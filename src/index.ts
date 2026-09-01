@@ -13,11 +13,7 @@ import {
   readField,
   values,
 } from "./model";
-import {
-  type TemporalCandidate,
-  extractFrontmatterTemporal,
-  extractMarkdownTemporal,
-} from "./temporal";
+import { type TemporalCandidate, extractMarkdownTemporal } from "./temporal";
 
 export { readField } from "./model";
 
@@ -42,7 +38,6 @@ export interface SourceHealth {
 
 export class CalendarIndex {
   private readonly notes = new Map<string, IndexedNote>();
-  private readonly automaticFrontmatter = new Map<string, CalendarEvent[]>();
   private readonly automaticBody = new Map<string, CalendarEvent[]>();
   private readonly bodyVersions = new Map<string, number>();
   private autoIndexDates: boolean;
@@ -61,12 +56,8 @@ export class CalendarIndex {
 
   rebuild(): void {
     this.notes.clear();
-    this.automaticFrontmatter.clear();
     this.automaticBody.clear();
     for (const file of sourceFiles(this.vault, this.profiles)) this.indexFile(file);
-    if (this.autoIndexDates) {
-      for (const file of automaticSourceFiles(this.vault)) this.indexAutomaticFrontmatter(file);
-    }
     this.revision += 1;
   }
 
@@ -82,11 +73,7 @@ export class CalendarIndex {
 
   update(file: TFile, frontmatterOverride?: Record<string, unknown>): void {
     this.notes.delete(file.path);
-    this.automaticFrontmatter.delete(file.path);
     this.indexFile(file, frontmatterOverride);
-    if (this.autoIndexDates && isAutomaticSourcePath(file.path)) {
-      this.indexAutomaticFrontmatter(file, frontmatterOverride);
-    }
     this.revision += 1;
   }
 
@@ -102,9 +89,8 @@ export class CalendarIndex {
   remove(path: string): void {
     this.bodyVersions.set(path, (this.bodyVersions.get(path) ?? 0) + 1);
     const profileRemoved = this.notes.delete(path);
-    const frontmatterRemoved = this.automaticFrontmatter.delete(path);
     const bodyRemoved = this.automaticBody.delete(path);
-    const removed = profileRemoved || frontmatterRemoved || bodyRemoved;
+    const removed = profileRemoved || bodyRemoved;
     if (removed) this.revision += 1;
   }
 
@@ -121,7 +107,6 @@ export class CalendarIndex {
       if (note.diagnostic) diagnostics.push(note.diagnostic);
       if (note.event) events.push(note.event);
     }
-    for (const automatic of this.automaticFrontmatter.values()) events.push(...automatic);
     for (const automatic of this.automaticBody.values()) events.push(...automatic);
     const merged = mergeTemporalEvents(events);
     merged.sort((left, right) =>
@@ -207,22 +192,6 @@ export class CalendarIndex {
         title,
       },
     });
-  }
-
-  private indexAutomaticFrontmatter(
-    file: TFile,
-    frontmatterOverride?: Record<string, unknown>,
-  ): void {
-    const cache = this.metadataCache.getFileCache(file);
-    const frontmatter = frontmatterOverride
-      ?? (isRecord(cache?.frontmatter) ? cache.frontmatter : {});
-    const candidates = extractFrontmatterTemporal(file.path, file.basename, frontmatter);
-    if (candidates.length) {
-      this.automaticFrontmatter.set(
-        file.path,
-        candidates.map((candidate) => this.toTemporalEvent(file, candidate)),
-      );
-    }
   }
 
   private async indexBody(file: TFile): Promise<void> {
@@ -423,9 +392,7 @@ function distinctSources(sources: TemporalSource[]): TemporalSource[] {
 }
 
 function originPriority(origin: CalendarEvent["origin"]): number {
-  if (origin === "profile") return 3;
-  if (origin === "frontmatter") return 2;
-  return 1;
+  return origin === "profile" ? 2 : 1;
 }
 
 async function yieldToRenderer(): Promise<void> {

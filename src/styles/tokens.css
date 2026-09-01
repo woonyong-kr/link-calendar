@@ -75,9 +75,10 @@
   --cc-calendar-underline-offset: 3px;
   --cc-calendar-selected-offset: -1px;
   --cc-calendar-selected-line: 2px;
-  --cc-calendar-marker-hit-size: 14px;
-  --cc-calendar-marker-size: 6px;
-  --cc-calendar-marker-more-size: 18px;
+  --cc-calendar-event-gap: calc(var(--cc-space-1) / 2);
+  --cc-calendar-event-min-height: calc(var(--cc-space-4) + var(--cc-space-1));
+  --cc-calendar-event-line-height: var(--cc-space-4);
+  --cc-calendar-overflow-min-height: calc(var(--cc-space-4) + var(--cc-space-1) / 2);
   --cc-calendar-marker-font-size: 10px;
   --cc-calendar-category-tint: 9%;
   --cc-calendar-category-tint-muted: 6%;

@@ -4,7 +4,8 @@ Link Calendar Navigator remains a focused navigator over dated Markdown. The ori
 
 ## Current
 
-- Zero-setup, Vault-wide indexing of deterministic event, period, history, deadline, and document-date forms.
+- Zero-setup, Vault-wide indexing of explicit Markdown body events, periods, history entries, and deadlines.
+- Optional configured sources for deliberately mapped frontmatter date properties.
 - Canonical-target temporal deduplication with source-note provenance.
 - Synced month and selected-day navigation, direct note links, keyboard access, and responsive panes.
 - Optional folder profiles with recognition preview, read-only defaults, conflict-checked writes, and one-step Undo.

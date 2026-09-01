@@ -41,7 +41,7 @@ describe("large Vault indexing", () => {
     expect(updateElapsed).toBeLessThan(150);
   });
 
-  it("builds the automatic frontmatter and body timeline incrementally", async () => {
+  it("builds the automatic body timeline incrementally", async () => {
     const files = Array.from({ length: 5_000 }, (_, index) => {
       const file = new TFile();
       file.basename = `Project ${String(index)}`;

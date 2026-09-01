@@ -200,26 +200,18 @@ describe("Link Calendar Navigator view", () => {
     );
   });
 
-  it("hides document-management dates until the automatic index toggle is enabled", async () => {
-    const documentDate = {
+  it("renders bounded one-line event titles with a readable overflow row", async () => {
+    const events = Array.from({ length: 5 }, (_, index) => ({
       ...calendarEvent(),
-      id: "temporal:document",
-      kind: "document" as const,
-      origin: "frontmatter" as const,
-      profileId: "automatic-temporal-index",
-      title: "Document update",
-    };
-    const { view } = await openView(snapshot({ events: [calendarEvent(), documentDate] }));
+      id: `event-${String(index)}`,
+      title: index === 0 ? "A very long event title that must remain on one line" : `Event ${String(index + 1)}`,
+    }));
+    const { view } = await openView(snapshot({ events }));
 
-    expect(view.contentEl.querySelectorAll("[data-event-id]")).toHaveLength(1);
-    const documentToggle = Array.from(
-      view.contentEl.querySelectorAll<HTMLButtonElement>(".link-calendar__scope button"),
-    )
-      .find((button) => button.textContent === "Document dates");
-    documentToggle?.click();
-    await settle();
-
-    expect(view.contentEl.querySelectorAll("[data-event-id]")).toHaveLength(2);
+    expect(view.contentEl.querySelectorAll(".link-calendar__marker-label")).toHaveLength(3);
+    expect(view.contentEl.querySelector(".link-calendar__marker-label")?.textContent)
+      .toBe("A very long event title that must remain on one line");
+    expect(view.contentEl.querySelector(".link-calendar__marker-more")?.textContent).toBe("+2 more");
   });
 
   it("separates the canonical note from unique mentioning notes", async () => {
@@ -229,7 +221,7 @@ describe("Link Calendar Navigator view", () => {
       filePath: "Career/Application.md",
       id: "period",
       kind: "period" as const,
-      origin: "frontmatter" as const,
+      origin: "body" as const,
       sources: [
         { excerpt: "Frontmatter", filePath: "Career/Application.md", line: 0 },
         { excerpt: "History", filePath: "People/Minjeong.md", line: 12 },

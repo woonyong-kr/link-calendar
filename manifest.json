@@ -1,9 +1,9 @@
 {
   "id": "link-calendar",
   "name": "Link Calendar Navigator",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "minAppVersion": "1.13.0",
-  "description": "Turn Markdown dates, periods, history, and deadlines into an automatic read-only Vault timeline.",
+  "description": "Turn explicit Markdown dates and configured calendar notes into a low-noise, read-only Vault timeline.",
   "author": "Woonyong Choi",
   "authorUrl": "https://github.com/woonyong-kr",
   "isDesktopOnly": false

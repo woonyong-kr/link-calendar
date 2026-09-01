@@ -4,10 +4,10 @@
 
 Link Calendar Navigator is a derived navigation surface over canonical Markdown.
 
-- It derives a read-only timeline from deterministic frontmatter and Markdown body date forms across active Vault notes.
+- It derives a read-only timeline from explicit Markdown body date forms across active Vault notes.
 - It reads bodies only for local date extraction; it does not copy bodies or create relationship, layout, or event databases.
 - Hidden, archive, backup, retired, and source-reference paths do not participate in the automatic index.
-- Optional source profiles add custom property mappings and explicitly guarded writes without changing the automatic index contract.
+- Optional source profiles are the only path for custom frontmatter property mappings and explicitly guarded writes.
 - One timeline identity is canonical target, start date, end date, and temporal kind. Matching sources are merged.
 - Every agenda result exposes a direct action to the canonical note.
 - Link Calendar Navigator owns presentation state only: visible month, selected date, search query, source filter, and open/closed agenda.
@@ -25,8 +25,8 @@ The agenda may show only the canonical note and the unique notes that supplied t
 ## Visual rules
 
 - Use Obsidian semantic variables for canvas, panel, text, borders, accent, focus, type, radius, motion, and contrast.
-- Use one host accent for event dots; category never changes the month hierarchy.
-- Keep month cells free of event cards; reveal up to three event dots and a counted overflow control.
+- Use quiet kind accents on compact event-title rows; category never changes the month hierarchy.
+- Keep month cells free of cards; reveal up to three single-line titles with ellipsis and one readable overflow row.
 - Present the agenda as a typographic timeline: time, temporal kind, canonical title, then compact provenance.
 - Use icons for icon-only actions, with accessible names and tooltips.
 - Keep touch/click targets at the shared control height.
@@ -36,10 +36,10 @@ The agenda may show only the canonical note and the unique notes that supplied t
 ## Interaction rules
 
 - Selecting a day opens its agenda even when it is empty.
-- Selecting an event dot opens the agenda for that date.
+- Selecting an event title opens the agenda for that date.
 - Selecting the direct note link opens the Markdown note.
 - Selecting a provenance source opens that mentioning Markdown note.
-- `Cmd/Ctrl + Enter` opens a focused event dot's note directly.
+- `Cmd/Ctrl + Enter` opens a focused event title's note directly.
 - Arrow keys move the selected day. `Enter` and `Space` open its agenda.
 - `Escape` closes the agenda and restores focus.
 

@@ -7,7 +7,7 @@
 [![Latest release](https://img.shields.io/github/v/release/woonyong-kr/link-calendar?sort=semver)](https://github.com/woonyong-kr/link-calendar/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Link Calendar Navigator automatically finds meaningful dates, periods, history entries, and deadlines already written in active Markdown notes. Select a day to open the canonical note or inspect every note that mentioned the same timeline item.
+Link Calendar Navigator finds explicit dates, periods, history entries, and deadlines already written in active Markdown bodies. Select a day to open the canonical note or inspect every note that mentioned the same timeline item. Dates from configured calendar-note folders can appear beside them without changing Markdown ownership.
 
 **Markdown → automatic timeline → original note.**
 
@@ -23,10 +23,10 @@ Link Calendar Navigator automatically finds meaningful dates, periods, history e
 
 ## Why it feels different
 
-- **Zero-setup timeline:** open the plugin and dates across the active Vault are indexed automatically.
+- **Zero-setup timeline:** explicit timeline entries in active Markdown bodies are indexed automatically.
 - **Markdown stays canonical:** the index is derived in memory; notes are never copied into a plugin database.
 - **One item, all sources:** repeated mentions collapse into one timeline item with canonical and mentioning-note links.
-- **Meaningful by default:** events, periods, history, and deadlines are visible; ordinary document maintenance dates are one opt-in layer.
+- **Low-noise by default:** file timestamps, maintenance properties, and arbitrary prose dates never become events.
 - **Read-only automation:** automatic results cannot rewrite source notes.
 - **Optional controlled writing:** folder profiles can explicitly allow note creation and conflict-checked date moves.
 - **Local-only:** no account, network request, external calendar, telemetry, or remote AI.
@@ -35,13 +35,13 @@ Link Calendar Navigator automatically finds meaningful dates, periods, history e
 
 1. Install **Link Calendar Navigator** from **Settings → Community plugins**.
 2. Run **Open Link Calendar Navigator** or select the calendar ribbon icon.
-3. Move between months, select a marker, and open its canonical Markdown.
+3. Move between months, select an event title, and open its canonical Markdown.
 
 That is enough for read-only navigation. Folder setup is optional and is needed only when you want a custom property mapping or explicitly writable calendar notes.
 
-## One consistent date grammar
+## Two inputs, one timeline
 
-The automatic index recognizes a small, deterministic set of forms instead of guessing from prose.
+The calendar accepts only two inputs: explicit timeline entries in Markdown bodies, and date properties from folders you deliberately configure as calendar sources. It never promotes file creation or modification timestamps.
 
 ### Markdown body
 
@@ -53,17 +53,11 @@ The automatic index recognizes a small, deterministic set of forms instead of gu
 - 2026-08-25 · Result confirmed
 ```
 
-Korean equivalents `진행 중`, `예정`, and `마감` work too. A single date in ordinary prose is available in the optional **Document dates** layer. Dates in YAML frontmatter, fenced or inline code, blockquotes, URLs, and HTML comments are not reinterpreted as body events.
+Korean equivalents `진행 중`, `예정`, and `마감` work too. A single-date history entry must be a Markdown list item. Dates in arbitrary prose, YAML frontmatter, fenced or inline code, blockquotes, URLs, and HTML comments are not reinterpreted by the automatic index.
 
-### Frontmatter
+### Configured calendar sources
 
-| Intent | Recognized fields |
-| --- | --- |
-| Event | `Date` + optional `End Date`, `scheduled_for`, `scheduled` |
-| Period | `started_on` + `ended_on`, `start_date` + `end_date` |
-| Deadline | `deadline`, `due` |
-| History | `history[].at` or `history[].date` |
-| Document date | `created`, `updated`, `state_updated` |
+When a folder already uses date properties, add it once in plugin settings and map its start, end, title, time, and category fields. Only that configured source reads frontmatter; automatic Vault-wide indexing does not guess property names.
 
 ISO dates such as `2026-09-02` and ISO date-times are supported. Invalid or reversed ranges are ignored rather than rewritten.
 
@@ -95,7 +89,7 @@ Aliases and relative wikilinks resolve through Obsidian's metadata cache. Hidden
 
 ## Month and agenda workflow
 
-1. **Scan a month.** Distinct compact markers identify events, periods, history, and deadlines.
+1. **Scan a month.** Compact one-line titles identify events, periods, history, and deadlines.
 2. **Choose a day.** The agenda lists every item overlapping that date.
 3. **Open the evidence.** Select the title for the canonical note, or a provenance link for a mentioning note.
 
@@ -103,13 +97,13 @@ Aliases and relative wikilinks resolve through Obsidian's metadata cache. Hidden
 
 ![Link Calendar Navigator daily agenda](docs/media/link-calendar-agenda.png)
 
-Month navigation keeps the selected day and agenda synchronized. Multi-day periods remain visible on every overlapping day, while each cell stays bounded to three markers plus an overflow count.
+Month navigation keeps the selected day and agenda synchronized. Multi-day periods remain visible on every overlapping day, while each cell stays bounded to three one-line titles plus a readable overflow row. Long titles end with an ellipsis; the full title remains available to assistive technology and as a tooltip.
 
 ## Navigation and accessibility
 
-- Select a day or marker to open the agenda.
+- Select a day or event title to open the agenda.
 - Select an underlined title to open the canonical note.
-- Press `Cmd/Ctrl + Enter` on a marker to open its note directly.
+- Press `Cmd/Ctrl + Enter` on a focused event title to open its note directly.
 - Use arrow keys to move the selected day; `Enter` or `Space` opens its agenda.
 - Press `Escape` to close the agenda and restore focus.
 - Run **Reveal active note in calendar** to locate the current dated note.
@@ -159,8 +153,8 @@ Removing the plugin leaves every Markdown note and property intact.
 
 ## Troubleshooting
 
-- **A date is missing:** use one of the recognized deterministic forms above; dates in code, quotes, URLs, comments, hidden paths, and archive/reference folders are intentionally ignored.
-- **Too many ordinary dates:** keep **Document dates** off; events, periods, history, and deadlines remain visible.
+- **A date is missing:** use one of the explicit Markdown forms above or map the note folder as a calendar source. Dates in prose, code, quotes, URLs, comments, hidden paths, and archive/reference folders are intentionally ignored.
+- **A maintenance date is missing:** this is intentional. `created`, `updated`, filesystem timestamps, and similar bookkeeping fields are not automatic events.
 - **Repeated entries:** make each mention link to the same canonical note and use the same start, end, and temporal kind.
 - **Create or drag is unavailable:** automatic items are read-only; enable a valid writable folder profile for mutations.
 - **A move was rejected:** the Markdown changed after indexing or no longer matches the configured source.

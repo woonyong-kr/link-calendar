@@ -75,9 +75,10 @@
   --cc-calendar-underline-offset: 3px;
   --cc-calendar-selected-offset: -1px;
   --cc-calendar-selected-line: 2px;
-  --cc-calendar-marker-hit-size: 14px;
-  --cc-calendar-marker-size: 6px;
-  --cc-calendar-marker-more-size: 18px;
+  --cc-calendar-event-gap: calc(var(--cc-space-1) / 2);
+  --cc-calendar-event-min-height: calc(var(--cc-space-4) + var(--cc-space-1));
+  --cc-calendar-event-line-height: var(--cc-space-4);
+  --cc-calendar-overflow-min-height: calc(var(--cc-space-4) + var(--cc-space-1) / 2);
   --cc-calendar-marker-font-size: 10px;
   --cc-calendar-category-tint: 9%;
   --cc-calendar-category-tint-muted: 6%;
@@ -367,7 +368,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   min-width: 0;
   min-height: 0;
   padding: var(--cc-space-3) var(--cc-space-2) var(--cc-space-2);
@@ -413,6 +414,7 @@
   font-weight: var(--cc-weight-semibold);
   line-height: var(--cc-calendar-day-number-size);
   font-variant-numeric: tabular-nums;
+  align-self: center;
 }
 
 .link-calendar__day.is-selected .link-calendar__day-number,
@@ -422,65 +424,59 @@
 }
 
 .link-calendar__markers {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--cc-space-1);
-  min-height: var(--cc-calendar-marker-hit-size);
+  display: grid;
+  gap: var(--cc-calendar-event-gap);
+  min-width: 0;
   margin-top: var(--cc-space-2);
 }
 
 .link-calendar button.link-calendar__marker {
-  display: grid;
-  place-items: center;
-  width: var(--cc-calendar-marker-hit-size);
-  min-width: var(--cc-calendar-marker-hit-size);
-  height: var(--cc-calendar-marker-hit-size);
-  min-height: var(--cc-calendar-marker-hit-size);
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--cc-calendar-event-min-height);
   margin: 0;
-  padding: 0;
+  padding: 0 var(--cc-space-1) 0 var(--cc-space-2);
+  overflow: hidden;
   border: 0;
-  border-radius: 50%;
-  background: transparent;
-  box-shadow: none;
-}
-
-.link-calendar__marker-dot {
-  width: var(--cc-calendar-marker-size);
-  height: var(--cc-calendar-marker-size);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--cc-accent) 82%, var(--cc-text-primary));
-  transition: transform var(--cc-motion-fast), background-color var(--cc-motion-fast);
-}
-
-.link-calendar button.link-calendar__marker.is-kind-period .link-calendar__marker-dot {
-  width: calc(var(--cc-calendar-marker-size) * 1.65);
-  border-radius: var(--cc-radius-pill);
-}
-
-.link-calendar button.link-calendar__marker.is-kind-history .link-calendar__marker-dot {
-  border: var(--cc-calendar-grid-line) solid var(--cc-accent);
-  background: transparent;
-}
-
-.link-calendar button.link-calendar__marker.is-kind-deadline .link-calendar__marker-dot {
+  border-left: var(--cc-calendar-selected-line) solid color-mix(in srgb, var(--cc-accent) 76%, var(--cc-text-primary));
   border-radius: var(--cc-radius-xs);
-  transform: rotate(45deg) scale(0.82);
+  color: var(--cc-text-primary);
+  background: color-mix(in srgb, var(--cc-accent) 9%, transparent);
+  box-shadow: none;
+  font-size: var(--cc-calendar-marker-font-size);
+  line-height: var(--cc-calendar-event-line-height);
+  text-align: left;
+  transition: color var(--cc-motion-fast), background-color var(--cc-motion-fast);
 }
 
-.link-calendar button.link-calendar__marker.is-kind-document .link-calendar__marker-dot {
-  opacity: 0.48;
+.link-calendar__marker-label {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.link-calendar button.link-calendar__marker:hover .link-calendar__marker-dot,
-.link-calendar button.link-calendar__marker.is-active .link-calendar__marker-dot {
-  background: var(--cc-accent);
-  transform: scale(1.5);
+.link-calendar button.link-calendar__marker.is-kind-period {
+  border-left-color: var(--cc-category-purple);
+  background: color-mix(in srgb, var(--cc-category-purple) 10%, transparent);
 }
 
-.link-calendar button.link-calendar__marker.is-kind-deadline:hover .link-calendar__marker-dot,
-.link-calendar button.link-calendar__marker.is-kind-deadline.is-active .link-calendar__marker-dot {
-  transform: rotate(45deg) scale(1.18);
+.link-calendar button.link-calendar__marker.is-kind-history {
+  border-left-color: var(--cc-category-blue);
+  background: color-mix(in srgb, var(--cc-category-blue) 8%, transparent);
+}
+
+.link-calendar button.link-calendar__marker.is-kind-deadline {
+  border-left-color: var(--cc-category-red);
+  background: color-mix(in srgb, var(--cc-category-red) 9%, transparent);
+}
+
+.link-calendar button.link-calendar__marker:hover,
+.link-calendar button.link-calendar__marker.is-active {
+  color: var(--cc-text-primary);
+  background: var(--cc-surface-hover);
 }
 
 .link-calendar button.link-calendar__marker:focus-visible {
@@ -488,18 +484,23 @@
 }
 
 .link-calendar button.link-calendar__marker-more {
-  min-width: var(--cc-calendar-marker-more-size);
-  min-height: var(--cc-calendar-marker-more-size);
+  width: 100%;
+  min-width: 0;
+  min-height: var(--cc-calendar-overflow-min-height);
   margin: 0;
-  padding: 0;
+  padding: 0 var(--cc-space-1);
+  overflow: hidden;
   border: 0;
-  border-radius: var(--cc-radius-pill);
+  border-radius: var(--cc-radius-xs);
   color: var(--cc-text-secondary);
   background: transparent;
   box-shadow: none;
   font-size: var(--cc-calendar-marker-font-size);
   font-weight: var(--cc-weight-semibold);
-  line-height: var(--cc-calendar-marker-more-size);
+  line-height: var(--cc-calendar-event-line-height);
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .link-calendar button.link-calendar__marker-more:hover {

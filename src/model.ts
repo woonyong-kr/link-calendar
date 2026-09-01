@@ -30,7 +30,7 @@ export interface CalendarSettings {
   weekStart: WeekStart;
 }
 
-export type TemporalKind = "event" | "period" | "history" | "deadline" | "document";
+export type TemporalKind = "event" | "period" | "history" | "deadline";
 
 export interface TemporalSource {
   excerpt: string;
@@ -48,7 +48,7 @@ export interface CalendarEvent {
   id: string;
   kind: TemporalKind;
   ongoing?: boolean;
-  origin: "profile" | "frontmatter" | "body";
+  origin: "profile" | "body";
   profileId: string;
   sources: TemporalSource[];
   startDate: string;

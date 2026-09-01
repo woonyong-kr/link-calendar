@@ -208,7 +208,7 @@ describe("CalendarIndex", () => {
     expect(index.snapshot().events.map((item) => item.filePath)).not.toContain("Calendar/Too-long.md");
   });
 
-  it("automatically merges canonical frontmatter with repeated body timeline links", async () => {
+  it("merges repeated body timeline links and keeps frontmatter automatic dates out", async () => {
     const target = testFile("Career/Application.md");
     const person = testFile("People/Minjeong.md");
     const project = testFile("Projects/Kubernetes.md");
@@ -228,7 +228,7 @@ describe("CalendarIndex", () => {
       [archived.path, { frontmatter: {}, links: [{ link: "Career/Application" }] }],
     ]);
     const bodies = new Map<string, string>([
-      [target.path, "---\nstarted_on: 2026-08-02\nended_on: 2026-08-27\n---\n# Application"],
+      [target.path, "---\nstarted_on: 2026-08-02\nended_on: 2026-08-27\ncreated: 2026-08-01\n---\n# Application"],
       [person.path, "- [[Career/Application|KRAFTON application]] · 2026-08-02 → 2026-08-27"],
       [project.path, "- [[Career/Application]] · 2026-08-02 → 2026-08-27"],
       [archived.path, "- [[Career/Application]] · 2026-08-02 → 2026-08-27"],
@@ -254,13 +254,12 @@ describe("CalendarIndex", () => {
     expect(periods).toHaveLength(1);
     expect(periods[0]).toMatchObject({
       filePath: "Career/Application.md",
-      origin: "frontmatter",
+      origin: "body",
       startDate: "2026-08-02",
       endDate: "2026-08-27",
       title: "KRAFTON AI Engineer intern application",
     });
     expect(periods[0]?.sources.map((source) => source.filePath)).toEqual([
-      "Career/Application.md",
       "People/Minjeong.md",
       "Projects/Kubernetes.md",
     ]);

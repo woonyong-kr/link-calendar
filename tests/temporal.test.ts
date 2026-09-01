@@ -1,30 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { extractFrontmatterTemporal, extractMarkdownTemporal } from "../src/temporal";
+import { extractMarkdownTemporal } from "../src/temporal";
 
 describe("automatic temporal extraction", () => {
-  it("classifies explicit schedule, period, history, deadline, and document dates", () => {
-    const candidates = extractFrontmatterTemporal("Career/Application.md", "Application", {
-      created: "2026-08-01",
-      deadline: "2026-08-31",
-      ended_on: "2026-08-27",
-      history: [{ at: "2026-08-21T16:30:00+09:00", event: "Interview" }],
-      scheduled_for: "2026-08-21T16:30:00+09:00",
-      started_on: "2026-08-02",
-      title: "KRAFTON application",
-      updated: "2026-08-28",
-    });
-
-    expect(candidates).toEqual(expect.arrayContaining([
-      expect.objectContaining({ kind: "event", startDate: "2026-08-21" }),
-      expect.objectContaining({ kind: "period", startDate: "2026-08-02", endDate: "2026-08-27" }),
-      expect.objectContaining({ kind: "history", startDate: "2026-08-21", title: "Interview" }),
-      expect.objectContaining({ kind: "deadline", startDate: "2026-08-31" }),
-      expect.objectContaining({ kind: "document", startDate: "2026-08-01" }),
-      expect.objectContaining({ kind: "document", startDate: "2026-08-28" }),
-    ]));
-  });
-
   it("extracts structured body dates while ignoring frontmatter, code, quotes, and URLs", () => {
     const candidates = extractMarkdownTemporal(
       "People/Minjeong.md",
@@ -77,15 +55,13 @@ https://example.com/2026-03-03
     ]));
   });
 
-  it("keeps unstructured prose dates in the document-date layer", () => {
+  it("ignores maintenance frontmatter and arbitrary prose dates", () => {
     const candidates = extractMarkdownTemporal(
       "Notes/Decision.md",
       "Decision",
-      "2026-08-25에 원본을 다시 검토했다.",
+      "---\ncreated: 2026-08-24\nupdated: 2026-08-25\n---\n2026-08-26에 원본을 다시 검토했다.",
     );
 
-    expect(candidates).toEqual([
-      expect.objectContaining({ kind: "document", startDate: "2026-08-25" }),
-    ]);
+    expect(candidates).toEqual([]);
   });
 });

@@ -247,7 +247,7 @@ describe("locale policy", () => {
   });
 
   it("formats localized count messages", () => {
-    expect(formatMessage("en", "moreEvents", { count: "3" })).toBe("3 more events");
-    expect(formatMessage("ko", "moreEvents", { count: "3" })).toBe("일정 3개 더 보기");
+    expect(formatMessage("en", "moreEvents", { count: "3" })).toBe("+3 more");
+    expect(formatMessage("ko", "moreEvents", { count: "3" })).toBe("+3개 더 보기");
   });
 });
