@@ -44,13 +44,19 @@ jobs:
             main.js
             manifest.json
             styles.css
-      - name: Create draft release
+      - name: Publish release assets
         env:
           GH_TOKEN: ${{ github.token }}
           REQUESTED_VERSION: ${{ inputs.version }}
-        run: >-
-          gh release create "$REQUESTED_VERSION"
-          --draft
-          --generate-notes
-          --target "$GITHUB_SHA"
-          main.js manifest.json styles.css
+        run: |
+          if gh release view "$REQUESTED_VERSION" >/dev/null 2>&1; then
+            gh release upload "$REQUESTED_VERSION" \
+              main.js manifest.json styles.css \
+              --clobber
+          else
+            gh release create "$REQUESTED_VERSION" \
+              --draft \
+              --generate-notes \
+              --target "$GITHUB_SHA" \
+              main.js manifest.json styles.css
+          fi
