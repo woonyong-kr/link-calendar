@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.3.1
+
+- Move the three setup and creation modals out of the plugin lifecycle module, leaving the runtime entrypoint focused on indexing, navigation, and guarded Vault mutations.
+- Rebuild the Community overview around source setup, navigation, read-only defaults, conflict-aware writes, privacy, and troubleshooting.
+- Correct the embedded-agenda example to document only the supported `source` and `title` fields.
+- Replace the public walkthrough with a private-data-free month → agenda → original Markdown sequence captured in Obsidian 1.13.7.
+
 ## 3.3.0
 
 - Add learning log, project deadline, meeting, and daily-note source presets while keeping every new source read-only.
