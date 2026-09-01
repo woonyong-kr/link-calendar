@@ -1,7 +1,7 @@
 {
   "id": "link-calendar",
   "name": "Link Calendar Navigator",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "minAppVersion": "1.13.0",
   "description": "Turn explicit Markdown dates and configured calendar notes into a low-noise, read-only Vault timeline.",
   "author": "Woonyong Choi",

@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.4.2
+
+- Remove the high-contrast left accent stripe from month event rows while retaining their subtle category-tinted background, one-line labels, and ellipsis behavior.
+- Guard release builds against reintroducing a left stripe on month event cards.
+
 ## 3.4.1
 
 - Replace the low-resolution walkthrough on the Community page with two public-safe 1600×900 PNG fixtures; a new interaction GIF is intentionally deferred.

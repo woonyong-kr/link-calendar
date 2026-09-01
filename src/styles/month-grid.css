@@ -108,7 +108,6 @@
   padding: 0 var(--cc-space-1) 0 var(--cc-space-2);
   overflow: hidden;
   border: 0;
-  border-left: var(--cc-calendar-selected-line) solid color-mix(in srgb, var(--cc-accent) 76%, var(--cc-text-primary));
   border-radius: var(--cc-radius-xs);
   color: var(--cc-text-primary);
   background: color-mix(in srgb, var(--cc-accent) 9%, transparent);
@@ -128,17 +127,14 @@
 }
 
 .link-calendar button.link-calendar__marker.is-kind-period {
-  border-left-color: var(--cc-category-purple);
   background: color-mix(in srgb, var(--cc-category-purple) 10%, transparent);
 }
 
 .link-calendar button.link-calendar__marker.is-kind-history {
-  border-left-color: var(--cc-category-blue);
   background: color-mix(in srgb, var(--cc-category-blue) 8%, transparent);
 }
 
 .link-calendar button.link-calendar__marker.is-kind-deadline {
-  border-left-color: var(--cc-category-red);
   background: color-mix(in srgb, var(--cc-category-red) 9%, transparent);
 }
 

@@ -98,6 +98,9 @@ if (source.some((content) => content.includes('registerMarkdownCodeBlockProcesso
   errors.push("legacy context-calendar code block would collide during migration");
 }
 if (styles.includes("!important")) errors.push("styles.css must not use !important");
+if (/\.link-calendar button\.link-calendar__marker(?:\.[^{\s]+)*\s*\{[^}]*border-left(?:-color)?\s*:/su.test(styles)) {
+  errors.push("month event cards must not render a left accent stripe");
+}
 for (const removedSelector of ["link-calendar__preview", "link-calendar__properties", "link-calendar__relation"]) {
   if (styles.includes(removedSelector)) errors.push(`styles contain removed UI: ${removedSelector}`);
 }
