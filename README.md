@@ -1,11 +1,15 @@
 # Link Calendar Navigator
 
-**See your whole Vault on a timeline—without moving Markdown into another calendar.**
+<p align="center">
+  <a href="obsidian://show-plugin?id=link-calendar"><img alt="Obsidian Community Plugin" src="https://img.shields.io/badge/Obsidian-Community_plugin-7C3AED?logo=obsidian" /></a>
+  <a href="https://github.com/woonyong-kr/link-calendar/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/woonyong-kr/link-calendar/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://github.com/woonyong-kr/link-calendar/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/woonyong-kr/link-calendar?sort=semver" /></a>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg" /></a>
+</p>
 
-[![Obsidian Community Plugin](https://img.shields.io/badge/Obsidian-Community_plugin-7C3AED?logo=obsidian)](obsidian://show-plugin?id=link-calendar)
-[![CI](https://github.com/woonyong-kr/link-calendar/actions/workflows/ci.yml/badge.svg)](https://github.com/woonyong-kr/link-calendar/actions/workflows/ci.yml)
-[![Latest release](https://img.shields.io/github/v/release/woonyong-kr/link-calendar?sort=semver)](https://github.com/woonyong-kr/link-calendar/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<p align="center">
+  <strong>See your whole Vault on a timeline—without moving Markdown into another calendar.</strong>
+</p>
 
 Link Calendar Navigator finds explicit dates, periods, history entries, and deadlines already written in active Markdown bodies. Select a day to open the canonical note or inspect every note that mentioned the same timeline item. Dates from configured calendar-note folders can appear beside them without changing Markdown ownership.
 
