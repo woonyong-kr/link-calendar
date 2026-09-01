@@ -4,6 +4,7 @@
 
 - Add a zero-setup, read-only timeline index for meaningful frontmatter and Markdown body dates across active Vault notes.
 - Recognize deterministic events, periods, history, deadlines, and an opt-in document-date layer without interpreting dates in code, quotes, URLs, comments, hidden folders, or archive/reference paths.
+- Keep active Markdown canonical when it links to excluded archive/reference evidence.
 - Merge repeated timeline mentions by canonical target, start date, end date, and temporal kind, then expose the canonical note and unique mentioning notes in the agenda.
 - Keep the selected date and agenda synchronized when navigating months.
 - Batch body indexing and cover a 5,000-note Vault fixture, incremental updates, deduplication, provenance, filters, and accessibility behavior.

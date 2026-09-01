@@ -265,6 +265,37 @@ describe("CalendarIndex", () => {
       "Projects/Kubernetes.md",
     ]);
   });
+
+  it("does not promote an archived link target to the canonical timeline note", async () => {
+    const active = testFile("History/Event.md");
+    const archived = testFile("wiki/private/_sources/Raw.md");
+    const files = [active, archived];
+    const bodies = new Map<string, string>([
+      [active.path, "- 2026-09-01 · [[wiki/private/_sources/Raw|raw evidence]]"],
+      [archived.path, "- 2026-09-01 · source"],
+    ]);
+    const vault = {
+      cachedRead: async (file: TFile) => bodies.get(file.path) ?? "",
+      getFolderByPath: () => null,
+      getMarkdownFiles: () => files,
+    };
+    const metadataCache = {
+      getFileCache: () => ({ frontmatter: {} }),
+      getFirstLinkpathDest: () => archived,
+    };
+    const index = new CalendarIndex(vault as never, metadataCache as never, [], true);
+
+    index.rebuild();
+    await index.rebuildBodies();
+
+    expect(index.snapshot().events).toEqual([
+      expect.objectContaining({
+        filePath: "History/Event.md",
+        kind: "history",
+        title: "Event",
+      }),
+    ]);
+  });
 });
 
 describe("source detection", () => {

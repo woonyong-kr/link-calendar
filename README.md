@@ -91,7 +91,7 @@ Canonical note: KRAFTON AI Engineer intern application
 Mentioned in 4 notes
 ```
 
-Aliases and relative wikilinks resolve through Obsidian's metadata cache. Hidden folders and archival/reference folders such as `_sources`, `archive`, `backups`, and `retired` are excluded from automatic indexing so old copies cannot inflate provenance.
+Aliases and relative wikilinks resolve through Obsidian's metadata cache. Hidden folders and archival/reference folders such as `_sources`, `archive`, `backups`, and `retired` are excluded from automatic indexing and cannot become canonical targets, so old copies cannot inflate provenance or replace an active note.
 
 ## Month and agenda workflow
 

@@ -247,8 +247,11 @@ export class CalendarIndex {
   }
 
   private toTemporalEvent(file: TFile, candidate: TemporalCandidate): CalendarEvent {
-    const destination = candidate.linkPath
+    const resolvedDestination = candidate.linkPath
       ? this.metadataCache.getFirstLinkpathDest(candidate.linkPath, file.path)
+      : null;
+    const destination = resolvedDestination && isAutomaticSourcePath(resolvedDestination.path)
+      ? resolvedDestination
       : null;
     const filePath = destination?.path ?? file.path;
     const destinationFrontmatter = destination
@@ -274,7 +277,7 @@ export class CalendarIndex {
       sources: [candidate.source],
       startDate: candidate.startDate,
       startTime: candidate.startTime,
-      title: canonicalTitle || candidate.title,
+      title: canonicalTitle || (candidate.linkPath && !destination ? file.basename : candidate.title),
     };
   }
 }
