@@ -20,16 +20,28 @@ export interface TemporalCandidate {
   title: string;
 }
 
-const DATE_PATTERN = "(\\d{4}-\\d{2}-\\d{2})";
+const DATE_VALUE = "\\d{4}-\\d{2}-\\d{2}";
+const TIME_VALUE = "(?:[01]\\d|2[0-3]):[0-5]\\d";
 const RANGE_PATTERN = new RegExp(
-  `${DATE_PATTERN}\\s*(?:→|->|–|—|~)\\s*(${DATE_PATTERN}|진행\\s*중|present|ongoing)`,
+  `(?<startDate>${DATE_VALUE})(?:[ T](?<startTime>${TIME_VALUE}))?\\s*`
+    + `(?:→|->|–|—|~)\\s*(?<endValue>${DATE_VALUE}|진행\\s*중|present|ongoing)`
+    + `(?:[ T](?<endTime>${TIME_VALUE}))?`,
   "iu",
 );
 const SCHEDULE_PATTERN = new RegExp(
-  `${DATE_PATTERN}\\s*(예정|마감|scheduled|deadline)`,
+  `(?<startDate>${DATE_VALUE})(?:[ T](?<startTime>${TIME_VALUE})`
+    + `(?:\\s*(?:-|–|—|→)\\s*(?<endTime>${TIME_VALUE}))?)?`
+    + `\\s*(?<kind>예정|마감|scheduled|deadline)`,
   "iu",
 );
 const ANY_DATE_PATTERN = /\b\d{4}-\d{2}-\d{2}\b/gu;
+const FOLLOWING_TIME_PATTERN = new RegExp(
+  `^(?:T|\\s+)(?<startTime>${TIME_VALUE})`
+    + `(?:\\s*(?:-|–|—|→)\\s*(?<endTime>${TIME_VALUE}))?`,
+  "u",
+);
+const TIME_LIKE_PATTERN = /^(?:T|\s+)\d{1,2}:\d{2}/u;
+const SCHEDULE_WORD_PATTERN = /(?:예정|마감|scheduled|deadline)/iu;
 const WIKI_LINK_PATTERN = /\[\[([^|\]#]+)(?:#[^|\]]*)?(?:\|([^\]]+))?\]\]/u;
 const MARKDOWN_LINK_PATTERN = /\[([^\]]+)\]\(([^)]+\.md)(?:#[^)]*)?\)/iu;
 
@@ -76,42 +88,61 @@ export function extractMarkdownTemporal(
     line = stripIgnoredInline(line);
     const range = RANGE_PATTERN.exec(line);
     if (range) {
-      const startDate = dateKey(range[1]);
-      const parsedEnd = dateKey(range[2]);
+      const startDate = dateKey(range.groups?.startDate);
+      const parsedEnd = dateKey(range.groups?.endValue);
       if (!startDate) continue;
-      const ongoing = !parsedEnd && isOngoing(range[2]);
+      const ongoing = !parsedEnd && isOngoing(range.groups?.endValue);
       const endDate = parsedEnd ?? (ongoing ? today : startDate);
       if (endDate < startDate) continue;
+      const startTime = range.groups?.startTime ?? "";
+      const endTime = parsedEnd ? range.groups?.endTime ?? "" : "";
+      if (!validTimeOrder(startDate, endDate, startTime, endTime)) continue;
       candidates.push(bodyCandidate(filePath, basename, line, index + 1, {
         endDate,
+        endTime,
         kind: "period",
         ongoing,
         startDate,
+        startTime,
       }));
       continue;
     }
     const scheduled = SCHEDULE_PATTERN.exec(line);
     if (scheduled) {
-      const startDate = dateKey(scheduled[1]);
+      const startDate = dateKey(scheduled.groups?.startDate);
       if (!startDate) continue;
-      const kind = /마감|deadline/iu.test(scheduled[2] ?? "") ? "deadline" : "event";
+      const startTime = scheduled.groups?.startTime ?? "";
+      const endTime = scheduled.groups?.endTime ?? "";
+      if (!validTimeOrder(startDate, startDate, startTime, endTime)) continue;
+      const kind = /마감|deadline/iu.test(scheduled.groups?.kind ?? "") ? "deadline" : "event";
       candidates.push(bodyCandidate(filePath, basename, line, index + 1, {
         endDate: startDate,
+        endTime,
         kind,
         ongoing: false,
         startDate,
+        startTime,
       }));
       continue;
     }
+    if (SCHEDULE_WORD_PATTERN.test(line)) continue;
     if (!/^\s*[-*+]\s/u.test(line)) continue;
     for (const match of line.matchAll(ANY_DATE_PATTERN)) {
       const startDate = dateKey(match[0]);
       if (!startDate) continue;
+      const tail = line.slice(match.index + match[0].length);
+      const following = FOLLOWING_TIME_PATTERN.exec(tail);
+      if (!following && TIME_LIKE_PATTERN.test(tail)) continue;
+      const startTime = following?.groups?.startTime ?? "";
+      const endTime = following?.groups?.endTime ?? "";
+      if (!validTimeOrder(startDate, startDate, startTime, endTime)) continue;
       candidates.push(bodyCandidate(filePath, basename, line, index + 1, {
         endDate: startDate,
+        endTime,
         kind: "history",
         ongoing: false,
         startDate,
+        startTime,
       }));
     }
   }
@@ -123,22 +154,35 @@ function bodyCandidate(
   basename: string,
   line: string,
   lineNumber: number,
-  dates: Pick<TemporalCandidate, "endDate" | "kind" | "ongoing" | "startDate">,
+  dates: Pick<
+    TemporalCandidate,
+    "endDate" | "endTime" | "kind" | "ongoing" | "startDate" | "startTime"
+  >,
 ): TemporalCandidate {
   const link = linkedDocument(line);
   return {
     category: "",
     endDate: dates.endDate,
-    endTime: "",
+    endTime: dates.endTime,
     kind: dates.kind,
     linkPath: link.path,
     ongoing: dates.ongoing,
     origin: "body",
     source: temporalSource(filePath, lineNumber, compactExcerpt(line)),
     startDate: dates.startDate,
-    startTime: "",
+    startTime: dates.startTime,
     title: link.label || fileTitle(link.path) || basename,
   };
+}
+
+function validTimeOrder(
+  startDate: string,
+  endDate: string,
+  startTime: string,
+  endTime: string,
+): boolean {
+  if (!startTime) return !endTime;
+  return !endTime || endDate > startDate || endTime >= startTime;
 }
 
 function linkedDocument(line: string): { label: string; path: string } {

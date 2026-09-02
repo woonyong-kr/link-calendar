@@ -55,17 +55,20 @@ The calendar accepts only two inputs: explicit timeline entries in Markdown bodi
 - 2026-08-04 → 2026-08-17 · [[Kubernetes recovery]]
 - 2026-08-24 → ongoing · [[KRAFTON application]]
 - 2026-09-02 scheduled · [[Final interview]]
+- 2026-09-03 14:00–15:30 scheduled · [[Design review]]
 - 2026-09-10 deadline · [[Application]]
 - 2026-08-25 · Result confirmed
 ```
 
-Korean equivalents `진행 중`, `예정`, and `마감` work too. A single-date history entry must be a Markdown list item. Dates in arbitrary prose, YAML frontmatter, fenced or inline code, blockquotes, URLs, and HTML comments are not reinterpreted by the automatic index.
+Korean equivalents `진행 중`, `예정`, and `마감` work too. Explicit body entries accept 24-hour wall-clock values such as `14:00` and `14:00–15:30`; the agenda can display them in either 12-hour or 24-hour format. A single-date history entry must be a Markdown list item. Dates in arbitrary prose, YAML frontmatter, fenced or inline code, blockquotes, URLs, and HTML comments are not reinterpreted by the automatic index.
 
 ### Configured calendar sources
 
 When a folder already uses date properties, add it once in plugin settings and map its start, end, title, time, and category fields. Only that configured source reads frontmatter; automatic Vault-wide indexing does not guess property names.
 
 ISO dates such as `2026-09-02` and ISO date-times are supported. Invalid or reversed ranges are ignored rather than rewritten.
+
+Time values are treated as wall-clock values: `2026-09-02T14:00:00+09:00` remains `14:00` when displayed in 24-hour mode. Link Calendar does not silently shift an authored time to the operating-system timezone. Choose **12-hour** or **24-hour** under **Calendar settings → Time format**; this changes presentation only.
 
 ## Deduplication and provenance
 

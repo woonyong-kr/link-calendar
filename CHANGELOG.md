@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.5.0
+
+- Parse explicit 24-hour wall-clock values and time ranges from Markdown body timeline entries without broadening the low-noise date grammar.
+- Add a 12-hour or 24-hour agenda display preference while preserving the authored wall-clock value across operating-system timezones.
+- Reject malformed, reversed, or end-only body times instead of silently reinterpreting them as date-only history entries.
+- Document the existing configured-source time mappings and keep Google Calendar synchronization and duration semantics outside the local-only core until their conflict boundaries are designed.
+
 ## 3.4.2
 
 - Remove the high-contrast left accent stripe from month event rows while retaining their subtle category-tinted background, one-line labels, and ellipsis behavior.

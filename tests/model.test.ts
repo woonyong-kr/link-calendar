@@ -55,6 +55,12 @@ describe("settings boundary", () => {
     }).profiles[0]?.editable).toBe(false);
   });
 
+  it("keeps the existing 24-hour display by default and accepts an explicit 12-hour preference", () => {
+    expect(normalizeSettings({}).timeFormat).toBe("24-hour");
+    expect(normalizeSettings({ timeFormat: "12-hour" }).timeFormat).toBe("12-hour");
+    expect(normalizeSettings({ timeFormat: "unsupported" }).timeFormat).toBe("24-hour");
+  });
+
   it("rejects path traversal and absolute source paths", () => {
     expect(isSafeVaultPath("calendar/events")).toBe(true);
     expect(isSafeVaultPath("../events")).toBe(false);
@@ -117,8 +123,9 @@ describe("settings boundary", () => {
       profiles: [profile],
     });
     expect(serialized).toMatchObject({
-      schemaVersion: 2,
+      schemaVersion: 3,
       autoIndexDates: true,
+      timeFormat: "24-hour",
       sourceProfiles: [{
         id: "generated",
         source: { path: "Generated/Events", recursive: false, type: "folder" },

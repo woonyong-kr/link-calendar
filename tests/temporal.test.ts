@@ -64,4 +64,62 @@ https://example.com/2026-03-03
 
     expect(candidates).toEqual([]);
   });
+
+  it("preserves explicit wall-clock time ranges in body timeline entries", () => {
+    const candidates = extractMarkdownTemporal(
+      "Calendar/Timeline.md",
+      "Timeline",
+      [
+        "- 2026-09-15 14:00–15:00 예정 · [[Meetings/Design review]]",
+        "- 2026-09-16 09:30 마감 · [[Career/Application]]",
+        "- 2026-09-17T16:00 → 2026-09-18T17:30 · [[Projects/Release]]",
+        "- 2026-09-19 08:15 · [[Health/Run]]",
+      ].join("\n"),
+    );
+
+    expect(candidates).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "event",
+        startDate: "2026-09-15",
+        startTime: "14:00",
+        endTime: "15:00",
+      }),
+      expect.objectContaining({
+        kind: "deadline",
+        startDate: "2026-09-16",
+        startTime: "09:30",
+        endTime: "",
+      }),
+      expect.objectContaining({
+        kind: "period",
+        startDate: "2026-09-17",
+        startTime: "16:00",
+        endDate: "2026-09-18",
+        endTime: "17:30",
+      }),
+      expect.objectContaining({
+        kind: "history",
+        startDate: "2026-09-19",
+        startTime: "08:15",
+        endTime: "",
+      }),
+    ]));
+  });
+
+  it("rejects invalid, reversed, or end-only body times without changing date-only entries", () => {
+    const candidates = extractMarkdownTemporal(
+      "Calendar/Invalid.md",
+      "Invalid",
+      [
+        "- 2026-09-20 25:00 예정 · [[Invalid hour]]",
+        "- 2026-09-21 15:00–14:00 예정 · [[Reversed meeting]]",
+        "- 2026-09-22 → 2026-09-22 17:00 · [[End only]]",
+        "- 2026-09-23 예정 · [[Date only]]",
+      ].join("\n"),
+    );
+
+    expect(candidates).toEqual([
+      expect.objectContaining({ startDate: "2026-09-23", startTime: "", endTime: "" }),
+    ]);
+  });
 });

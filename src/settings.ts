@@ -59,6 +59,18 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
             },
           },
           {
+            name: translate(locale, "timeFormat"),
+            desc: translate(locale, "timeFormatDesc"),
+            control: {
+              type: "dropdown",
+              key: "timeFormat",
+              options: {
+                "12-hour": translate(locale, "twelveHour"),
+                "24-hour": translate(locale, "twentyFourHour"),
+              },
+            },
+          },
+          {
             name: translate(locale, "agendaPanel"),
             desc: translate(locale, "agendaPanelDesc"),
             control: { type: "toggle", key: "showAgenda" },
@@ -94,6 +106,7 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
     if (key === "locale") return this.host.settings.locale;
     if (key === "weekStart") return this.host.settings.weekStart;
     if (key === "showAgenda") return this.host.settings.showAgenda;
+    if (key === "timeFormat") return this.host.settings.timeFormat;
     if (key === "autoIndexDates") return this.host.settings.autoIndexDates;
     return undefined;
   }
@@ -105,6 +118,8 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
       this.host.settings.weekStart = value;
     } else if (key === "showAgenda" && typeof value === "boolean") {
       this.host.settings.showAgenda = value;
+    } else if (key === "timeFormat" && (value === "12-hour" || value === "24-hour")) {
+      this.host.settings.timeFormat = value;
     } else if (key === "autoIndexDates" && typeof value === "boolean") {
       this.host.settings.autoIndexDates = value;
       await this.host.saveSettings(true);

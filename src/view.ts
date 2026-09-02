@@ -556,7 +556,7 @@ export class LinkCalendarView extends ItemView {
       });
       item.createEl("time", {
         cls: "link-calendar__agenda-time",
-        text: formatEventTimeRange(event),
+        text: formatEventTimeRange(event, settings),
       });
       const identity = item.createDiv({ cls: "link-calendar__agenda-identity" });
       identity.createDiv({
@@ -766,15 +766,24 @@ function formatEventDate(locale: CalendarSettings["locale"], date: string): stri
   }).format(parseDateKey(date));
 }
 
-function formatEventTimeRange(event: CalendarEvent): string {
+function formatEventTimeRange(event: CalendarEvent, settings: CalendarSettings): string {
   if (event.allDay || !event.startTime) return "";
-  const start = formatEventTime(event.startTime);
-  const end = formatEventTime(event.endTime);
+  const start = formatEventTime(event.startTime, settings);
+  const end = formatEventTime(event.endTime, settings);
   return end && end !== start ? `${start}–${end}` : start;
 }
 
-function formatEventTime(value: string): string {
+function formatEventTime(value: string, settings: CalendarSettings): string {
   const wallClock = /(?:^|T)(\d{2}):(\d{2})/u.exec(value);
   if (!wallClock?.[1] || !wallClock[2]) return value;
+  if (settings.timeFormat === "12-hour") {
+    const date = new Date(Date.UTC(2000, 0, 1, Number(wallClock[1]), Number(wallClock[2])));
+    return new Intl.DateTimeFormat(resolvedLocale(settings.locale), {
+      hour: "numeric",
+      hour12: true,
+      minute: "2-digit",
+      timeZone: "UTC",
+    }).format(date);
+  }
   return `${wallClock[1]}:${wallClock[2]}`;
 }

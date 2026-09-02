@@ -5,6 +5,7 @@
 Link Calendar Navigator is a derived navigation surface over canonical Markdown.
 
 - It derives a read-only timeline from explicit Markdown body date forms across active Vault notes.
+- Explicit body entries may include 24-hour wall-clock times; display format is a presentation preference and never converts the authored clock value.
 - It reads bodies only for local date extraction; it does not copy bodies or create relationship, layout, or event databases.
 - Hidden, archive, backup, retired, and source-reference paths do not participate in the automatic index.
 - Optional source profiles are the only path for custom frontmatter property mappings and explicitly guarded writes.

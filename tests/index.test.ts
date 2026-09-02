@@ -229,8 +229,8 @@ describe("CalendarIndex", () => {
     ]);
     const bodies = new Map<string, string>([
       [target.path, "---\nstarted_on: 2026-08-02\nended_on: 2026-08-27\ncreated: 2026-08-01\n---\n# Application"],
-      [person.path, "- [[Career/Application|KRAFTON application]] · 2026-08-02 → 2026-08-27"],
-      [project.path, "- [[Career/Application]] · 2026-08-02 → 2026-08-27"],
+      [person.path, "- [[Career/Application|KRAFTON application]] · 2026-08-02 09:00 → 2026-08-27 18:00"],
+      [project.path, "- [[Career/Application]] · 2026-08-02 09:00 → 2026-08-27 18:00"],
       [archived.path, "- [[Career/Application]] · 2026-08-02 → 2026-08-27"],
     ]);
     const vault = {
@@ -256,7 +256,9 @@ describe("CalendarIndex", () => {
       filePath: "Career/Application.md",
       origin: "body",
       startDate: "2026-08-02",
+      startTime: "09:00",
       endDate: "2026-08-27",
+      endTime: "18:00",
       title: "KRAFTON AI Engineer intern application",
     });
     expect(periods[0]?.sources.map((source) => source.filePath)).toEqual([

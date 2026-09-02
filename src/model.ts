@@ -1,5 +1,6 @@
 export type LocaleId = "auto" | "en" | "ko";
 type WeekStart = "auto" | "sunday" | "monday";
+type TimeFormat = "12-hour" | "24-hour";
 
 export interface PropertyMap {
   allDay: string;
@@ -27,6 +28,7 @@ export interface CalendarSettings {
   locale: LocaleId;
   profiles: SourceProfile[];
   showAgenda: boolean;
+  timeFormat: TimeFormat;
   weekStart: WeekStart;
 }
 
@@ -85,6 +87,7 @@ export const DEFAULT_SETTINGS: CalendarSettings = {
   locale: "auto",
   profiles: [],
   showAgenda: true,
+  timeFormat: "24-hour",
   weekStart: "auto",
 };
 
@@ -120,6 +123,7 @@ export function normalizeSettings(value: unknown): CalendarSettings {
     locale: value.locale === "en" || value.locale === "ko" ? value.locale : "auto",
     profiles,
     showAgenda: value.showAgenda !== false && value.showContext !== false,
+    timeFormat: value.timeFormat === "12-hour" ? "12-hour" : "24-hour",
     weekStart: value.weekStart === "sunday" || value.weekStart === "monday"
       ? value.weekStart
       : "auto",
@@ -128,7 +132,7 @@ export function normalizeSettings(value: unknown): CalendarSettings {
 
 export function serializeSettings(settings: CalendarSettings): Record<string, unknown> {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     autoIndexDates: settings.autoIndexDates,
     locale: settings.locale,
     showAgenda: settings.showAgenda,
@@ -145,6 +149,7 @@ export function serializeSettings(settings: CalendarSettings): Record<string, un
         type: "folder",
       },
     })),
+    timeFormat: settings.timeFormat,
     weekStart: settings.weekStart,
   };
 }

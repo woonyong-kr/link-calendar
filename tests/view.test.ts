@@ -28,6 +28,7 @@ function settings(): CalendarSettings {
       tag: "",
     }],
     showAgenda: true,
+    timeFormat: "24-hour",
     weekStart: "sunday",
   };
 }
@@ -145,6 +146,26 @@ describe("Link Calendar Navigator view", () => {
     expect(openNote?.dataset.href).toBe("Calendar/Exam.md");
     openNote?.click();
     expect(vi.mocked(currentActions.open)).toHaveBeenCalledWith("Calendar/Exam.md");
+  });
+
+  it("renders the same stored wall-clock range in the selected 12-hour format", async () => {
+    const currentSettings = settings();
+    currentSettings.timeFormat = "12-hour";
+    const view = new LinkCalendarView(
+      {} as never,
+      () => currentSettings,
+      () => snapshot(),
+      actions(),
+    );
+    document.body.append(view.contentEl);
+    await view.onOpen();
+
+    view.contentEl.querySelector<HTMLButtonElement>("[data-event-id]")?.click();
+    await settle();
+
+    expect(view.contentEl.querySelector(".link-calendar__agenda-time")?.textContent).toBe(
+      "4:00 PM–5:30 PM",
+    );
   });
 
   it("exposes month-grid selection semantics without a duplicate date button", async () => {
