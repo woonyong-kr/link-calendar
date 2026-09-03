@@ -15,7 +15,9 @@ Link Calendar Navigator finds explicit dates, periods, history entries, and dead
 
 **Markdown → automatic timeline → original note.** Optional sync adds **selected source → dedicated Google calendar** without changing the source of truth.
 
-![Link Calendar Navigator moving from Markdown dates to a readable month and daily agenda](docs/media/link-calendar-demo.gif)
+![Link Calendar Navigator moving from Markdown dates to a readable month, daily agenda, optional dedicated Google calendar, and idempotent sync result](docs/media/link-calendar-demo.gif)
+
+The public-safe 16:9 walkthrough shows the whole boundary: Markdown timeline, canonical-note agenda, opt-in `Link Calendar` destination, and a repeat sync that leaves seven unchanged events untouched.
 
 ![Link Calendar Navigator showing compact one-line timeline entries in a sharp 16:9 release fixture](docs/media/link-calendar-overview.png)
 

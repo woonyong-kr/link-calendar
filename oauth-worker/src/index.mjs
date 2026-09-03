@@ -18,6 +18,12 @@ export default {
     try {
       validateEnvironment(env);
       const url = new URL(request.url);
+      if (request.method === "GET" && url.pathname === "/") {
+        return html(homePage());
+      }
+      if (request.method === "GET" && url.pathname === "/privacy") {
+        return html(privacyPage());
+      }
       if (request.method === "GET" && url.pathname === "/health") {
         return json({ origin: publicBaseUrl(env.PUBLIC_BASE_URL).origin, protocol: 1, status: "ok" });
       }
@@ -219,6 +225,96 @@ function json(value, status = 200) {
     },
     status,
   });
+}
+
+function html(body, status = 200) {
+  return new Response(body, {
+    headers: {
+      "Cache-Control": "public, max-age=300",
+      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+      "Content-Type": "text/html; charset=utf-8",
+      "Referrer-Policy": "no-referrer",
+      "X-Content-Type-Options": "nosniff",
+    },
+    status,
+  });
+}
+
+function homePage() {
+  return page("Link Calendar Navigator", `
+    <p class="eyebrow">Obsidian Community Plugin</p>
+    <h1>Link Calendar Navigator</h1>
+    <p class="lead">See the dates you already wrote. Send only the folder sources you choose to a dedicated Google calendar.</p>
+    <section>
+      <h2>Private and local by default</h2>
+      <p>Google Calendar integration is optional and disabled by default. Link Calendar requests only the <code>calendar.app.created</code> permission and cannot read your primary calendar or unrelated calendars.</p>
+    </section>
+    <section>
+      <h2>What the connection does</h2>
+      <p>An explicit sync creates or updates events from selected Obsidian folder sources in a secondary calendar named <strong>Link Calendar</strong>. Markdown remains the source of truth.</p>
+    </section>
+    <nav aria-label="Project links">
+      <a href="https://github.com/woonyong-kr/link-calendar">Source and documentation</a>
+      <a href="/privacy">Privacy policy</a>
+    </nav>
+  `);
+}
+
+function privacyPage() {
+  return page("Privacy policy · Link Calendar Navigator", `
+    <p class="eyebrow">Last updated September 4, 2026</p>
+    <h1>Privacy policy</h1>
+    <p class="lead">Link Calendar Navigator is local-first. Google Calendar access is optional, narrow, and controlled by the user.</p>
+    <section>
+      <h2>Google data accessed</h2>
+      <p>The plugin requests only <code>calendar.app.created</code>. This permits access to secondary calendars created by this application, not your primary calendar or unrelated calendars.</p>
+    </section>
+    <section>
+      <h2>Data sent and stored</h2>
+      <p>During an explicit sync, selected event titles and start/end values go directly from Obsidian to Google Calendar. Refresh tokens stay in Obsidian SecretStorage; access tokens stay in memory. The OAuth relay exchanges, refreshes, and revokes tokens without persisting tokens, notes, events, or analytics.</p>
+    </section>
+    <section>
+      <h2>Sharing and retention</h2>
+      <p>Google user data is not sold, used for advertising, shared with data brokers, or used to train AI models. Disconnecting revokes the grant and clears local authorization. Events already written to the dedicated calendar remain under the user's control.</p>
+    </section>
+    <section>
+      <h2>Contact</h2>
+      <p>For privacy questions, open a non-sensitive <a href="https://github.com/woonyong-kr/link-calendar/discussions">GitHub Discussion</a>. Use <a href="https://github.com/woonyong-kr/link-calendar/security">private vulnerability reporting</a> for security-sensitive reports.</p>
+    </section>
+    <nav aria-label="Project links">
+      <a href="/">Link Calendar home</a>
+      <a href="https://github.com/woonyong-kr/link-calendar/blob/main/PRIVACY.md">Full privacy policy</a>
+    </nav>
+  `);
+}
+
+function page(title, content) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${title}</title>
+  <meta name="description" content="Link Calendar Navigator privacy and Google Calendar connection information.">
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #111318; color: #eef0f4; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; }
+    main { width: min(720px, calc(100% - 40px)); margin: 56px auto; }
+    .eyebrow { color: #8f9bb3; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: .4rem 0 1rem; font-size: clamp(2.25rem, 8vw, 4.5rem); line-height: .98; letter-spacing: -.045em; }
+    h2 { margin: 0 0 .6rem; font-size: 1rem; }
+    p { color: #b6bdc9; line-height: 1.7; }
+    .lead { color: #e1e5ec; font-size: 1.15rem; }
+    section { padding: 1.2rem 0; border-top: 1px solid #292e38; }
+    section p { margin: 0; }
+    code { color: #9fc5ff; }
+    nav { display: flex; flex-wrap: wrap; gap: .75rem 1.2rem; padding-top: 1.25rem; border-top: 1px solid #292e38; }
+    a { color: #69a7ff; text-underline-offset: .22em; }
+    a:focus-visible { outline: 2px solid #69a7ff; outline-offset: 4px; border-radius: 2px; }
+  </style>
+</head>
+<body><main>${content}</main></body>
+</html>`;
 }
 
 function redirect(location) {

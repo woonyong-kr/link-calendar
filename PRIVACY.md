@@ -1,6 +1,8 @@
 # Privacy policy
 
-Last updated: 2026-09-03
+Last updated: 2026-09-04
+
+Public web copy: [link-calendar-oauth.woonyong.com/privacy](https://link-calendar-oauth.woonyong.com/privacy)
 
 Link Calendar Navigator is an open-source Obsidian plugin. Its calendar index runs locally by default. Google Calendar integration is optional and disabled until a user explicitly enables and connects it.
 

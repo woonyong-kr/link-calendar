@@ -64,6 +64,8 @@ Required Worker configuration:
 
 The GitHub repository variable `LINK_CALENDAR_GOOGLE_RELAY_URL` supplies the same public origin to CI and release builds. The release verifier rejects empty, local, example, credential-bearing, query-bearing, or mismatched relay URLs before an asset can be published.
 
+The Worker also serves the OAuth application's public homepage at `/` and privacy policy at `/privacy`. Keep those pages aligned with `README.md` and `PRIVACY.md`; their tests are part of `npm run test:oauth`.
+
 `npm run verify:release` also calls the deployed `/health` endpoint with a ten-second timeout and requires protocol version `1`. The release workflow cannot publish assets when the configured relay is missing, unhealthy, or incompatible.
 
 The manual `OAuth relay` GitHub workflow runs the isolated tests, deploys only `oauth-worker/`, and rechecks the live protocol. It needs repository secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`; Google and state secrets remain in Cloudflare and are not copied into GitHub.

@@ -22,6 +22,21 @@ test("health identifies the compatible relay protocol", async () => {
   });
 });
 
+test("public homepage and privacy policy describe the narrow integration", async () => {
+  const home = await worker.fetch(new Request("https://relay.example/"), env);
+  assert.equal(home.status, 200);
+  assert.match(home.headers.get("content-type"), /^text\/html/);
+  assert.match(home.headers.get("content-security-policy"), /frame-ancestors 'none'/);
+  assert.match(await home.text(), /calendar\.app\.created/);
+
+  const privacy = await worker.fetch(new Request("https://relay.example/privacy"), env);
+  assert.equal(privacy.status, 200);
+  const body = await privacy.text();
+  assert.match(body, /Privacy policy/);
+  assert.match(body, /without persisting tokens, notes, events, or analytics/);
+  assert.match(body, /not sold/);
+});
+
 test("health rejects a public base URL that is not an exact HTTPS origin", async () => {
   const response = await worker.fetch(
     new Request("https://relay.example/health"),

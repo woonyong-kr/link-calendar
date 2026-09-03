@@ -1,26 +1,26 @@
 {
   "version": "3.6.0",
-  "capturedWith": "Obsidian 1.13.7 styles in deterministic release fixture",
-  "capturedAt": "2026-09-01",
+  "capturedWith": "Obsidian 1.13.7 styles in deterministic public release fixture",
+  "capturedAt": "2026-09-04",
   "publicSafeSample": true,
   "assets": [
     {
       "path": "docs/media/link-calendar-demo.gif",
       "width": 1600,
       "height": 900,
-      "sha256": "4728638cc16ffd188caa48992a14bab4c5fa2273623ca5cd785e567b383d36fc"
+      "sha256": "9a3935c610b8b29489c9aa2bd5f72799a320c80136adb0de0961c6e5bd516629"
     },
     {
       "path": "docs/media/link-calendar-overview.png",
       "width": 1600,
       "height": 900,
-      "sha256": "7bc600b61dd8882196d8900656bed395cb508325242b0ecdbfa63a90bbc5698f"
+      "sha256": "79be78036c194550d59d6c41d6eeb05f94c7f97f9acde3033a6a99d216633b0d"
     },
     {
       "path": "docs/media/link-calendar-agenda.png",
       "width": 1600,
       "height": 900,
-      "sha256": "88353a19377632145572358f4251e772092c8f3f748b537c016e7132cfee127e"
+      "sha256": "550dfda2abd85b8be466c209ffd1e02f30c2f780d051dbe75137197cb6b3ffc5"
     }
   ]
 }

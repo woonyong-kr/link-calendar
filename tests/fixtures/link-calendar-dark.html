@@ -85,6 +85,166 @@
     html, body, .workspace-leaf-content, .view-content { height: 100%; margin: 0; }
     body.is-overview .link-calendar__body { grid-template-columns: minmax(0, 1fr); }
     body.is-overview .link-calendar__side { display: none; }
+    .demo-settings,
+    .demo-toast { display: none; }
+    body.is-google main { display: none; }
+    body.is-google .demo-settings { display: grid; }
+    .demo-settings {
+      height: 100%;
+      grid-template-columns: 300px minmax(0, 1fr);
+      background: var(--background-primary);
+      color: var(--text-normal);
+      font-family: var(--font-interface);
+    }
+    .demo-settings__nav {
+      padding: 52px 24px;
+      background: var(--background-secondary);
+      border-right: 1px solid var(--divider-color);
+    }
+    .demo-settings__nav-title {
+      margin: 0 10px 28px;
+      color: var(--text-faint);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .demo-settings__nav-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .demo-settings__nav-item.is-active {
+      background: var(--background-modifier-hover);
+      color: var(--text-normal);
+      font-weight: 600;
+    }
+    .demo-settings__content {
+      max-width: 940px;
+      padding: 58px 72px 80px;
+    }
+    .demo-settings__eyebrow {
+      color: var(--text-faint);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .demo-settings h1 {
+      margin: 8px 0 14px;
+      font-size: 30px;
+      letter-spacing: -.03em;
+    }
+    .demo-settings__intro {
+      max-width: 690px;
+      margin: 0 0 38px;
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .demo-settings__section {
+      overflow: hidden;
+      border: 1px solid var(--divider-color);
+      border-radius: 12px;
+      background: var(--background-secondary);
+    }
+    .demo-settings__row {
+      display: grid;
+      min-height: 70px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 24px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--divider-color);
+    }
+    .demo-settings__row:last-child { border-bottom: 0; }
+    .demo-settings__name {
+      margin-bottom: 4px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .demo-settings__desc {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .demo-toggle {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--interactive-accent);
+    }
+    .demo-toggle::after {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: white;
+      content: "";
+    }
+    .demo-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #63d58b;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .demo-status::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #30d158;
+      content: "";
+    }
+    .demo-button {
+      padding: 8px 14px;
+      border: 0;
+      border-radius: 7px;
+      background: var(--interactive-accent);
+      color: var(--text-on-accent);
+      font: 600 12px var(--font-interface);
+    }
+    .demo-calendar-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-normal);
+      font-size: 13px;
+    }
+    .demo-calendar-name::before {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      background: var(--interactive-accent);
+      content: "";
+    }
+    body.is-synced .demo-toast {
+      position: fixed;
+      right: 26px;
+      bottom: 26px;
+      z-index: 5;
+      display: block;
+      width: 420px;
+      padding: 16px 18px;
+      border: 1px solid #ffffff1a;
+      border-radius: 10px;
+      background: #292929;
+      box-shadow: var(--shadow-l);
+      color: var(--text-normal);
+      font: 13px/1.5 var(--font-interface);
+    }
+    .demo-toast strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #63d58b;
+      font-size: 12px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
@@ -156,6 +316,43 @@
       </div>
     </div>
   </main>
+  <section class="demo-settings" aria-label="Link Calendar settings demo">
+    <nav class="demo-settings__nav">
+      <div class="demo-settings__nav-title">Options</div>
+      <div class="demo-settings__nav-item">Editor</div>
+      <div class="demo-settings__nav-item">Files and links</div>
+      <div class="demo-settings__nav-item is-active">Link Calendar Navigator</div>
+      <div class="demo-settings__nav-item">Community plugins</div>
+    </nav>
+    <div class="demo-settings__content">
+      <div class="demo-settings__eyebrow">Optional integration</div>
+      <h1>Google Calendar</h1>
+      <p class="demo-settings__intro">Send only the configured sources you select to a dedicated Google calendar. The integration is off by default, and your Markdown remains the source of truth.</p>
+      <div class="demo-settings__section">
+        <div class="demo-settings__row">
+          <div><div class="demo-settings__name">Enable Google Calendar</div><div class="demo-settings__desc">No account or network request is used until this is enabled.</div></div>
+          <div class="demo-toggle" aria-label="Enabled"></div>
+        </div>
+        <div class="demo-settings__row">
+          <div><div class="demo-settings__name">Connected securely</div><div class="demo-settings__desc">Tokens are stored in Obsidian SecretStorage.</div></div>
+          <div class="demo-status">Connected</div>
+        </div>
+        <div class="demo-settings__row">
+          <div><div class="demo-settings__name">Destination calendar</div><div class="demo-settings__desc">The plugin cannot read or modify unrelated calendars.</div></div>
+          <div class="demo-calendar-name">Link Calendar</div>
+        </div>
+        <div class="demo-settings__row">
+          <div><div class="demo-settings__name">Sync source: Project notes</div><div class="demo-settings__desc">Only this configured folder source will be projected.</div></div>
+          <div class="demo-toggle" aria-label="Source enabled"></div>
+        </div>
+        <div class="demo-settings__row">
+          <div><div class="demo-settings__name">Sync now</div><div class="demo-settings__desc">Manual, one-way, conflict-aware projection from Markdown.</div></div>
+          <button class="demo-button">Sync to Google</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="demo-toast" role="status"><strong>Sync complete</strong>0 created · 0 updated · 7 unchanged · 0 conflicts · 0 failed</div>
   <script>
     const fixtureOptions = new URLSearchParams(window.location.search);
     if (fixtureOptions.has("light")) {
@@ -163,6 +360,12 @@
     }
     if (fixtureOptions.has("overview")) {
       document.body.classList.add("is-overview");
+    }
+    if (fixtureOptions.has("google")) {
+      document.body.classList.add("is-google");
+    }
+    if (fixtureOptions.has("synced")) {
+      document.body.classList.add("is-synced");
     }
   </script>
 </body>

@@ -10,6 +10,9 @@ const required = [
   "internal-link",
   "data-href=",
   "aria-label=\"August 2026\"",
+  "Optional integration",
+  "The plugin cannot read or modify unrelated calendars.",
+  "0 created · 0 updated · 7 unchanged · 0 conflicts · 0 failed",
 ];
 const missing = required.filter((token) => !fixture.includes(token));
 if (missing.length) throw new Error(`Visual fixture is incomplete: ${missing.join(", ")}`);

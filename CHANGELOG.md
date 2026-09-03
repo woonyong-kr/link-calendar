@@ -7,6 +7,7 @@
 - Store refresh tokens through Obsidian SecretStorage and isolate the PKCE OAuth exchange, refresh, and revocation flow in a no-storage Cloudflare Worker adapter.
 - Make event creation idempotent, preserve remote fields outside the plugin's ownership, stop on ETag conflicts, and never infer remote deletion from a missing local note.
 - Document the exact privacy, data, conflict, and background-execution boundaries and add isolated OAuth, settings, API, projection, collision, and failure-path regression tests.
+- Refresh the public-safe 16:9 walkthrough to show the opt-in dedicated-calendar boundary and an idempotent repeat sync without exposing a real account or event.
 
 ## 3.5.0
 
