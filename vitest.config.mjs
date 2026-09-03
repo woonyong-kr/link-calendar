@@ -8,6 +8,7 @@ export default defineConfig({
   },
   test: {
     environment: "happy-dom",
+    include: ["tests/**/*.test.ts"],
     setupFiles: ["./tests/dom-setup.ts"],
     coverage: {
       exclude: ["src/main.ts", "src/settings.ts", "src/view.ts"],
@@ -15,6 +16,8 @@ export default defineConfig({
         "src/model.ts",
         "src/index.ts",
         "src/i18n.ts",
+        "src/google-auth.ts",
+        "src/google-calendar.ts",
         "src/policy.ts",
         "src/presentation.ts",
       ],

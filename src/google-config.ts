@@ -1,0 +1,3 @@
+declare const __LINK_CALENDAR_GOOGLE_RELAY_URL__: string;
+
+export const GOOGLE_OAUTH_RELAY_URL = __LINK_CALENDAR_GOOGLE_RELAY_URL__;

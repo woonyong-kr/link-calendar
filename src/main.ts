@@ -6,6 +6,7 @@ import {
   TFolder,
   normalizePath,
   parseYaml,
+  requestUrl,
   stringifyYaml,
 } from "obsidian";
 
@@ -16,7 +17,14 @@ import {
   detectSourceFolder,
   selectProfileFromFrontmatter,
 } from "./index";
-import { translate } from "./i18n";
+import { formatMessage, translate } from "./i18n";
+import { GoogleAuthManager } from "./google-auth";
+import {
+  GoogleCalendarClient,
+  type GoogleHttpRequest,
+  syncGoogleCalendar as runGoogleSync,
+} from "./google-calendar";
+import { GOOGLE_OAUTH_RELAY_URL } from "./google-config";
 import {
   type CalendarEvent,
   type CalendarSettings,
@@ -59,9 +67,15 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
   private refreshTimer: number | null = null;
   private lastMove: MoveUndoReceipt | null = null;
   private settingsTab!: LinkCalendarSettingTab;
+  private googleAuth!: GoogleAuthManager;
 
   override async onload(): Promise<void> {
     this.settings = normalizeSettings(await this.loadData());
+    this.googleAuth = new GoogleAuthManager(
+      GOOGLE_OAUTH_RELAY_URL,
+      (request) => this.googleRequest(request),
+      this.app.secretStorage,
+    );
     this.index = new CalendarIndex(
       this.app.vault,
       this.app.metadataCache,
@@ -119,6 +133,21 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
         return true;
       },
     });
+    this.addCommand({
+      id: "sync-google-calendar",
+      name: translate(this.settings.locale, "googleSyncNow"),
+      checkCallback: (checking) => {
+        const available = this.settings.googleCalendar.enabled
+          && this.googleAuth.isConnected()
+          && Boolean(this.settings.googleCalendar.calendar)
+          && this.settings.googleCalendar.sourceProfileIds.length > 0;
+        if (available && !checking) void this.syncGoogleCalendar();
+        return available;
+      },
+    });
+    this.registerObsidianProtocolHandler("link-calendar-google", (data) => {
+      void this.completeGoogleConnection(data);
+    });
     this.settingsTab = new LinkCalendarSettingTab(this.app, this);
     this.addSettingTab(this.settingsTab);
     this.registerMarkdownCodeBlockProcessor(CODE_BLOCK, (source, element, context) => {
@@ -130,6 +159,9 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
       this.publishSnapshot();
       this.registerIndexEvents();
       void this.index.rebuildBodies().then(() => this.publishSnapshot());
+      if (this.settings.googleCalendar.enabled && this.googleAuth.isConnected()) {
+        void this.ensureGoogleCalendar(false);
+      }
     });
   }
 
@@ -179,6 +211,7 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
     this.registerEvent(
       this.app.vault.on("rename", (file, oldPath) => {
         if (file instanceof TFile && file.extension === "md") {
+          this.migrateGoogleRecordPath(oldPath, file.path);
           this.index.remove(oldPath);
           this.index.update(file);
           this.queuePublish();
@@ -196,6 +229,20 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
       this.refreshTimer = null;
       this.publishSnapshot();
     }, 80);
+  }
+
+  private migrateGoogleRecordPath(oldPath: string, newPath: string): void {
+    const changed = this.settings.googleCalendar.records.some((record) => {
+      const separator = record.localKey.indexOf("\u0000");
+      return separator >= 0 && record.localKey.slice(separator + 1) === oldPath;
+    });
+    if (!changed) return;
+    this.settings.googleCalendar.records = this.settings.googleCalendar.records.map((record) => {
+      const separator = record.localKey.indexOf("\u0000");
+      if (separator < 0 || record.localKey.slice(separator + 1) !== oldPath) return record;
+      return { ...record, localKey: `${record.localKey.slice(0, separator)}\u0000${newPath}` };
+    });
+    void this.saveSettings();
   }
 
   private publishSnapshot(): void {
@@ -255,6 +302,142 @@ export default class LinkCalendarPlugin extends Plugin implements SettingsHost {
 
   sourceHealth(profile: SourceProfile): SourceHealth {
     return this.index.sourceHealth(profile.id);
+  }
+
+  googleAvailable(): boolean {
+    return this.googleAuth.isAvailable();
+  }
+
+  googleConnected(): boolean {
+    return this.googleAuth.isConnected();
+  }
+
+  async connectGoogle(): Promise<void> {
+    if (!this.settings.googleCalendar.enabled) return;
+    try {
+      const url = await this.googleAuth.beginAuthorization(this.settings.locale);
+      window.open(url, "_blank", "noopener,noreferrer");
+      new Notice(translate(this.settings.locale, "googleConnectionStarted"));
+    } catch (error) {
+      new Notice(error instanceof Error ? error.message : translate(this.settings.locale, "googleSyncFailed"));
+    }
+  }
+
+  async disconnectGoogle(): Promise<void> {
+    try {
+      await this.googleAuth.disconnect();
+      this.settings.googleCalendar.calendar = null;
+      this.settings.googleCalendar.records = [];
+      this.settings.googleCalendar.sourceProfileIds = [];
+      await this.saveSettings();
+      new Notice(translate(this.settings.locale, "googleDisconnected"));
+    } catch (error) {
+      new Notice(error instanceof Error ? error.message : translate(this.settings.locale, "googleSyncFailed"));
+    }
+  }
+
+  async ensureGoogleCalendar(showFailure = true): Promise<void> {
+    if (!this.googleAuth.isConnected()) {
+      if (showFailure) new Notice(translate(this.settings.locale, "googleConnectionRequired"));
+      return;
+    }
+    try {
+      this.settings.googleCalendar.calendar = await this.resolveGoogleCalendar();
+      await this.saveSettings();
+      this.settingsTab.update();
+    } catch (error) {
+      if (showFailure) {
+        new Notice(error instanceof Error ? error.message : translate(this.settings.locale, "googleSyncFailed"));
+      }
+    }
+  }
+
+  async toggleGoogleSource(profileId: string, enabled: boolean): Promise<void> {
+    const values = new Set(this.settings.googleCalendar.sourceProfileIds);
+    if (enabled) values.add(profileId);
+    else values.delete(profileId);
+    this.settings.googleCalendar.sourceProfileIds = [...values].sort();
+    await this.saveSettings();
+  }
+
+  async syncGoogleCalendar(): Promise<void> {
+    const google = this.settings.googleCalendar;
+    if (!google.enabled || !this.googleAuth.isConnected() || !google.calendar) {
+      new Notice(translate(this.settings.locale, "googleConnectionRequired"));
+      return;
+    }
+    if (!google.sourceProfileIds.length) {
+      new Notice(translate(this.settings.locale, "googleNoSources"));
+      return;
+    }
+    if (!google.installationId) {
+      google.installationId = crypto.randomUUID();
+      await this.saveSettings();
+    }
+    try {
+      google.calendar = await this.resolveGoogleCalendar();
+      const result = await runGoogleSync({
+        calendar: google.calendar,
+        client: this.googleClient(),
+        defaultDurationMinutes: google.defaultDurationMinutes,
+        events: this.index.snapshot().events,
+        installationId: google.installationId,
+        records: google.records,
+        sourceProfileIds: google.sourceProfileIds,
+      });
+      google.records = result.records;
+      await this.saveSettings();
+      new Notice(formatMessage(this.settings.locale, "googleSyncSummary", {
+        conflicts: String(result.conflicts.length),
+        created: String(result.created),
+        failed: String(result.failed.length),
+        skipped: String(result.skipped),
+        updated: String(result.updated),
+      }));
+    } catch (error) {
+      new Notice(error instanceof Error ? error.message : translate(this.settings.locale, "googleSyncFailed"));
+    }
+  }
+
+  private async completeGoogleConnection(data: Record<string, string>): Promise<void> {
+    try {
+      await this.googleAuth.completeAuthorization(data);
+      this.settings.googleCalendar.enabled = true;
+      if (!this.settings.googleCalendar.installationId) {
+        this.settings.googleCalendar.installationId = crypto.randomUUID();
+      }
+      await this.saveSettings();
+      await this.ensureGoogleCalendar();
+    } catch (error) {
+      new Notice(error instanceof Error ? error.message : translate(this.settings.locale, "googleSyncFailed"));
+    }
+  }
+
+  private googleClient(): GoogleCalendarClient {
+    return new GoogleCalendarClient(
+      (request) => this.googleRequest(request),
+      () => this.googleAuth.getAccessToken(),
+    );
+  }
+
+  private async resolveGoogleCalendar(): Promise<NonNullable<CalendarSettings["googleCalendar"]["calendar"]>> {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    return this.googleClient().ensureAppCalendar(
+      this.settings.googleCalendar.calendar,
+      "Link Calendar",
+      timeZone,
+    );
+  }
+
+  private async googleRequest(input: GoogleHttpRequest): Promise<{ json: unknown; status: number }> {
+    const response = await requestUrl({
+      body: input.body,
+      headers: input.headers,
+      method: input.method,
+      throw: false,
+      url: input.url,
+    });
+    return { json: response.json, status: response.status };
   }
 
   private detectSource(folder: string, recursive: boolean): SourceDetection {

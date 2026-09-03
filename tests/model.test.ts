@@ -123,7 +123,7 @@ describe("settings boundary", () => {
       profiles: [profile],
     });
     expect(serialized).toMatchObject({
-      schemaVersion: 3,
+      schemaVersion: 4,
       autoIndexDates: true,
       timeFormat: "24-hour",
       sourceProfiles: [{
@@ -131,6 +131,48 @@ describe("settings boundary", () => {
         source: { path: "Generated/Events", recursive: false, type: "folder" },
       }],
     });
+  });
+
+  it("keeps Google Calendar disabled and removes mappings to missing source profiles", () => {
+    const settings = normalizeSettings({
+      googleCalendar: {
+        calendar: { id: "dedicated", name: "Link Calendar", timeZone: "Asia/Seoul" },
+        defaultDurationMinutes: 30,
+        enabled: true,
+        installationId: "install-id",
+        records: [{
+          calendarId: "dedicated",
+          etag: "etag",
+          eventId: "event-id",
+          fingerprint: "fingerprint",
+          localKey: "source\u0000Calendar/Event.md",
+        }],
+        sourceProfileIds: ["source", "missing"],
+      },
+      sourceProfiles: [{
+        enabled: true,
+        id: "source",
+        name: "Source",
+        properties: { start: "date" },
+        source: { path: "Calendar", type: "folder" },
+      }],
+    });
+    expect(normalizeSettings({}).googleCalendar).toEqual({
+      calendar: null,
+      defaultDurationMinutes: 60,
+      enabled: false,
+      installationId: "",
+      records: [],
+      sourceProfileIds: [],
+    });
+    expect(settings.googleCalendar).toMatchObject({
+      calendar: { id: "dedicated", timeZone: "Asia/Seoul" },
+      defaultDurationMinutes: 30,
+      enabled: true,
+      records: [{ eventId: "event-id", etag: "etag" }],
+      sourceProfileIds: ["source"],
+    });
+    expect(JSON.stringify(serializeSettings(settings))).not.toContain("refreshToken");
   });
 
   it("uses stable generated tones without exposing category names as CSS classes", () => {

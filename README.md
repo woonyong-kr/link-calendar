@@ -8,12 +8,12 @@
 </p>
 
 <p align="center">
-  <strong>See your whole Vault on a timeline—without moving Markdown into another calendar.</strong>
+  <strong>See the dates you already wrote. Send only the sources you choose to Google Calendar for reminders.</strong>
 </p>
 
 Link Calendar Navigator finds explicit dates, periods, history entries, and deadlines already written in active Markdown bodies. Select a day to open the canonical note or inspect every note that mentioned the same timeline item. Dates from configured calendar-note folders can appear beside them without changing Markdown ownership.
 
-**Markdown → automatic timeline → original note.**
+**Markdown → automatic timeline → original note.** Optional sync adds **selected source → dedicated Google calendar** without changing the source of truth.
 
 ![Link Calendar Navigator moving from Markdown dates to a readable month and daily agenda](docs/media/link-calendar-demo.gif)
 
@@ -35,7 +35,7 @@ Link Calendar Navigator finds explicit dates, periods, history entries, and dead
 - **Low-noise by default:** file timestamps, maintenance properties, and arbitrary prose dates never become events.
 - **Read-only automation:** automatic results cannot rewrite source notes.
 - **Optional controlled writing:** folder profiles can explicitly allow note creation and conflict-checked date moves.
-- **Local-only:** no account, network request, external calendar, telemetry, or remote AI.
+- **Local by default:** no account or network request is used until Google Calendar is explicitly enabled and connected.
 
 ## Five-second start
 
@@ -44,6 +44,20 @@ Link Calendar Navigator finds explicit dates, periods, history entries, and dead
 3. Move between months, select an event title, and open its canonical Markdown.
 
 That is enough for read-only navigation. Folder setup is optional and is needed only when you want a custom property mapping or explicitly writable calendar notes.
+
+## Optional Google Calendar reminders
+
+Google Calendar integration is off by default. When you enable it, one **Connect Google Calendar** action creates a dedicated **Link Calendar** in your account. You do not create an OAuth client or paste credentials.
+
+1. Add or choose the folder sources whose mapped events may leave Obsidian.
+2. Enable **Google Calendar** and connect your account in the browser.
+3. Turn on only the source mappings you want, then select **Sync now**.
+
+The first release is deliberately one-way: **configured Markdown source → dedicated Google calendar**. It creates or updates only events previously created by this plugin. Existing calendars, unrelated events, guests, and remote descriptions are outside its write boundary. Deleting a note never authorizes a remote deletion, and a Google-side edit stops a later overwrite as a conflict.
+
+The dedicated calendar appears in Google Calendar on desktop and mobile, so its normal notifications remain available even when Obsidian is closed. Obsidian must be open when you run a sync; this release does not claim background or two-way synchronization.
+
+Only the narrow `calendar.app.created` permission is requested. Refresh tokens stay in Obsidian `SecretStorage`; note bodies are not sent to the OAuth relay. See [Google Calendar privacy and security](docs/google-calendar.md) and the [privacy policy](PRIVACY.md).
 
 ## Two inputs, one timeline
 
@@ -150,8 +164,10 @@ title: Learning calendar
 
 - All extraction and deduplication run locally inside Obsidian.
 - The index stores derived event metadata only in memory and rebuilds from Markdown.
-- No note body, date, or path leaves the app.
-- No plugin-owned event database survives a reload.
+- The local calendar index has no persistent event database; optional Google sync stores only mapping IDs, ETags, and fingerprints needed for safe retries.
+- With Google Calendar disabled, no note body, title, date, or path leaves the app.
+- With Google Calendar enabled, only mapped event titles and start/end values are sent directly to Google Calendar during an explicit sync.
+- The OAuth relay exchanges and refreshes Google tokens but does not store tokens, notes, events, or analytics.
 - Automatic body reads are batched so Obsidian can render between batches.
 - The test suite includes a 5,000-note automatic-index fixture.
 - Explicit writable-profile ranges longer than 370 days are rejected as diagnostics.
@@ -166,6 +182,10 @@ Removing the plugin leaves every Markdown note and property intact.
 - **Create or drag is unavailable:** automatic items are read-only; enable a valid writable folder profile for mutations.
 - **A move was rejected:** the Markdown changed after indexing or no longer matches the configured source.
 - **Search shows no results:** clear the query and source filters to restore the month.
+- **Google Calendar is unavailable:** update to a release build; development builds require `LINK_CALENDAR_GOOGLE_RELAY_URL` at build time.
+- **A Google event was not overwritten:** check the sync summary. A remote ETag change is reported as a conflict instead of being replaced.
+- **A deleted note remains in Google:** this is intentional. Remote deletion is never inferred from a missing local file.
+- **The dedicated Google calendar was deleted:** sync stops instead of recreating it silently. Disconnect and connect again only if you want a new dedicated calendar.
 
 ## Installation and compatibility
 
@@ -184,11 +204,11 @@ npm ci
 npm run verify
 ```
 
-`npm run verify` runs TypeScript, Obsidian lint, unused-code analysis, unit and DOM tests with coverage, visual-fixture checks, a production build, and release-policy validation.
+`npm run verify` runs TypeScript, Obsidian lint, unused-code analysis, plugin and OAuth relay tests, DOM tests with coverage, visual-fixture checks, a production build, and release-policy validation.
 
 ## 한국어 요약
 
-Link Calendar Navigator는 활성 Markdown 전체의 일정·기간·이력·마감을 자동으로 월간 시간축에 모읍니다. 같은 정본 링크와 기간이 반복되면 하나로 합치고, 상세 패널에서 정본과 언급 문서를 분리해 보여 줍니다. Markdown이 유일한 정본이며 자동 색인은 읽기 전용·로컬 전용입니다.
+Link Calendar Navigator는 활성 Markdown 전체의 일정·기간·이력·마감을 자동으로 월간 시간축에 모읍니다. 같은 정본 링크와 기간이 반복되면 하나로 합치고, 상세 패널에서 정본과 언급 문서를 분리해 보여 줍니다. Markdown이 유일한 정본이며 자동 색인은 읽기 전용입니다. 선택 사항인 Google Calendar 연결은 기본적으로 꺼져 있고, 사용자가 고른 폴더 소스만 전용 Link Calendar로 단방향 동기화합니다.
 
 ## License
 

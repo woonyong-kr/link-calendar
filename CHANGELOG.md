@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.6.0
+
+- Add an opt-in, manual, one-way projection from selected configured folder sources to a dedicated Google calendar.
+- Keep Google Calendar disabled by default and request only the least-privilege `calendar.app.created` scope; end users connect in the browser without creating or pasting developer credentials.
+- Store refresh tokens through Obsidian SecretStorage and isolate the PKCE OAuth exchange, refresh, and revocation flow in a no-storage Cloudflare Worker adapter.
+- Make event creation idempotent, preserve remote fields outside the plugin's ownership, stop on ETag conflicts, and never infer remote deletion from a missing local note.
+- Document the exact privacy, data, conflict, and background-execution boundaries and add isolated OAuth, settings, API, projection, collision, and failure-path regression tests.
+
 ## 3.5.0
 
 - Parse explicit 24-hour wall-clock values and time ranges from Markdown body timeline entries without broadening the low-noise date grammar.

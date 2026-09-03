@@ -5,20 +5,32 @@ import {
   PluginSettingTab,
   type SettingDefinitionItem,
   type SettingDefinitionPage,
+  type SettingGroupItem,
   type TFolder,
 } from "obsidian";
 
 import { type SourceHealth } from "./index";
 import { type MessageKey, formatMessage, translate } from "./i18n";
-import { type CalendarSettings, type SourceProfile, createProfile } from "./model";
+import {
+  type CalendarSettings,
+  type SourceProfile,
+  createProfile,
+} from "./model";
 import { type ProfileValidation, validateProfile } from "./policy";
 
 export interface SettingsHost {
   app: App;
   settings: CalendarSettings;
-  saveSettings(rebuildIndex?: boolean): Promise<void>;
   chooseFolder(onChoose: (folder: TFolder) => void): void;
+  connectGoogle(): Promise<void>;
+  disconnectGoogle(): Promise<void>;
+  googleAvailable(): boolean;
+  googleConnected(): boolean;
+  ensureGoogleCalendar(): Promise<void>;
+  saveSettings(rebuildIndex?: boolean): Promise<void>;
   sourceHealth(profile: SourceProfile): SourceHealth;
+  syncGoogleCalendar(): Promise<void>;
+  toggleGoogleSource(profileId: string, enabled: boolean): Promise<void>;
 }
 
 export class LinkCalendarSettingTab extends PluginSettingTab {
@@ -84,6 +96,11 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
       },
       {
         type: "group",
+        heading: translate(locale, "googleCalendar"),
+        items: this.googleItems(),
+      },
+      {
+        type: "group",
         heading: translate(locale, "sources"),
         items: [
           ...this.host.settings.profiles.map((profile) => this.profilePage(profile)),
@@ -108,6 +125,10 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
     if (key === "showAgenda") return this.host.settings.showAgenda;
     if (key === "timeFormat") return this.host.settings.timeFormat;
     if (key === "autoIndexDates") return this.host.settings.autoIndexDates;
+    if (key === "googleEnabled") return this.host.settings.googleCalendar.enabled;
+    if (key === "googleDefaultDuration") {
+      return String(this.host.settings.googleCalendar.defaultDurationMinutes);
+    }
     return undefined;
   }
 
@@ -125,11 +146,96 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
       await this.host.saveSettings(true);
       this.update();
       return;
+    } else if (key === "googleEnabled" && typeof value === "boolean") {
+      this.host.settings.googleCalendar.enabled = value;
+    } else if (key === "googleDefaultDuration"
+      && (value === "15" || value === "30" || value === "60" || value === "90")) {
+      this.host.settings.googleCalendar.defaultDurationMinutes = Number(value);
     } else {
       return;
     }
     await this.host.saveSettings();
     this.update();
+  }
+
+  private googleItems(): SettingGroupItem[] {
+    const locale = this.host.settings.locale;
+    const google = this.host.settings.googleCalendar;
+    const connected = this.host.googleConnected();
+    const items: SettingGroupItem[] = [
+      {
+        name: translate(locale, "googleEnable"),
+        desc: translate(locale, "googleEnableDesc"),
+        control: { type: "toggle", key: "googleEnabled" },
+      },
+    ];
+    if (!google.enabled) return items;
+    items.push({
+      name: connected ? translate(locale, "googleConnected") : translate(locale, "googleConnect"),
+      desc: translate(locale, "googleCalendarDesc"),
+      render: (setting) => {
+        setting
+          .setName(connected ? translate(locale, "googleConnected") : translate(locale, "googleConnect"))
+          .setDesc(this.host.googleAvailable()
+            ? translate(locale, "googleCalendarDesc")
+            : translate(locale, "googleUnavailable"));
+        setting.addButton((button) => {
+          button
+            .setButtonText(connected ? translate(locale, "googleDisconnect") : translate(locale, "googleConnect"))
+            .setDisabled(!connected && !this.host.googleAvailable())
+            .onClick(() => {
+              void (connected ? this.host.disconnectGoogle() : this.host.connectGoogle())
+                .then(() => this.update());
+            });
+        });
+      },
+    });
+    if (!connected) return items;
+    items.push({
+      name: translate(locale, "googleCalendarTarget"),
+      desc: google.calendar?.name ?? translate(locale, "googleNoCalendars"),
+      render: (setting) => {
+        setting
+          .setName(translate(locale, "googleCalendarTarget"))
+          .setDesc(google.calendar?.name ?? translate(locale, "googleNoCalendars"));
+        setting.addExtraButton((button) => {
+          button.setIcon("refresh-cw").setTooltip(translate(locale, "googleCalendarTarget"));
+          button.onClick(() => { void this.host.ensureGoogleCalendar().then(() => this.update()); });
+        });
+      },
+    });
+    items.push({
+      name: translate(locale, "googleDefaultDuration"),
+      desc: translate(locale, "googleDefaultDurationDesc"),
+      control: {
+        type: "dropdown",
+        key: "googleDefaultDuration",
+        options: { "15": "15 min", "30": "30 min", "60": "60 min", "90": "90 min" },
+      },
+    });
+    for (const profile of this.host.settings.profiles.filter((profile) => profile.enabled)) {
+      items.push({
+        name: formatMessage(locale, "googleSourceMapping", { name: profile.name }),
+        desc: translate(locale, "googleSourceMappingDesc"),
+        render: (setting) => {
+          setting
+            .setName(formatMessage(locale, "googleSourceMapping", { name: profile.name }))
+            .setDesc(translate(locale, "googleSourceMappingDesc"))
+            .addToggle((control) => {
+              control
+                .setValue(google.sourceProfileIds.includes(profile.id))
+                .onChange((value) => {
+                  void this.host.toggleGoogleSource(profile.id, value).then(() => this.update());
+                });
+            });
+        },
+      });
+    }
+    items.push({
+      name: translate(locale, "googleSyncNow"),
+      action: () => { void this.host.syncGoogleCalendar().then(() => this.update()); },
+    });
+    return items;
   }
 
   private profilePage(profile: SourceProfile): SettingDefinitionPage {
@@ -277,6 +383,8 @@ export class LinkCalendarSettingTab extends PluginSettingTab {
           name: translate(locale, "removeSource"),
           action: () => {
             this.host.settings.profiles = this.host.settings.profiles.filter((item) => item.id !== profile.id);
+            this.host.settings.googleCalendar.sourceProfileIds = this.host.settings.googleCalendar.sourceProfileIds
+              .filter((id) => id !== profile.id);
             void this.host.saveSettings(true).then(() => this.update());
           },
         },

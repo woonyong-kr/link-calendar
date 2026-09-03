@@ -7,7 +7,15 @@ npm ci
 npm run verify
 ```
 
-Changes to date parsing, source capabilities, or file mutation require a regression test. Do not add network requests, credentials, telemetry, Vault-wide file enumeration, Vault-external paths, or direct filesystem writes. UI changes must be checked in Obsidian light and dark themes at desktop and narrow widths.
+The default verification build keeps Google Calendar unavailable and needs no maintainer service or credentials. To exercise a connected development build, set `LINK_CALENDAR_GOOGLE_RELAY_URL` to an exact HTTPS relay origin. Production release verification additionally requires that live relay to pass its protocol health check.
+
+Changes to date parsing, source capabilities, file mutation, OAuth, or remote projection require a regression test. Network code must remain inside the Google adapters, default off, and least privilege. Never commit credentials, tokens, telemetry, request-body logging, Vault-external paths, or direct filesystem writes. UI changes must be checked in Obsidian light and dark themes at desktop and narrow widths.
+
+The OAuth relay has its own no-dependency test gate:
+
+```bash
+npm run test:oauth
+```
 
 ## Release contract
 

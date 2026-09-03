@@ -25,6 +25,20 @@ export class ItemView {
   }
 }
 
+export class PluginSettingTab {
+  containerEl = document.createElement("div");
+
+  constructor(public app: unknown, public plugin: unknown) {}
+
+  update(): void {}
+}
+
+export class Notice {
+  constructor(readonly message: unknown, readonly timeout?: number) {}
+
+  hide(): void {}
+}
+
 class MenuItem {
   onClick(_action: () => void): this {
     return this;

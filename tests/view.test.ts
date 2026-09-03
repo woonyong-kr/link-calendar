@@ -8,6 +8,14 @@ const FIXED_NOW = new Date(2026, 7, 25, 12);
 function settings(): CalendarSettings {
   return {
     autoIndexDates: true,
+    googleCalendar: {
+      calendar: null,
+      defaultDurationMinutes: 60,
+      enabled: false,
+      installationId: "",
+      records: [],
+      sourceProfileIds: [],
+    },
     locale: "en",
     profiles: [{
       editable: false,

@@ -23,8 +23,32 @@ export interface SourceProfile {
   tag: string;
 }
 
+export interface GoogleCalendarTarget {
+  id: string;
+  name: string;
+  timeZone: string;
+}
+
+export interface GoogleSyncRecord {
+  calendarId: string;
+  etag: string;
+  eventId: string;
+  fingerprint: string;
+  localKey: string;
+}
+
+interface GoogleCalendarSettings {
+  calendar: GoogleCalendarTarget | null;
+  defaultDurationMinutes: number;
+  enabled: boolean;
+  installationId: string;
+  records: GoogleSyncRecord[];
+  sourceProfileIds: string[];
+}
+
 export interface CalendarSettings {
   autoIndexDates: boolean;
+  googleCalendar: GoogleCalendarSettings;
   locale: LocaleId;
   profiles: SourceProfile[];
   showAgenda: boolean;
@@ -84,6 +108,14 @@ const DEFAULT_PROPERTIES: PropertyMap = {
 
 export const DEFAULT_SETTINGS: CalendarSettings = {
   autoIndexDates: true,
+  googleCalendar: {
+    calendar: null,
+    defaultDurationMinutes: 60,
+    enabled: false,
+    installationId: "",
+    records: [],
+    sourceProfileIds: [],
+  },
   locale: "auto",
   profiles: [],
   showAgenda: true,
@@ -120,6 +152,7 @@ export function normalizeSettings(value: unknown): CalendarSettings {
   });
   return {
     autoIndexDates: value.autoIndexDates !== false,
+    googleCalendar: normalizeGoogleCalendar(value.googleCalendar, profiles),
     locale: value.locale === "en" || value.locale === "ko" ? value.locale : "auto",
     profiles,
     showAgenda: value.showAgenda !== false && value.showContext !== false,
@@ -132,8 +165,16 @@ export function normalizeSettings(value: unknown): CalendarSettings {
 
 export function serializeSettings(settings: CalendarSettings): Record<string, unknown> {
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     autoIndexDates: settings.autoIndexDates,
+    googleCalendar: {
+      calendar: settings.googleCalendar.calendar,
+      defaultDurationMinutes: settings.googleCalendar.defaultDurationMinutes,
+      enabled: settings.googleCalendar.enabled,
+      installationId: settings.googleCalendar.installationId,
+      records: settings.googleCalendar.records,
+      sourceProfileIds: settings.googleCalendar.sourceProfileIds,
+    },
     locale: settings.locale,
     showAgenda: settings.showAgenda,
     sourceProfiles: settings.profiles.map((profile) => ({
@@ -151,6 +192,58 @@ export function serializeSettings(settings: CalendarSettings): Record<string, un
     })),
     timeFormat: settings.timeFormat,
     weekStart: settings.weekStart,
+  };
+}
+
+function normalizeGoogleCalendar(
+  value: unknown,
+  profiles: readonly SourceProfile[],
+): GoogleCalendarSettings {
+  if (!isRecord(value)) return structuredClone(DEFAULT_SETTINGS.googleCalendar);
+  const allowedProfiles = new Set(profiles.map((profile) => profile.id));
+  const sourceProfileIds = Array.isArray(value.sourceProfileIds)
+    ? [...new Set(value.sourceProfileIds.filter((item): item is string =>
+      typeof item === "string" && allowedProfiles.has(item),
+    ))]
+    : [];
+  const rawCalendar = isRecord(value.calendar) ? value.calendar : null;
+  const calendarId = rawCalendar ? stringValue(rawCalendar.id) : "";
+  const calendar = calendarId && rawCalendar
+    ? {
+        id: calendarId,
+        name: stringValue(rawCalendar.name) || calendarId,
+        timeZone: stringValue(rawCalendar.timeZone) || "UTC",
+      }
+    : null;
+  const records = Array.isArray(value.records)
+    ? value.records.map(normalizeGoogleSyncRecord).filter((item): item is GoogleSyncRecord => item !== null)
+    : [];
+  const duration = typeof value.defaultDurationMinutes === "number"
+    ? Math.round(value.defaultDurationMinutes)
+    : 60;
+  return {
+    calendar,
+    defaultDurationMinutes: duration >= 5 && duration <= 1_440 ? duration : 60,
+    enabled: value.enabled === true,
+    installationId: stringValue(value.installationId),
+    records,
+    sourceProfileIds,
+  };
+}
+
+function normalizeGoogleSyncRecord(value: unknown): GoogleSyncRecord | null {
+  if (!isRecord(value)) return null;
+  const calendarId = stringValue(value.calendarId);
+  const etag = stringValue(value.etag);
+  const eventId = stringValue(value.eventId);
+  const localKey = stringValue(value.localKey);
+  if (!calendarId || !etag || !eventId || !localKey) return null;
+  return {
+    calendarId,
+    etag,
+    eventId,
+    fingerprint: stringValue(value.fingerprint),
+    localKey,
   };
 }
 

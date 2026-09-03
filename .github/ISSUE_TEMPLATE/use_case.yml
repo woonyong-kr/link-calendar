@@ -22,5 +22,5 @@ body:
     attributes:
       label: Product boundary
       options:
-        - label: The original Markdown remains canonical and the use case needs no remote service or telemetry.
+        - label: The original Markdown remains canonical; any remote projection is explicit, least privilege, and has no telemetry.
           required: true
