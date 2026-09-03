@@ -6,6 +6,12 @@
   "observability": {
     "enabled": false
   },
+  "routes": [
+    {
+      "pattern": "link-calendar-oauth.woonyong.com",
+      "custom_domain": true
+    }
+  ],
   "vars": {
     "PLUGIN_REDIRECT_URI": "obsidian://link-calendar-google"
   }
